@@ -1,0 +1,269 @@
+import { useState, useEffect } from 'react';
+import { Plus, Pencil, Trash2, Loader2, Filter, CreditCard as CreditCardIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CreditCardBillForm } from '@/components/credit-cards/CreditCardBillForm';
+import { creditCardBillsService } from '@/services/credit-card-bills-service';
+import { creditCardsService } from '@/services/credit-cards-service';
+import { useToast } from '@/hooks/use-toast';
+import { useAlertDialog } from '@/hooks/use-alert-dialog';
+import { translate, TRANSLATIONS } from '@/config/constants';
+import type { CreditCardBill, CreditCardBillFormData, CreditCard } from '@/types';
+import { format } from 'date-fns';
+
+export default function CreditCardBills() {
+  const [bills, setBills] = useState<CreditCardBill[]>([]);
+  const [filteredBills, setFilteredBills] = useState<CreditCardBill[]>([]);
+  const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedBill, setSelectedBill] = useState<CreditCardBill | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cardFilter, setCardFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [yearFilter, setYearFilter] = useState<string>('all');
+  const { toast } = useToast();
+  const { showConfirm } = useAlertDialog();
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    filterBills();
+  }, [cardFilter, statusFilter, yearFilter, bills]);
+
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      const [billsData, cardsData] = await Promise.all([
+        creditCardBillsService.getAll(),
+        creditCardsService.getAll(),
+      ]);
+      setBills(billsData);
+      setFilteredBills(billsData);
+      setCreditCards(cardsData);
+    } catch (error: any) {
+      toast({ title: 'Erro ao carregar dados', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filterBills = () => {
+    let filtered = [...bills];
+    if (cardFilter !== 'all') {
+      filtered = filtered.filter(b => b.credit_card.toString() === cardFilter);
+    }
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(b => b.status === statusFilter);
+    }
+    if (yearFilter !== 'all') {
+      filtered = filtered.filter(b => b.year === yearFilter);
+    }
+    setFilteredBills(filtered);
+  };
+
+  const handleSubmit = async (data: CreditCardBillFormData) => {
+    try {
+      setIsSubmitting(true);
+      if (selectedBill) {
+        await creditCardBillsService.update(selectedBill.id, data);
+        toast({ title: 'Fatura atualizada', description: 'A fatura foi atualizada com sucesso.' });
+      } else {
+        await creditCardBillsService.create(data);
+        toast({ title: 'Fatura criada', description: 'A fatura foi criada com sucesso.' });
+      }
+      setIsDialogOpen(false);
+      loadData();
+    } catch (error: any) {
+      toast({ title: 'Erro ao salvar', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCreate = () => {
+    if (creditCards.length === 0) {
+      toast({
+        title: 'Ação não permitida',
+        description: 'É necessário ter pelo menos um cartão de crédito cadastrado antes de criar uma fatura.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setSelectedBill(undefined);
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    const confirmed = await showConfirm({
+      title: 'Excluir fatura',
+      description: 'Tem certeza que deseja excluir esta fatura? Esta ação não pode ser desfeita.',
+      confirmText: 'Excluir',
+      cancelText: 'Cancelar',
+      variant: 'destructive',
+    });
+    if (!confirmed) return;
+    try {
+      await creditCardBillsService.delete(id);
+      toast({ title: 'Fatura excluída', description: 'A fatura foi excluída com sucesso.' });
+      loadData();
+    } catch (error: any) {
+      toast({ title: 'Erro ao excluir', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const formatCurrency = (value: string | number) => {
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num);
+  };
+
+  const getCardName = (cardId: number) => {
+    const card = creditCards.find(c => c.id === cardId);
+    if (card) {
+      const last4 = card.card_number_masked ? card.card_number_masked.slice(-4) : '****';
+      return `${card.on_card_name} ****${last4}`;
+    }
+    return 'N/A';
+  };
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 5 }, (_, i) => (currentYear - 2 + i).toString());
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Faturas de Cartão</h1>
+          <p className="text-muted-foreground mt-2">Gerencie suas faturas de cartão de crédito</p>
+        </div>
+        <Button onClick={handleCreate} className="gap-2">
+          <Plus className="w-4 h-4" />Nova Fatura
+        </Button>
+      </div>
+
+      <div className="bg-card border rounded-xl p-4 space-y-4">
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4 text-muted-foreground" />
+          <span className="font-semibold">Filtros</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Select value={cardFilter} onValueChange={setCardFilter}>
+            <SelectTrigger><SelectValue placeholder="Todos os Cartões" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Cartões</SelectItem>
+              {creditCards.map((c) => (
+                <SelectItem key={c.id} value={c.id.toString()}>{c.on_card_name || c.card_number_masked}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger><SelectValue placeholder="Todos os Status" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Status</SelectItem>
+              {Object.entries(TRANSLATIONS.billStatus).map(([k, v]) => (
+                <SelectItem key={k} value={k}>{v}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={yearFilter} onValueChange={setYearFilter}>
+            <SelectTrigger><SelectValue placeholder="Todos os Anos" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Anos</SelectItem>
+              {years.map((y) => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex justify-between items-center pt-2 border-t">
+          <span className="text-sm text-muted-foreground">{filteredBills.length} fatura(s) encontrada(s)</span>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+      ) : filteredBills.length === 0 ? (
+        <div className="bg-card border rounded-xl p-12 text-center">
+          <p className="text-muted-foreground">Nenhuma fatura encontrada.</p>
+        </div>
+      ) : (
+        <div className="bg-card border rounded-xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-muted/50 border-b">
+                <tr>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">Cartão</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">Período</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold">Valor Total</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold">Pago</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">Vencimento</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {filteredBills.map((bill) => (
+                  <tr key={bill.id} className="hover:bg-muted/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <CreditCardIcon className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-medium">{getCardName(bill.credit_card)}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {translate('months', bill.month)}/{bill.year}
+                    </td>
+                    <td className="px-6 py-4 text-right font-semibold">{formatCurrency(bill.total_amount)}</td>
+                    <td className="px-6 py-4 text-right font-semibold text-green-600 dark:text-green-400">
+                      {formatCurrency(bill.paid_amount)}
+                    </td>
+                    <td className="px-6 py-4">
+                      <Badge variant={
+                        bill.status === 'paid' ? 'success' :
+                        bill.status === 'overdue' ? 'destructive' :
+                        bill.status === 'closed' ? 'secondary' : 'default'
+                      }>
+                        {translate('billStatus', bill.status)}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground">
+                      {bill.due_date ? format(new Date(bill.due_date), 'dd/MM/yyyy') : 'N/A'}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => { setSelectedBill(bill); setIsDialogOpen(true); }}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(bill.id)}>
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedBill ? 'Editar' : 'Nova'} Fatura de Cartão</DialogTitle>
+            <DialogDescription>Preencha os dados da fatura de cartão de crédito</DialogDescription>
+          </DialogHeader>
+          <CreditCardBillForm
+            bill={selectedBill}
+            creditCards={creditCards}
+            onSubmit={handleSubmit}
+            onCancel={() => setIsDialogOpen(false)}
+            isLoading={isSubmitting}
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

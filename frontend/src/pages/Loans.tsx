@@ -1,0 +1,611 @@
+import { useState, useEffect } from 'react';
+import { Plus, Pencil, Trash2, Loader2, Download } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { loansService } from '@/services/loans-service';
+import { accountsService } from '@/services/accounts-service';
+import { membersService } from '@/services/members-service';
+import { useToast } from '@/hooks/use-toast';
+import { useAlertDialog } from '@/hooks/use-alert-dialog';
+import { translate } from '@/config/constants';
+import type { Loan, LoanFormData, Account, Member } from '@/types';
+import { format, parseISO } from 'date-fns';
+
+const EXPENSE_CATEGORIES = [
+  'food and drink', 'bills and services', 'electronics', 'family and friends',
+  'pets', 'digital signs', 'house', 'purchases', 'donate', 'education',
+  'loans', 'entertainment', 'taxes', 'investments', 'others', 'vestuary',
+  'health and care', 'professional services', 'supermarket', 'rates',
+  'transport', 'travels'
+];
+
+const PAYMENT_FREQUENCIES = ['daily', 'weekly', 'biweekly', 'monthly', 'bimonthly', 'quarterly', 'semiannual', 'annual'];
+const LOAN_STATUSES = ['active', 'paid', 'defaulted', 'cancelled'];
+
+export default function Loans() {
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedLoan, setSelectedLoan] = useState<Loan | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
+  const { showConfirm } = useAlertDialog();
+
+  const [formData, setFormData] = useState<LoanFormData>({
+    description: '',
+    value: 0,
+    payed_value: 0,
+    date: new Date().toISOString().split('T')[0],
+    horary: new Date().toTimeString().slice(0, 5),
+    category: 'loans',
+    account: 0,
+    benefited: 0,
+    creditor: 0,
+    payed: false,
+    installments: 1,
+    payment_frequency: 'monthly',
+    late_fee: 0,
+    status: 'active',
+  });
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      const [loansData, accountsData, membersData] = await Promise.all([
+        loansService.getAll(),
+        accountsService.getAll(),
+        membersService.getAll(),
+      ]);
+      setLoans(loansData);
+      setAccounts(accountsData);
+      setMembers(membersData);
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao carregar dados',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCreate = () => {
+    setSelectedLoan(undefined);
+    setFormData({
+      description: '',
+      value: 0,
+      payed_value: 0,
+      date: new Date().toISOString().split('T')[0],
+      horary: new Date().toTimeString().slice(0, 5),
+      category: 'loans',
+      account: accounts[0]?.id || 0,
+      benefited: members[0]?.id || 0,
+      creditor: members[0]?.id || 0,
+      payed: false,
+      installments: 1,
+      payment_frequency: 'monthly',
+      late_fee: 0,
+      status: 'active',
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleEdit = (loan: Loan) => {
+    setSelectedLoan(loan);
+    setFormData({
+      description: loan.description,
+      value: parseFloat(loan.value),
+      payed_value: parseFloat(loan.payed_value),
+      date: loan.date,
+      horary: loan.horary,
+      category: loan.category,
+      account: loan.account,
+      benefited: loan.benefited,
+      creditor: loan.creditor,
+      payed: loan.payed,
+      interest_rate: loan.interest_rate ? parseFloat(loan.interest_rate) : undefined,
+      installments: loan.installments,
+      due_date: loan.due_date,
+      payment_frequency: loan.payment_frequency,
+      late_fee: parseFloat(loan.late_fee),
+      guarantor: loan.guarantor,
+      notes: loan.notes,
+      status: loan.status,
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = async (loan: Loan) => {
+    const confirmed = await showConfirm({
+      title: 'Confirmar exclusão',
+      description: `Tem certeza que deseja excluir o empréstimo "${loan.description}"?`,
+    });
+
+    if (confirmed) {
+      try {
+        await loansService.delete(loan.id);
+        toast({
+          title: 'Empréstimo excluído',
+          description: 'O empréstimo foi excluído com sucesso.',
+        });
+        loadData();
+      } catch (error: any) {
+        toast({
+          title: 'Erro ao excluir',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      if (selectedLoan) {
+        await loansService.update(selectedLoan.id, formData);
+        toast({
+          title: 'Empréstimo atualizado',
+          description: 'O empréstimo foi atualizado com sucesso.',
+        });
+      } else {
+        await loansService.create(formData);
+        toast({
+          title: 'Empréstimo criado',
+          description: 'O empréstimo foi criado com sucesso.',
+        });
+      }
+      setIsDialogOpen(false);
+      loadData();
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao salvar',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const filteredLoans = loans.filter((loan) =>
+    loan.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    loan.benefited_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    loan.creditor_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+      active: 'default',
+      paid: 'secondary',
+      defaulted: 'destructive',
+      cancelled: 'outline',
+    };
+    return (
+      <Badge variant={variants[status] || 'default'}>
+        {translate('loanStatus', status)}
+      </Badge>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Empréstimos</h1>
+          <p className="text-muted-foreground">Gerencie seus empréstimos</p>
+        </div>
+        <Button onClick={handleCreate}>
+          <Plus className="w-4 h-4 mr-2" />
+          Novo Empréstimo
+        </Button>
+      </div>
+
+      <div className="flex gap-4">
+        <Input
+          placeholder="Buscar empréstimos..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
+      </div>
+
+      {filteredLoans.length === 0 ? (
+        <div className="text-center py-12 border rounded-lg bg-muted/30">
+          <p className="text-muted-foreground">Nenhum empréstimo encontrado.</p>
+          <Button onClick={handleCreate} variant="outline" className="mt-4">
+            <Plus className="w-4 h-4 mr-2" />
+            Criar primeiro empréstimo
+          </Button>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredLoans.map((loan) => (
+            <div key={loan.id} className="p-4 border rounded-lg space-y-3 hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold">{loan.description}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {translate('expenseCategories', loan.category)}
+                  </p>
+                </div>
+                {getStatusBadge(loan.status)}
+              </div>
+
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Valor Total:</span>
+                  <span className="font-medium">R$ {parseFloat(loan.value).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Valor Pago:</span>
+                  <span className="font-medium">R$ {parseFloat(loan.payed_value).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Saldo:</span>
+                  <span className="font-medium text-destructive">
+                    R$ {(parseFloat(loan.value) - parseFloat(loan.payed_value)).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Beneficiado:</span>
+                  <span className="font-medium">{loan.benefited_name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Credor:</span>
+                  <span className="font-medium">{loan.creditor_name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Parcelas:</span>
+                  <span className="font-medium">{loan.installments}x</span>
+                </div>
+                {loan.due_date && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Vencimento:</span>
+                    <span className="font-medium">
+                      {format(parseISO(loan.due_date), 'dd/MM/yyyy')}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 pt-2 border-t">
+                <Button variant="outline" size="sm" onClick={() => handleEdit(loan)} className="flex-1">
+                  <Pencil className="w-3 h-3 mr-1" />
+                  Editar
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleDelete(loan)} className="flex-1">
+                  <Trash2 className="w-3 h-3 mr-1" />
+                  Excluir
+                </Button>
+                {loan.contract_document && (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={loan.contract_document} download>
+                      <Download className="w-3 h-3" />
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedLoan ? 'Editar Empréstimo' : 'Novo Empréstimo'}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedLoan
+                ? 'Atualize as informações do empréstimo'
+                : 'Preencha as informações do novo empréstimo'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <Label htmlFor="description">Descrição *</Label>
+                <Input
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="value">Valor Total *</Label>
+                <Input
+                  id="value"
+                  type="number"
+                  step="0.01"
+                  value={formData.value}
+                  onChange={(e) => setFormData({ ...formData, value: parseFloat(e.target.value) })}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="payed_value">Valor Pago *</Label>
+                <Input
+                  id="payed_value"
+                  type="number"
+                  step="0.01"
+                  value={formData.payed_value}
+                  onChange={(e) => setFormData({ ...formData, payed_value: parseFloat(e.target.value) })}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="date">Data *</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="horary">Horário *</Label>
+                <Input
+                  id="horary"
+                  type="time"
+                  value={formData.horary}
+                  onChange={(e) => setFormData({ ...formData, horary: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="category">Categoria *</Label>
+                <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {EXPENSE_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {translate('expenseCategories', cat)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="account">Conta *</Label>
+                <Select value={formData.account.toString()} onValueChange={(value) => setFormData({ ...formData, account: parseInt(value) })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {accounts.map((acc) => (
+                      <SelectItem key={acc.id} value={acc.id.toString()}>
+                        {acc.account_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="benefited">Beneficiado *</Label>
+                <Select value={formData.benefited.toString()} onValueChange={(value) => setFormData({ ...formData, benefited: parseInt(value) })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {members.map((member) => (
+                      <SelectItem key={member.id} value={member.id.toString()}>
+                        {member.member_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="creditor">Credor *</Label>
+                <Select value={formData.creditor.toString()} onValueChange={(value) => setFormData({ ...formData, creditor: parseInt(value) })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {members.map((member) => (
+                      <SelectItem key={member.id} value={member.id.toString()}>
+                        {member.member_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="installments">Parcelas</Label>
+                <Input
+                  id="installments"
+                  type="number"
+                  value={formData.installments}
+                  onChange={(e) => setFormData({ ...formData, installments: parseInt(e.target.value) })}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="interest_rate">Taxa de Juros (%)</Label>
+                <Input
+                  id="interest_rate"
+                  type="number"
+                  step="0.01"
+                  value={formData.interest_rate || ''}
+                  onChange={(e) => setFormData({ ...formData, interest_rate: parseFloat(e.target.value) })}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="due_date">Data de Vencimento</Label>
+                <Input
+                  id="due_date"
+                  type="date"
+                  value={formData.due_date || ''}
+                  onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="payment_frequency">Frequência de Pagamento</Label>
+                <Select value={formData.payment_frequency} onValueChange={(value) => setFormData({ ...formData, payment_frequency: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAYMENT_FREQUENCIES.map((freq) => (
+                      <SelectItem key={freq} value={freq}>
+                        {translate('paymentFrequency', freq)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="late_fee">Multa por Atraso</Label>
+                <Input
+                  id="late_fee"
+                  type="number"
+                  step="0.01"
+                  value={formData.late_fee}
+                  onChange={(e) => setFormData({ ...formData, late_fee: parseFloat(e.target.value) })}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LOAN_STATUSES.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {translate('loanStatus', status)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="guarantor">Avalista</Label>
+                <Select
+                  value={formData.guarantor?.toString() || ''}
+                  onValueChange={(value) => setFormData({ ...formData, guarantor: value ? parseInt(value) : null })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Nenhum</SelectItem>
+                    {members.map((member) => (
+                      <SelectItem key={member.id} value={member.id.toString()}>
+                        {member.member_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="col-span-2">
+                <Label htmlFor="notes">Observações</Label>
+                <Textarea
+                  id="notes"
+                  value={formData.notes || ''}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  rows={3}
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label htmlFor="contract_document">Documento do Contrato</Label>
+                <Input
+                  id="contract_document"
+                  type="file"
+                  onChange={(e) => setFormData({ ...formData, contract_document: e.target.files?.[0] || null })}
+                />
+              </div>
+
+              <div className="col-span-2 flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="payed"
+                  checked={formData.payed}
+                  onChange={(e) => setFormData({ ...formData, payed: e.target.checked })}
+                  className="rounded"
+                />
+                <Label htmlFor="payed" className="cursor-pointer">
+                  Empréstimo Pago
+                </Label>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  'Salvar'
+                )}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

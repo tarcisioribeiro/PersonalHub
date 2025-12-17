@@ -1,0 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Tema Claro - Baseado na paleta Dracula invertida */
+  :root {
+    /* Backgrounds - Tons claros */
+    --background: 0 0% 97%;
+    --foreground: 231 15% 18%;
+
+    /* Cards - Branco puro */
+    --card: 0 0% 100%;
+    --card-foreground: 231 15% 18%;
+
+    /* Popovers */
+    --popover: 0 0% 100%;
+    --popover-foreground: 231 15% 18%;
+
+    /* Primary - Purple (#bd93f9) adaptado para tema claro */
+    --primary: 265 89% 58%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Current Line (#44475a) clareado */
+    --secondary: 231 14% 92%;
+    --secondary-foreground: 231 15% 18%;
+
+    /* Muted - Comment (#6272a4) clareado */
+    --muted: 220 13% 95%;
+    --muted-foreground: 226 38% 48%;
+
+    /* Accent - Pink (#ff79c6) */
+    --accent: 330 100% 71%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive - Red (#ff5555) */
+    --destructive: 0 100% 66%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Success - Green (#50fa7b) */
+    --success: 135 94% 65%;
+    --success-foreground: 231 15% 18%;
+
+    /* Warning - Orange (#ffb86c) */
+    --warning: 31 100% 71%;
+    --warning-foreground: 231 15% 18%;
+
+    /* Info - Cyan (#8be9fd) */
+    --info: 191 97% 77%;
+    --info-foreground: 231 15% 18%;
+
+    /* Borders e Inputs */
+    --border: 220 13% 87%;
+    --input: 220 13% 87%;
+    --ring: 265 89% 58%;
+
+    /* Border radius */
+    --radius: 0.5rem;
+  }
+
+  /* Tema Escuro - Dracula Theme */
+  .dark {
+    /* Backgrounds - Background (#282a36) */
+    --background: 231 15% 18%;
+    --foreground: 60 30% 96%;
+
+    /* Cards - Current Line (#44475a) */
+    --card: 232 14% 31%;
+    --card-foreground: 60 30% 96%;
+
+    /* Popovers */
+    --popover: 232 14% 31%;
+    --popover-foreground: 60 30% 96%;
+
+    /* Primary - Purple (#bd93f9) */
+    --primary: 265 89% 78%;
+    --primary-foreground: 231 15% 18%;
+
+    /* Secondary - Current Line mais escuro */
+    --secondary: 231 14% 23%;
+    --secondary-foreground: 60 30% 96%;
+
+    /* Muted - Comment (#6272a4) */
+    --muted: 231 14% 20%;
+    --muted-foreground: 225 27% 51%;
+
+    /* Accent - Pink (#ff79c6) */
+    --accent: 326 100% 74%;
+    --accent-foreground: 231 15% 18%;
+
+    /* Destructive - Red (#ff5555) */
+    --destructive: 0 100% 67%;
+    --destructive-foreground: 231 15% 18%;
+
+    /* Success - Green (#50fa7b) */
+    --success: 135 94% 65%;
+    --success-foreground: 231 15% 18%;
+
+    /* Warning - Orange (#ffb86c) */
+    --warning: 31 100% 71%;
+    --warning-foreground: 231 15% 18%;
+
+    /* Info - Cyan (#8be9fd) */
+    --info: 191 97% 77%;
+    --info-foreground: 231 15% 18%;
+
+    /* Borders e Inputs */
+    --border: 232 14% 31%;
+    --input: 232 14% 31%;
+    --ring: 265 89% 78%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  /* Gradientes adaptáveis */
+  .gradient-primary {
+    @apply bg-gradient-to-br from-primary to-accent;
+  }
+
+  .gradient-secondary {
+    @apply bg-gradient-to-br from-info to-success;
+  }
+
+  .gradient-warning {
+    @apply bg-gradient-to-br from-warning to-destructive;
+  }
+
+  /* Glass effect adaptável ao tema */
+  .glass-effect {
+    @apply bg-card/30 backdrop-blur-md border border-border/20;
+  }
+
+  /* Sombras adaptáveis */
+  .shadow-soft {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .shadow-soft {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  .shadow-medium {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .shadow-medium {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  }
+
+  .shadow-strong {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .dark .shadow-strong {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Status colors */
+  .text-success {
+    @apply text-[hsl(var(--success))];
+  }
+
+  .text-warning {
+    @apply text-[hsl(var(--warning))];
+  }
+
+  .text-info {
+    @apply text-[hsl(var(--info))];
+  }
+
+  .bg-success {
+    @apply bg-[hsl(var(--success))];
+  }
+
+  .bg-warning {
+    @apply bg-[hsl(var(--warning))];
+  }
+
+  .bg-info {
+    @apply bg-[hsl(var(--info))];
+  }
+
+  /* Hover effects */
+  .hover-lift {
+    @apply transition-transform duration-200 hover:-translate-y-1;
+  }
+
+  .hover-glow {
+    @apply transition-shadow duration-300 hover:shadow-medium;
+  }
+
+  /* Focus rings com melhor contraste */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+  }
+}

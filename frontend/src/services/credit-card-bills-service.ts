@@ -1,0 +1,40 @@
+import { apiClient } from './api-client';
+import { API_CONFIG } from '@/config/constants';
+import type { CreditCardBill, CreditCardBillFormData , PaginatedResponse } from '@/types';
+
+class CreditCardBillsService {
+  async getAll(params?: Record<string, any>): Promise<CreditCardBill[]> {
+    const response = await apiClient.get<PaginatedResponse<CreditCardBill>>(API_CONFIG.ENDPOINTS.CREDIT_CARD_BILLS, params);
+    return response.results;
+  }
+
+  async getById(id: number): Promise<CreditCardBill> {
+    return apiClient.get<CreditCardBill>(`${API_CONFIG.ENDPOINTS.CREDIT_CARD_BILLS}${id}/`);
+  }
+
+  async create(data: CreditCardBillFormData): Promise<CreditCardBill> {
+    return apiClient.post<CreditCardBill>(API_CONFIG.ENDPOINTS.CREDIT_CARD_BILLS, data);
+  }
+
+  async update(id: number, data: Partial<CreditCardBillFormData>): Promise<CreditCardBill> {
+    return apiClient.put<CreditCardBill>(`${API_CONFIG.ENDPOINTS.CREDIT_CARD_BILLS}${id}/`, data);
+  }
+
+  async delete(id: number): Promise<void> {
+    return apiClient.delete(`${API_CONFIG.ENDPOINTS.CREDIT_CARD_BILLS}${id}/`);
+  }
+
+  async getByCard(cardId: number): Promise<CreditCardBill[]> {
+    return this.getAll({ credit_card: cardId });
+  }
+
+  async getByStatus(status: 'open' | 'closed' | 'paid' | 'overdue'): Promise<CreditCardBill[]> {
+    return this.getAll({ status });
+  }
+
+  async getByYear(year: string): Promise<CreditCardBill[]> {
+    return this.getAll({ year });
+  }
+}
+
+export const creditCardBillsService = new CreditCardBillsService();
