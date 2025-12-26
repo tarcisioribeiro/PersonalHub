@@ -10,14 +10,14 @@ import type { Member } from '@/types';
 
 // Mapeamento de apps para nomes amigáveis
 const APP_DISPLAY_NAMES: { [key: string]: string } = {
-  'accounts': 'ExpenseLit - Contas',
-  'expenses': 'ExpenseLit - Despesas',
-  'revenues': 'ExpenseLit - Receitas',
-  'credit_cards': 'ExpenseLit - Cartões',
-  'loans': 'ExpenseLit - Empréstimos',
-  'transfers': 'ExpenseLit - Transferências',
-  'security': 'Streamfort',
-  'library': 'CodexDB',
+  'accounts': 'Controle Financeiro - Contas',
+  'expenses': 'Controle Financeiro - Despesas',
+  'revenues': 'Controle Financeiro - Receitas',
+  'credit_cards': 'Controle Financeiro - Cartões',
+  'loans': 'Controle Financeiro - Empréstimos',
+  'transfers': 'Controle Financeiro - Transferências',
+  'security': 'Segurança',
+  'library': 'Leitura',
 };
 
 interface AppPermissions {

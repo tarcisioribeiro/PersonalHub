@@ -64,13 +64,13 @@
   .dark {
     /* Backgrounds - Background (#282a36) */
     --background: 231 15% 18%;
-    --foreground: 60 30% 96%;
+    --foreground: 60 30% 96%; /* Foreground (#f8f8f2) */
 
     /* Cards - Current Line (#44475a) */
     --card: 232 14% 31%;
     --card-foreground: 60 30% 96%;
 
-    /* Popovers */
+    /* Popovers - Current Line (#44475a) */
     --popover: 232 14% 31%;
     --popover-foreground: 60 30% 96%;
 
@@ -78,13 +78,13 @@
     --primary: 265 89% 78%;
     --primary-foreground: 231 15% 18%;
 
-    /* Secondary - Current Line mais escuro */
-    --secondary: 231 14% 23%;
+    /* Secondary - Current Line (#44475a) */
+    --secondary: 232 14% 31%;
     --secondary-foreground: 60 30% 96%;
 
-    /* Muted - Comment (#6272a4) */
-    --muted: 231 14% 20%;
-    --muted-foreground: 225 27% 51%;
+    /* Muted - Background com Comment para foreground */
+    --muted: 231 15% 22%;
+    --muted-foreground: 225 27% 51%; /* Comment (#6272a4) */
 
     /* Accent - Pink (#ff79c6) */
     --accent: 326 100% 74%;
@@ -92,24 +92,24 @@
 
     /* Destructive - Red (#ff5555) */
     --destructive: 0 100% 67%;
-    --destructive-foreground: 231 15% 18%;
+    --destructive-foreground: 60 30% 96%;
 
     /* Success - Green (#50fa7b) */
     --success: 135 94% 65%;
     --success-foreground: 231 15% 18%;
 
-    /* Warning - Orange (#ffb86c) */
-    --warning: 31 100% 71%;
+    /* Warning - Yellow (#f1fa8c) */
+    --warning: 65 92% 76%;
     --warning-foreground: 231 15% 18%;
 
     /* Info - Cyan (#8be9fd) */
     --info: 191 97% 77%;
     --info-foreground: 231 15% 18%;
 
-    /* Borders e Inputs */
+    /* Borders e Inputs - Current Line (#44475a) */
     --border: 232 14% 31%;
     --input: 232 14% 31%;
-    --ring: 265 89% 78%;
+    --ring: 265 89% 78%; /* Purple (#bd93f9) */
   }
 }
 

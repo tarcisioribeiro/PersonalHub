@@ -33,10 +33,12 @@ class Command(BaseCommand):
             'transfers': ['transfer'],
             'loans': ['loan'],
             'members': ['member'],
+            'library': ['author', 'publisher', 'book', 'summary', 'reading'],
+            'security': ['password', 'storedcreditcard', 'storedbankaccount', 'archive', 'activitylog'],
         }
 
-        # Define the permissions: view, add, change, delete
-        permission_types = ['view', 'add', 'change', 'delete']
+        # Define the permissions: view, add, change (delete excluded as requested)
+        permission_types = ['view', 'add', 'change']
 
         total_permissions = 0
 
@@ -99,3 +101,31 @@ class Command(BaseCommand):
                 f'✓ Group "members" now has {current_perms} total permissions'
             )
         )
+
+        # Auto-add all users to members group if they're not already in it
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        users_added = 0
+
+        for user in User.objects.all():
+            if not user.groups.filter(id=members_group.id).exists():
+                user.groups.add(members_group)
+                users_added += 1
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f'✓ Added user "{user.username}" to "members" group'
+                    )
+                )
+
+        if users_added == 0:
+            self.stdout.write(
+                self.style.SUCCESS(
+                    '✓ All users are already in the "members" group'
+                )
+            )
+        else:
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f'\n✓ Added {users_added} user(s) to the "members" group'
+                )
+            )

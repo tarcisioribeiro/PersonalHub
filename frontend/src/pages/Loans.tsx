@@ -80,15 +80,18 @@ export default function Loans() {
         accountsService.getAll(),
         membersService.getAll(),
       ]);
-      setLoans(loansData);
-      setAccounts(accountsData);
-      setMembers(membersData);
+      setLoans(Array.isArray(loansData) ? loansData : []);
+      setAccounts(Array.isArray(accountsData) ? accountsData : []);
+      setMembers(Array.isArray(membersData) ? membersData : []);
     } catch (error: any) {
       toast({
         title: 'Erro ao carregar dados',
         description: error.message,
         variant: 'destructive',
       });
+      setLoans([]);
+      setAccounts([]);
+      setMembers([]);
     } finally {
       setIsLoading(false);
     }

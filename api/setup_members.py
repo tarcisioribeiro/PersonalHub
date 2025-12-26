@@ -18,15 +18,21 @@ print(f'Grupo members: {"criado" if created else "já existia"} - ID: {group.id}
 # Limpar permissões existentes
 group.permissions.clear()
 
-# Apps alvo
+# Apps alvo - todas as aplicações customizadas do projeto
 apps = [
+    'app',
+    'authentication',
     'accounts',
     'credit_cards',
     'expenses',
     'revenues',
     'members',
     'loans',
-    'transfers'
+    'transfers',
+    'dashboard',
+    'security',
+    'library',
+    'ai_assistant'
 ]
 
 # Buscar e adicionar permissões

@@ -5,8 +5,6 @@ import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import {
   LayoutDashboard,
-  Users,
-  Lock,
   X,
   Wallet,
   Shield,
@@ -46,22 +44,11 @@ const navItems: NavItem[] = [
     href: '/',
     icon: <LayoutDashboard className="w-5 h-5" />,
   },
-  {
-    title: 'Membros',
-    href: '/members',
-    icon: <Users className="w-5 h-5" />,
-    permission: { appName: 'member', action: 'view' },
-  },
-  {
-    title: 'Gerenciar Permissões',
-    href: '/permissions',
-    icon: <Lock className="w-5 h-5" />,
-  },
 ];
 
 const navModules: NavModule[] = [
   {
-    title: 'ExpenseLit',
+    title: 'Controle Financeiro',
     icon: <Wallet className="w-5 h-5" />,
     items: [
       { title: 'Dashboard', href: '/dashboard' },
@@ -76,7 +63,7 @@ const navModules: NavModule[] = [
     ],
   },
   {
-    title: 'Streamfort',
+    title: 'Segurança',
     icon: <Shield className="w-5 h-5" />,
     items: [
       { title: 'Senhas', href: '/security/passwords' },
@@ -87,7 +74,7 @@ const navModules: NavModule[] = [
     ],
   },
   {
-    title: 'CodexDB',
+    title: 'Leitura',
     icon: <Library className="w-5 h-5" />,
     items: [
       { title: 'Livros', href: '/library/books' },
@@ -103,10 +90,8 @@ export const Sidebar = () => {
   const location = useLocation();
   const { hasPermission } = useAuthStore();
   const { isOpen, close } = useSidebar();
-  // Inicializar com todos os módulos expandidos por padrão
-  const [expandedModules, setExpandedModules] = useState<string[]>(
-    navModules.map(module => module.title)
-  );
+  // Inicializar com todos os módulos fechados por padrão
+  const [expandedModules, setExpandedModules] = useState<string[]>([]);
 
   const filteredNavItems = navItems.filter((item) => {
     if (!item.permission) return true;

@@ -28,7 +28,7 @@ interface ModuleCard {
 export default function Home() {
   const modules: ModuleCard[] = [
     {
-      title: 'ExpenseLit',
+      title: 'Controle Financeiro',
       description: 'Gestão Financeira Completa',
       icon: <Wallet className="w-8 h-8" />,
       href: '/dashboard',
@@ -42,7 +42,7 @@ export default function Home() {
       ]
     },
     {
-      title: 'Streamfort',
+      title: 'Segurança',
       description: 'Gerenciador de Senhas e Segurança',
       icon: <Shield className="w-8 h-8" />,
       href: '/security/passwords',
@@ -56,7 +56,7 @@ export default function Home() {
       ]
     },
     {
-      title: 'CodexDB',
+      title: 'Leitura',
       description: 'Biblioteca Pessoal Digital',
       icon: <Library className="w-8 h-8" />,
       href: '/library/books',

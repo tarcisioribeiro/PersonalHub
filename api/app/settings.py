@@ -235,12 +235,10 @@ os.makedirs(logs_dir, exist_ok=True)
 
 # CORS Configuration
 # Permitir apenas origens específicas (desenvolvimento e produção)
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    # Adicione aqui o domínio de produção quando disponível
-    # 'https://seu-dominio.com',
-]
+CORS_ALLOWED_ORIGINS = os.getenv(
+    'CORS_ALLOWED_ORIGINS',
+    'http://localhost:3000,http://127.0.0.1:3000'
+).split(',')
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
     'DELETE',
