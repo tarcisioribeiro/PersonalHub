@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { BotMessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -76,6 +77,7 @@ export default function AIAssistant() {
       <PageHeader
         title="AI Assistant"
         description="Faça perguntas sobre seus dados pessoais em linguagem natural"
+        icon={<BotMessageSquare />}
       />
 
       {/* Chat Messages */}

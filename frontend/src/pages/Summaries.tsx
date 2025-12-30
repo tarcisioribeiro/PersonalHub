@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/common/SearchInput';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useAlertDialog } from '@/hooks/use-alert-dialog';
+import { PageHeader } from '@/components/common/PageHeader';
+import { LoadingState } from '@/components/common/LoadingState';
 import { summariesService } from '@/services/summaries-service';
 import { booksService } from '@/services/books-service';
 import type { Summary, SummaryFormData, Book } from '@/types';
-import { Loader2, Plus, Search, Edit, Trash2, FileText, BookOpen, CheckCircle2, XCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, FileText, BookOpen, CheckCircle2, XCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -15,7 +19,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,6 +38,7 @@ export default function Summaries() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedSummary, setSelectedSummary] = useState<Summary | null>(null);
+  const { showConfirm } = useAlertDialog();
   const [formData, setFormData] = useState<SummaryFormData>({
     title: '',
     book: 0,
@@ -121,9 +125,17 @@ export default function Summaries() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Tem certeza que deseja excluir este resumo?')) return;
+    const confirmed = await showConfirm({
+      title: 'Excluir resumo',
+      description: 'Tem certeza que deseja excluir este resumo? Esta ação não pode ser desfeita.',
+      confirmText: 'Excluir',
+      cancelText: 'Cancelar',
+      variant: 'destructive',
+    });
 
-    try {
+    if (!confirmed) return;
+
+    try{
       await summariesService.delete(id);
       toast({
         title: 'Resumo excluído',
@@ -156,91 +168,96 @@ export default function Summaries() {
       summary.text.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleCreateClick = () => {
+    const readBooks = books.filter(book => book.read_status === 'read');
+    if (readBooks.length === 0) {
+      toast({
+        title: 'Ação não permitida',
+        description: 'É necessário ter pelo menos um livro completamente lido antes de criar um resumo.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setIsCreateDialogOpen(true);
+  };
+
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <LoadingState />;
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Resumos</h1>
-          <p className="text-muted-foreground">Gerencie os resumos dos seus livros</p>
-        </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Resumo
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <form onSubmit={handleCreate}>
-              <DialogHeader>
-                <DialogTitle>Criar Novo Resumo</DialogTitle>
-                <DialogDescription>Adicione um resumo para um livro.</DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Título *</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="book">Livro *</Label>
-                  <Select
-                    value={formData.book.toString()}
-                    onValueChange={(value) => setFormData({ ...formData, book: parseInt(value) })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um livro" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {books.map((book) => (
-                        <SelectItem key={book.id} value={book.id.toString()}>
-                          {book.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="text">Conteúdo *</Label>
-                  <Textarea
-                    id="text"
-                    value={formData.text}
-                    onChange={(e) => setFormData({ ...formData, text: e.target.value })}
-                    rows={10}
-                    required
-                  />
-                </div>
+      <PageHeader
+        title="Resumos"
+        description="Gerencie os resumos dos seus livros"
+        icon={<FileText />}
+        action={{
+          label: 'Novo Resumo',
+          icon: <Plus className="w-4 h-4" />,
+          onClick: handleCreateClick,
+        }}
+      />
+
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <form onSubmit={handleCreate}>
+            <DialogHeader>
+              <DialogTitle>Criar Novo Resumo</DialogTitle>
+              <DialogDescription>Adicione um resumo para um livro.</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Título *</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  required
+                />
               </div>
-              <DialogFooter>
-                <Button type="submit">Criar Resumo</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+              <div className="space-y-2">
+                <Label htmlFor="book">Livro *</Label>
+                <Select
+                  value={formData.book.toString()}
+                  onValueChange={(value) => setFormData({ ...formData, book: parseInt(value) })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um livro" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {books.filter(book => book.read_status === 'read').map((book) => (
+                      <SelectItem key={book.id} value={book.id.toString()}>
+                        {book.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="text">Conteúdo *</Label>
+                <Textarea
+                  id="text"
+                  value={formData.text}
+                  onChange={(e) => setFormData({ ...formData, text: e.target.value })}
+                  rows={10}
+                  required
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit">Criar Resumo</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input
-            placeholder="Buscar resumos..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+        <SearchInput
+          placeholder="Buscar resumos..."
+          value={searchTerm}
+          onValueChange={setSearchTerm}
+          className="flex-1"
+        />
       </div>
 
       {filteredSummaries.length === 0 ? (
@@ -253,12 +270,6 @@ export default function Summaries() {
                 ? 'Tente ajustar sua pesquisa'
                 : 'Comece adicionando seu primeiro resumo'}
             </p>
-            {!searchTerm && (
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar Resumo
-              </Button>
-            )}
           </CardContent>
         </Card>
       ) : (
@@ -346,7 +357,7 @@ export default function Summaries() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {books.map((book) => (
+                    {books.filter(book => book.read_status === 'read').map((book) => (
                       <SelectItem key={book.id} value={book.id.toString()}>
                         {book.title}
                       </SelectItem>

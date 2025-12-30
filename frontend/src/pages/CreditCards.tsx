@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, CreditCard as CreditCardIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -149,6 +149,7 @@ export default function CreditCards() {
       <PageHeader
         title="Cartões de Crédito"
         description="Gerencie seus cartões de crédito"
+        icon={<CreditCardIcon />}
         action={{
           label: 'Novo Cartão',
           icon: <Plus className="w-4 h-4" />,

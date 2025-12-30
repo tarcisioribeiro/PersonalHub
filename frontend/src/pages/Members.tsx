@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Users } from 'lucide-react';
+import { PageHeader } from '@/components/common/PageHeader';
+import { LoadingState } from '@/components/common/LoadingState';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -73,20 +75,25 @@ export default function Members() {
     }
   };
 
+  if (isLoading) {
+    return <LoadingState />;
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Membros</h1>
-          <p className="text-muted-foreground mt-2">Gerencie membros do sistema</p>
-        </div>
-        <Button onClick={() => { setSelectedMember(undefined); setIsDialogOpen(true); }} className="gap-2">
-          <Plus className="w-4 h-4" />Novo Membro
-        </Button>
-      </div>
+      <PageHeader
+        title="Membros"
+        description="Gerencie membros do sistema"
+        icon={<Users />}
+        action={{
+          label: 'Novo Membro',
+          icon: <Plus className="w-4 h-4" />,
+          onClick: () => { setSelectedMember(undefined); setIsDialogOpen(true); }
+        }}
+      />
 
-      {isLoading ? (
-        <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+      {members.length === 0 ? (
+        <div className="bg-card border rounded-xl p-12 text-center"><p className="text-muted-foreground">Nenhum membro cadastrado.</p></div>
       ) : members.length === 0 ? (
         <div className="bg-card border rounded-xl p-12 text-center">
           <p className="text-muted-foreground">Nenhum membro cadastrado.</p>

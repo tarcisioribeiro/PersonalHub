@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/common/SearchInput';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
 import { authorsService } from '@/services/authors-service';
 import type { Author, AuthorFormData } from '@/types';
-import { Plus, Search, Edit, Trash2, BookOpen, User } from 'lucide-react';
+import { Plus, Edit, Trash2, BookOpen, User, UserPen } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -129,6 +129,7 @@ export default function Authors() {
       <PageHeader
         title="Autores"
         description="Gerencie os autores da sua biblioteca"
+        icon={<UserPen />}
         action={{
           label: 'Novo Autor',
           icon: <Plus className="h-4 w-4" />,
@@ -137,15 +138,12 @@ export default function Authors() {
       />
 
       <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input
-            placeholder="Buscar autores..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+        <SearchInput
+          placeholder="Buscar autores..."
+          value={searchTerm}
+          onValueChange={setSearchTerm}
+          className="flex-1"
+        />
       </div>
 
       {filteredAuthors.length === 0 ? (
@@ -158,12 +156,6 @@ export default function Authors() {
                 ? 'Tente ajustar sua pesquisa'
                 : 'Comece adicionando seu primeiro autor'}
             </p>
-            {!searchTerm && (
-              <Button onClick={handleCreate}>
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar Autor
-              </Button>
-            )}
           </CardContent>
         </Card>
       ) : (

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, Copy, ExternalLink } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, Copy, ExternalLink, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -17,6 +17,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/common/SearchInput';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -85,6 +86,14 @@ export default function Passwords() {
   };
 
   const handleCreate = () => {
+    if (members.length === 0) {
+      toast({
+        title: 'Ação não permitida',
+        description: 'É necessário ter pelo menos um membro cadastrado antes de criar uma senha.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setSelectedPassword(undefined);
     setFormData({
       title: '',
@@ -241,6 +250,7 @@ export default function Passwords() {
       <PageHeader
         title="Senhas"
         description="Gerencie suas senhas de forma segura e criptografada"
+        icon={<Key />}
         action={{
           label: 'Nova Senha',
           icon: <Plus className="h-4 w-4" />,
@@ -249,10 +259,10 @@ export default function Passwords() {
       />
 
       <div className="flex gap-4">
-        <Input
+        <SearchInput
           placeholder="Buscar senhas..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onValueChange={setSearchTerm}
           className="max-w-sm"
         />
       </div>

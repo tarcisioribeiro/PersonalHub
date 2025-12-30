@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, Copy, Building2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, Copy, Building2, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -296,6 +296,7 @@ export default function StoredAccounts() {
       <PageHeader
         title="Contas Bancárias"
         description="Armazene dados das suas contas bancárias com segurança"
+        icon={<Wallet />}
         action={{
           label: 'Nova Conta',
           icon: <Plus className="h-4 w-4" />,

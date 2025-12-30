@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Filter, CreditCard as CreditCardIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, Filter, CreditCard as CreditCardIcon, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -205,6 +205,7 @@ export default function CreditCardBills() {
       <PageHeader
         title="Faturas de Cartão"
         description="Gerencie suas faturas de cartão de crédito"
+        icon={<Receipt />}
         action={{
           label: 'Nova Fatura',
           icon: <Plus className="w-4 h-4" />,

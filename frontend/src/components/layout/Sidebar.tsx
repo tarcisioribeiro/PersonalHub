@@ -11,11 +11,28 @@ import {
   Library,
   ChevronDown,
   ChevronRight,
+  CreditCard,
+  Receipt,
+  ShoppingCart,
+  TrendingDown,
+  TrendingUp,
+  ArrowLeftRight,
+  HandCoins,
+  Archive,
+  Key,
+  ScrollText,
+  BookOpen,
+  UserPen,
+  Building2,
+  BookMarked,
+  FileText,
+  Home,
 } from 'lucide-react';
 
 interface NavSubItem {
   title: string;
   href: string;
+  icon: React.ReactNode;
   permission?: {
     appName: string;
     action: string;
@@ -42,7 +59,7 @@ const navItems: NavItem[] = [
   {
     title: 'Início',
     href: '/',
-    icon: <LayoutDashboard className="w-5 h-5" />,
+    icon: <Home className="w-5 h-5" />,
   },
 ];
 
@@ -51,37 +68,37 @@ const navModules: NavModule[] = [
     title: 'Controle Financeiro',
     icon: <Wallet className="w-5 h-5" />,
     items: [
-      { title: 'Dashboard', href: '/dashboard' },
-      { title: 'Contas', href: '/accounts' },
-      { title: 'Despesas', href: '/expenses' },
-      { title: 'Receitas', href: '/revenues' },
-      { title: 'Cartões de Crédito', href: '/credit-cards' },
-      { title: 'Faturas', href: '/credit-card-bills' },
-      { title: 'Gastos do Cartão', href: '/credit-card-expenses' },
-      { title: 'Transferências', href: '/transfers' },
-      { title: 'Empréstimos', href: '/loans' },
+      { title: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+      { title: 'Contas', href: '/accounts', icon: <Wallet className="w-4 h-4" /> },
+      { title: 'Despesas', href: '/expenses', icon: <TrendingDown className="w-4 h-4" /> },
+      { title: 'Receitas', href: '/revenues', icon: <TrendingUp className="w-4 h-4" /> },
+      { title: 'Cartões de Crédito', href: '/credit-cards', icon: <CreditCard className="w-4 h-4" /> },
+      { title: 'Faturas', href: '/credit-card-bills', icon: <Receipt className="w-4 h-4" /> },
+      { title: 'Gastos do Cartão', href: '/credit-card-expenses', icon: <ShoppingCart className="w-4 h-4" /> },
+      { title: 'Transferências', href: '/transfers', icon: <ArrowLeftRight className="w-4 h-4" /> },
+      { title: 'Empréstimos', href: '/loans', icon: <HandCoins className="w-4 h-4" /> },
     ],
   },
   {
     title: 'Segurança',
     icon: <Shield className="w-5 h-5" />,
     items: [
-      { title: 'Senhas', href: '/security/passwords' },
-      { title: 'Cartões Armazenados', href: '/security/stored-cards' },
-      { title: 'Contas Armazenadas', href: '/security/stored-accounts' },
-      { title: 'Arquivos', href: '/security/archives' },
-      { title: 'Logs de Atividade', href: '/security/activity-logs' },
+      { title: 'Senhas', href: '/security/passwords', icon: <Key className="w-4 h-4" /> },
+      { title: 'Cartões Armazenados', href: '/security/stored-cards', icon: <CreditCard className="w-4 h-4" /> },
+      { title: 'Contas Armazenadas', href: '/security/stored-accounts', icon: <Wallet className="w-4 h-4" /> },
+      { title: 'Arquivos', href: '/security/archives', icon: <Archive className="w-4 h-4" /> },
+      { title: 'Logs de Atividade', href: '/security/activity-logs', icon: <ScrollText className="w-4 h-4" /> },
     ],
   },
   {
     title: 'Leitura',
     icon: <Library className="w-5 h-5" />,
     items: [
-      { title: 'Livros', href: '/library/books' },
-      { title: 'Autores', href: '/library/authors' },
-      { title: 'Editoras', href: '/library/publishers' },
-      { title: 'Resumos', href: '/library/summaries' },
-      { title: 'Leituras', href: '/library/readings' },
+      { title: 'Livros', href: '/library/books', icon: <BookOpen className="w-4 h-4" /> },
+      { title: 'Autores', href: '/library/authors', icon: <UserPen className="w-4 h-4" /> },
+      { title: 'Editoras', href: '/library/publishers', icon: <Building2 className="w-4 h-4" /> },
+      { title: 'Resumos', href: '/library/summaries', icon: <FileText className="w-4 h-4" /> },
+      { title: 'Leituras', href: '/library/readings', icon: <BookMarked className="w-4 h-4" /> },
     ],
   },
 ];
@@ -197,7 +214,7 @@ export const Sidebar = () => {
                 'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
                 isActive
                   ? 'bg-primary text-primary-foreground font-medium'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  : 'sidebar-text hover:bg-accent hover:text-accent-foreground'
               )}
             >
               {item.icon}
@@ -223,7 +240,7 @@ export const Sidebar = () => {
                   'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors w-full',
                   hasActiveItem
                     ? 'bg-accent text-accent-foreground font-medium'
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    : 'sidebar-text hover:bg-accent hover:text-accent-foreground'
                 )}
               >
                 {module.icon}
@@ -249,9 +266,10 @@ export const Sidebar = () => {
                           'flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sm',
                           isActive
                             ? 'bg-primary text-primary-foreground font-medium'
-                            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                            : 'sidebar-text hover:bg-accent hover:text-accent-foreground'
                         )}
                       >
+                        {item.icon}
                         <span>{item.title}</span>
                       </Link>
                     );

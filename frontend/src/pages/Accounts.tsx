@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -176,6 +176,7 @@ export default function Accounts() {
       <PageHeader
         title="Contas Bancárias"
         description="Gerencie suas contas bancárias"
+        icon={<Wallet />}
         action={{
           label: 'Nova Conta',
           icon: <Plus className="w-4 h-4" />,

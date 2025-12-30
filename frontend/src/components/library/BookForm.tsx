@@ -267,14 +267,13 @@ export function BookForm({
         <div>
           <Label htmlFor="media_type">Tipo de Mídia</Label>
           <Select
-            value={watch('media_type') || ''}
+            value={watch('media_type') || undefined}
             onValueChange={(value) => setValue('media_type', value)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Selecione..." />
+              <SelectValue placeholder="Selecione o tipo de mídia..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Nenhum</SelectItem>
               {MEDIA_TYPES.map((type) => (
                 <SelectItem key={type.value} value={type.value}>
                   {type.label}

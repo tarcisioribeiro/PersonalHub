@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Eye, Download, FileText, File } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, Download, FileText, File, Archive as ArchiveIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -290,6 +290,7 @@ export default function Archives() {
       <PageHeader
         title="Arquivos Confidenciais"
         description="Armazene documentos e textos de forma criptografada"
+        icon={<ArchiveIcon />}
         action={{
           label: 'Novo Arquivo',
           icon: <Plus className="h-4 w-4" />,

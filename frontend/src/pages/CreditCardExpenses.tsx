@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Filter } from 'lucide-react';
+import { Plus, Pencil, Trash2, Filter, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -205,6 +205,7 @@ export default function CreditCardExpenses() {
       <PageHeader
         title="Despesas de Cartão"
         description="Gerencie suas despesas de cartão de crédito"
+        icon={<ShoppingCart />}
         action={{
           label: 'Nova Despesa',
           icon: <Plus className="w-4 h-4" />,

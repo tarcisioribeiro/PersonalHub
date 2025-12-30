@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/common/SearchInput';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -9,7 +9,7 @@ import { formatDate } from '@/lib/formatters';
 import { readingsService } from '@/services/readings-service';
 import { booksService } from '@/services/books-service';
 import type { Reading, ReadingFormData, Book } from '@/types';
-import { Plus, Search, Edit, Trash2, BookMarked, BookOpen, Calendar } from 'lucide-react';
+import { Plus, Edit, Trash2, BookMarked, BookOpen, Calendar } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -57,6 +57,14 @@ export default function Readings() {
   };
 
   const handleCreate = () => {
+    if (books.length === 0) {
+      toast({
+        title: 'Ação não permitida',
+        description: 'É necessário ter pelo menos um livro cadastrado antes de registrar uma leitura.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setSelectedReading(undefined);
     setIsDialogOpen(true);
   };
@@ -137,6 +145,7 @@ export default function Readings() {
       <PageHeader
         title="Leituras"
         description="Acompanhe seu progresso de leitura"
+        icon={<BookMarked />}
         action={{
           label: 'Nova Leitura',
           icon: <Plus className="h-4 w-4" />,
@@ -145,15 +154,12 @@ export default function Readings() {
       />
 
       <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input
-            placeholder="Buscar leituras..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+        <SearchInput
+          placeholder="Buscar leituras..."
+          value={searchTerm}
+          onValueChange={setSearchTerm}
+          className="flex-1"
+        />
       </div>
 
       {filteredReadings.length === 0 ? (
@@ -166,12 +172,6 @@ export default function Readings() {
                 ? 'Tente ajustar sua pesquisa'
                 : 'Comece registrando sua primeira leitura'}
             </p>
-            {!searchTerm && (
-              <Button onClick={handleCreate}>
-                <Plus className="w-4 h-4 mr-2" />
-                Registrar Leitura
-              </Button>
-            )}
           </CardContent>
         </Card>
       ) : (

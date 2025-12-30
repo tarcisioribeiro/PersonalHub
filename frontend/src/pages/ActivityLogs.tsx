@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Shield } from 'lucide-react';
+import { ScrollText } from 'lucide-react';
 import { activityLogsService } from '@/services/activity-logs-service';
 import { useToast } from '@/hooks/use-toast';
+import { PageHeader } from '@/components/common/PageHeader';
+import { LoadingState } from '@/components/common/LoadingState';
 import {
   Table,
   TableBody,
@@ -41,24 +43,16 @@ export default function ActivityLogs() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <LoadingState />;
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Shield className="h-8 w-8" />
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Logs de Atividade</h1>
-          <p className="text-muted-foreground">
-            Histórico de ações realizadas no módulo de segurança
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Logs de Atividade"
+        description="Acompanhe todas as ações realizadas no sistema"
+        icon={<ScrollText />}
+      />
 
       <div className="border rounded-lg">
         <Table>

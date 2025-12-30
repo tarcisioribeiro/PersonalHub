@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 interface PageHeaderProps {
   title: string;
   description?: string;
+  icon?: React.ReactNode;
   action?: {
     label: string;
     icon?: React.ReactNode;
@@ -18,12 +19,19 @@ interface PageHeaderProps {
   };
 }
 
-export const PageHeader: React.FC<PageHeaderProps> = ({ title, description, action }) => {
+export const PageHeader: React.FC<PageHeaderProps> = ({ title, description, icon, action }) => {
   return (
     <div className="flex items-center justify-between">
-      <div>
-        <h1 className="text-3xl font-bold">{title}</h1>
-        {description && <p className="text-muted-foreground mt-2">{description}</p>}
+      <div className="flex items-center gap-3">
+        {icon && (
+          <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 text-primary">
+            <div className="w-6 h-6">{icon}</div>
+          </div>
+        )}
+        <div>
+          <h1 className="text-3xl font-bold">{title}</h1>
+          {description && <p className="text-muted-foreground mt-2">{description}</p>}
+        </div>
       </div>
       {action && (
         <Button onClick={action.onClick} className="gap-2">

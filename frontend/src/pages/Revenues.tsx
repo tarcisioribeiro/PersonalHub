@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -145,6 +145,7 @@ export default function Revenues() {
       <PageHeader
         title="Receitas"
         description="Acompanhe suas receitas"
+        icon={<TrendingUp />}
         action={{
           label: 'Nova Receita',
           icon: <Plus className="w-4 h-4" />,

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Loader2, Download } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, Download, HandCoins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -28,6 +28,7 @@ import { translate } from '@/config/constants';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
+import { SearchInput } from '@/components/common/SearchInput';
 import type { Loan, LoanFormData, Account, Member } from '@/types';
 
 const EXPENSE_CATEGORIES = [
@@ -100,6 +101,18 @@ export default function Loans() {
   };
 
   const handleCreate = () => {
+    if (accounts.length === 0 || members.length === 0) {
+      const missing = [];
+      if (accounts.length === 0) missing.push('contas');
+      if (members.length === 0) missing.push('membros');
+
+      toast({
+        title: 'Ação não permitida',
+        description: `É necessário ter ${missing.join(' e ')} cadastrados antes de criar um empréstimo.`,
+        variant: 'destructive',
+      });
+      return;
+    }
     setSelectedLoan(undefined);
     setFormData({
       description: '',
@@ -229,6 +242,7 @@ export default function Loans() {
       <PageHeader
         title="Empréstimos"
         description="Gerencie seus empréstimos"
+        icon={<HandCoins />}
         action={{
           label: 'Novo Empréstimo',
           icon: <Plus className="w-4 h-4" />,
@@ -237,10 +251,10 @@ export default function Loans() {
       />
 
       <div className="flex gap-4">
-        <Input
+        <SearchInput
           placeholder="Buscar empréstimos..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onValueChange={setSearchTerm}
           className="max-w-sm"
         />
       </div>
@@ -248,10 +262,6 @@ export default function Loans() {
       {filteredLoans.length === 0 ? (
         <div className="text-center py-12 border rounded-lg bg-muted/30">
           <p className="text-muted-foreground">Nenhum empréstimo encontrado.</p>
-          <Button onClick={handleCreate} variant="outline" className="mt-4">
-            <Plus className="w-4 h-4 mr-2" />
-            Criar primeiro empréstimo
-          </Button>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

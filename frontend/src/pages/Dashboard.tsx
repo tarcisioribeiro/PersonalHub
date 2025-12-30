@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Wallet, TrendingDown, TrendingUp, CreditCard } from 'lucide-react';
+import { Wallet, TrendingDown, TrendingUp, CreditCard, LayoutDashboard } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { dashboardService } from '@/services/dashboard-service';
 import { expensesService } from '@/services/expenses-service';
@@ -89,6 +89,7 @@ export default function Dashboard() {
       <PageHeader
         title="Dashboard"
         description="Visão geral das suas finanças"
+        icon={<LayoutDashboard />}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

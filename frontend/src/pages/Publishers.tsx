@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/common/SearchInput';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
 import { publishersService } from '@/services/publishers-service';
 import type { Publisher, PublisherFormData } from '@/types';
-import { Plus, Search, Edit, Trash2, Building2, Globe, Calendar, BookOpen } from 'lucide-react';
+import { Plus, Edit, Trash2, Building2, Globe, Calendar, BookOpen } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -129,6 +129,7 @@ export default function Publishers() {
       <PageHeader
         title="Editoras"
         description="Gerencie as editoras da sua biblioteca"
+        icon={<Building2 />}
         action={{
           label: 'Nova Editora',
           icon: <Plus className="h-4 w-4" />,
@@ -137,15 +138,12 @@ export default function Publishers() {
       />
 
       <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input
-            placeholder="Buscar editoras..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+        <SearchInput
+          placeholder="Buscar editoras..."
+          value={searchTerm}
+          onValueChange={setSearchTerm}
+          className="flex-1"
+        />
       </div>
 
       {filteredPublishers.length === 0 ? (
@@ -158,12 +156,6 @@ export default function Publishers() {
                 ? 'Tente ajustar sua pesquisa'
                 : 'Comece adicionando sua primeira editora'}
             </p>
-            {!searchTerm && (
-              <Button onClick={handleCreate}>
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar Editora
-              </Button>
-            )}
           </CardContent>
         </Card>
       ) : (
