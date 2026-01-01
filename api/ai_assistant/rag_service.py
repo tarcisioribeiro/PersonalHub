@@ -6,14 +6,14 @@ This service provides semantic search across all modules:
 - Security: Passwords, stored cards, accounts, archives
 - Library: Books, summaries, readings
 
-Uses sentence-transformers for embeddings and Groq API for generation.
+Uses OpenAI API for embeddings and Groq API for generation.
 """
 
 import os
 from typing import List, Dict, Any, Tuple
 from dataclasses import dataclass
 import numpy as np
-from sentence_transformers import SentenceTransformer
+from openai import OpenAI
 from groq import Groq
 
 
@@ -34,10 +34,11 @@ class UnifiedRAGService:
     """
 
     def __init__(self):
-        # Initialize sentence transformer for embeddings
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        # Initialize OpenAI client for embeddings
+        openai_api_key = os.getenv('OPENAI_API_KEY')
+        self.openai_client = OpenAI(api_key=openai_api_key) if openai_api_key and openai_api_key != 'your_openai_api_key_here' else None
 
-        # Initialize Groq client
+        # Initialize Groq client for text generation
         groq_api_key = os.getenv('GROQ_API_KEY')
         self.groq_client = Groq(api_key=groq_api_key) if groq_api_key and groq_api_key != 'your_groq_api_key_here' else None
 
@@ -247,6 +248,28 @@ class UnifiedRAGService:
 
         return content
 
+    def _get_embeddings(self, texts: List[str]) -> List[List[float]]:
+        """
+        Generate embeddings using OpenAI API.
+
+        Args:
+            texts: List of texts to embed
+
+        Returns:
+            List of embedding vectors
+        """
+        if not self.openai_client:
+            raise ValueError("OpenAI API não configurada. Configure OPENAI_API_KEY no arquivo .env")
+
+        try:
+            response = self.openai_client.embeddings.create(
+                model="text-embedding-3-small",
+                input=texts
+            )
+            return [item.embedding for item in response.data]
+        except Exception as e:
+            raise Exception(f"Erro ao gerar embeddings: {str(e)}")
+
     def search(self, query: str, user_member, top_k: int = 5) -> List[SearchResult]:
         """
         Perform semantic search across all modules.
@@ -268,10 +291,13 @@ class UnifiedRAGService:
         if not all_content:
             return []
 
-        # Generate embeddings
-        query_embedding = self.model.encode([query])[0]
+        # Generate embeddings using OpenAI API
         doc_texts = [item['text'] for item in all_content]
-        doc_embeddings = self.model.encode(doc_texts)
+        all_texts = [query] + doc_texts
+        all_embeddings = self._get_embeddings(all_texts)
+
+        query_embedding = np.array(all_embeddings[0])
+        doc_embeddings = np.array(all_embeddings[1:])
 
         # Calculate cosine similarity
         scores = np.dot(doc_embeddings, query_embedding) / (

@@ -25,6 +25,7 @@ const Transfers = lazy(() => import('./pages/Transfers'));
 const Loans = lazy(() => import('./pages/Loans'));
 
 // Security Module
+const SecurityDashboard = lazy(() => import('./pages/SecurityDashboard'));
 const Passwords = lazy(() => import('./pages/Passwords'));
 const StoredCards = lazy(() => import('./pages/StoredCards'));
 const StoredAccounts = lazy(() => import('./pages/StoredAccounts'));
@@ -32,6 +33,7 @@ const Archives = lazy(() => import('./pages/Archives'));
 const ActivityLogs = lazy(() => import('./pages/ActivityLogs'));
 
 // Library Module
+const LibraryDashboard = lazy(() => import('./pages/LibraryDashboard'));
 const Books = lazy(() => import('./pages/Books'));
 const Authors = lazy(() => import('./pages/Authors'));
 const Publishers = lazy(() => import('./pages/Publishers'));
@@ -99,6 +101,7 @@ function App() {
           <Route path="/loans" element={<Suspense fallback={<LoadingFallback />}><Loans /></Suspense>} />
 
           {/* Security Module routes */}
+          <Route path="/security/dashboard" element={<Suspense fallback={<LoadingFallback />}><SecurityDashboard /></Suspense>} />
           <Route path="/security/passwords" element={<Suspense fallback={<LoadingFallback />}><Passwords /></Suspense>} />
           <Route path="/security/stored-cards" element={<Suspense fallback={<LoadingFallback />}><StoredCards /></Suspense>} />
           <Route path="/security/stored-accounts" element={<Suspense fallback={<LoadingFallback />}><StoredAccounts /></Suspense>} />
@@ -106,6 +109,7 @@ function App() {
           <Route path="/security/activity-logs" element={<Suspense fallback={<LoadingFallback />}><ActivityLogs /></Suspense>} />
 
           {/* Library Module routes */}
+          <Route path="/library/dashboard" element={<Suspense fallback={<LoadingFallback />}><LibraryDashboard /></Suspense>} />
           <Route path="/library/books" element={<Suspense fallback={<LoadingFallback />}><Books /></Suspense>} />
           <Route path="/library/authors" element={<Suspense fallback={<LoadingFallback />}><Authors /></Suspense>} />
           <Route path="/library/publishers" element={<Suspense fallback={<LoadingFallback />}><Publishers /></Suspense>} />

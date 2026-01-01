@@ -27,6 +27,8 @@ import {
   BookMarked,
   FileText,
   Home,
+  Bot,
+  MessageSquare,
 } from 'lucide-react';
 
 interface NavSubItem {
@@ -83,6 +85,7 @@ const navModules: NavModule[] = [
     title: 'Segurança',
     icon: <Shield className="w-5 h-5" />,
     items: [
+      { title: 'Dashboard', href: '/security/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
       { title: 'Senhas', href: '/security/passwords', icon: <Key className="w-4 h-4" /> },
       { title: 'Cartões Armazenados', href: '/security/stored-cards', icon: <CreditCard className="w-4 h-4" /> },
       { title: 'Contas Armazenadas', href: '/security/stored-accounts', icon: <Wallet className="w-4 h-4" /> },
@@ -94,11 +97,19 @@ const navModules: NavModule[] = [
     title: 'Leitura',
     icon: <Library className="w-5 h-5" />,
     items: [
+      { title: 'Dashboard', href: '/library/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
       { title: 'Livros', href: '/library/books', icon: <BookOpen className="w-4 h-4" /> },
       { title: 'Autores', href: '/library/authors', icon: <UserPen className="w-4 h-4" /> },
       { title: 'Editoras', href: '/library/publishers', icon: <Building2 className="w-4 h-4" /> },
       { title: 'Resumos', href: '/library/summaries', icon: <FileText className="w-4 h-4" /> },
       { title: 'Leituras', href: '/library/readings', icon: <BookMarked className="w-4 h-4" /> },
+    ],
+  },
+  {
+    title: 'Assistente de IA',
+    icon: <Bot className="w-5 h-5" />,
+    items: [
+      { title: 'Chat', href: '/ai-assistant', icon: <MessageSquare className="w-4 h-4" /> },
     ],
   },
 ];

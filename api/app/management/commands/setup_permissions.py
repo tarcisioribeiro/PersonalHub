@@ -37,8 +37,8 @@ class Command(BaseCommand):
             'security': ['password', 'storedcreditcard', 'storedbankaccount', 'archive', 'activitylog'],
         }
 
-        # Define the permissions: view, add, change (delete excluded as requested)
-        permission_types = ['view', 'add', 'change']
+        # Define the permissions: view, add, change, delete (full CRUD)
+        permission_types = ['view', 'add', 'change', 'delete']
 
         total_permissions = 0
 

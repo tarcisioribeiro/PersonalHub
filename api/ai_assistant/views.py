@@ -5,7 +5,6 @@ from rest_framework.permissions import IsAuthenticated
 
 from .serializers import QuerySerializer, QueryResponseSerializer
 from .rag_service import get_rag_service
-from app.permissions import GlobalDefaultPermission
 from security.activity_logs.models import ActivityLog
 
 
@@ -25,7 +24,7 @@ class AIQueryView(APIView):
 
     And returns a contextualized AI-generated response.
     """
-    permission_classes = [IsAuthenticated, GlobalDefaultPermission]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         """Process AI Assistant query."""

@@ -22,6 +22,30 @@ PersonalHub/
 - **System**: authentication, members, app (core config)
 - **Extended**: security (passwords), library (books), ai_assistant (experimental)
 
+### AI Assistant Module
+
+**Overview**:
+- RAG (Retrieval Augmented Generation) service for semantic search across all modules
+- Uses OpenAI API for embeddings (`text-embedding-3-small`)
+- Uses Groq API for text generation (`llama-3.3-70b-versatile`)
+
+**How it works**:
+1. User submits a natural language question
+2. System extracts content from Finance, Security, and Library modules
+3. Generates embeddings for query and content using OpenAI
+4. Ranks results by cosine similarity
+5. Sends top-k results to Groq for answer generation
+
+**Configuration**:
+- Requires `OPENAI_API_KEY` in .env for embeddings
+- Requires `GROQ_API_KEY` in .env for text generation
+- Both APIs are cloud-based (no local models)
+- Fast build time (~2-5 minutes) compared to local transformers
+
+**Cost**:
+- OpenAI embeddings: ~$0.02 per 1 million tokens (very low)
+- Groq: Free tier available with generous limits
+
 ### Key Backend Architecture Patterns
 
 **Authentication Flow**:
@@ -226,6 +250,8 @@ export const resourceService = {
 - `ENCRYPTION_KEY`: Fernet key (44 chars base64) - NEVER change after encrypting data
 - `DB_USER`, `DB_PASSWORD`, `DB_NAME`: PostgreSQL credentials
 - `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_EMAIL`, `DJANGO_SUPERUSER_PASSWORD`: Auto-created superuser
+- `OPENAI_API_KEY`: OpenAI API key for AI Assistant embeddings (get at https://platform.openai.com/api-keys)
+- `GROQ_API_KEY`: Groq API key for AI Assistant text generation (get at https://console.groq.com/keys)
 
 **Frontend (build-time)**:
 - `VITE_API_BASE_URL`: Backend URL (default: http://localhost:8002)
@@ -269,6 +295,12 @@ export const resourceService = {
 5. **Migration conflicts**:
    - `python manage.py migrate --fake-initial`
    - Or manually resolve in migrations folder
+
+6. **AI Assistant errors**:
+   - Verify `OPENAI_API_KEY` and `GROQ_API_KEY` are set in .env
+   - Check API keys are valid (not placeholder values)
+   - OpenAI errors: Check account has credits at https://platform.openai.com/usage
+   - Groq errors: Verify free tier limits at https://console.groq.com
 
 ## Accessing the Application
 

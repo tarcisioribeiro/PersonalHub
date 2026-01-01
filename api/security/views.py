@@ -2,7 +2,9 @@ from rest_framework import generics, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
+from django.db.models import Count
 from app.permissions import GlobalDefaultPermission
 from security.models import (
     Password, StoredCreditCard, StoredBankAccount,
@@ -457,3 +459,110 @@ class ActivityLogListView(generics.ListAPIView):
         return ActivityLog.objects.filter(
             user=self.request.user
         ).order_by('-created_at')
+
+
+# ============================================================================
+# SECURITY DASHBOARD VIEWS
+# ============================================================================
+
+class SecurityDashboardStatsView(APIView):
+    """
+    GET /api/v1/security/dashboard/stats/
+
+    Retorna estatísticas agregadas do módulo de Segurança.
+
+    Response:
+    {
+        "total_passwords": 15,
+        "total_stored_cards": 3,
+        "total_stored_accounts": 2,
+        "total_archives": 5,
+        "passwords_by_category": [
+            {"category": "social", "category_display": "Redes Sociais", "count": 5},
+            {"category": "email", "category_display": "E-mail", "count": 3}
+        ],
+        "recent_activity": [
+            {
+                "action": "create",
+                "action_display": "Criação",
+                "model_name": "Password",
+                "description": "Criou senha: Gmail",
+                "created_at": "2025-03-15T10:30:00Z"
+            }
+        ]
+    }
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """Calcula estatísticas do módulo de segurança."""
+        user = request.user
+
+        # Querysets filtrados por owner e não deletados
+        passwords_qs = Password.objects.filter(
+            owner__user=user,
+            deleted_at__isnull=True
+        )
+        stored_cards_qs = StoredCreditCard.objects.filter(
+            owner__user=user,
+            deleted_at__isnull=True
+        )
+        stored_accounts_qs = StoredBankAccount.objects.filter(
+            owner__user=user,
+            deleted_at__isnull=True
+        )
+        archives_qs = Archive.objects.filter(
+            owner__user=user,
+            deleted_at__isnull=True
+        )
+
+        # Contadores
+        total_passwords = passwords_qs.count()
+        total_stored_cards = stored_cards_qs.count()
+        total_stored_accounts = stored_accounts_qs.count()
+        total_archives = archives_qs.count()
+
+        # Senhas por categoria (Top 5)
+        passwords_by_category = list(
+            passwords_qs
+            .values('category')
+            .annotate(count=Count('id'))
+            .order_by('-count')[:5]
+        )
+
+        # Adicionar display name das categorias
+        from security.passwords.models import PASSWORD_CATEGORIES
+        category_dict = dict(PASSWORD_CATEGORIES)
+        for item in passwords_by_category:
+            item['category_display'] = category_dict.get(item['category'], item['category'])
+
+        # Atividades recentes (últimas 10) - filtrar por modelos de security
+        security_models = ['Password', 'StoredCreditCard', 'StoredBankAccount', 'Archive']
+        recent_activity = ActivityLog.objects.filter(
+            user=user,
+            model_name__in=security_models
+        ).order_by('-created_at')[:10]
+
+        recent_activity_data = []
+        from security.activity_logs.models import ACTION_TYPES
+        action_dict = dict(ACTION_TYPES)
+        for log in recent_activity:
+            recent_activity_data.append({
+                'action': log.action,
+                'action_display': action_dict.get(log.action, log.action),
+                'model_name': log.model_name,
+                'description': log.description,
+                'created_at': log.created_at.isoformat()
+            })
+
+        stats = {
+            'total_passwords': total_passwords,
+            'total_stored_cards': total_stored_cards,
+            'total_stored_accounts': total_stored_accounts,
+            'total_archives': total_archives,
+            'passwords_by_category': passwords_by_category,
+            'recent_activity': recent_activity_data
+        }
+
+        return Response(stats)

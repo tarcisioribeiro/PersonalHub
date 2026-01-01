@@ -24,8 +24,8 @@ urlpatterns = [
     path('api/v1/security/', include('security.urls')),
     # Library Module
     path('api/v1/library/', include('library.urls')),
-    # AI Assistant - Temporariamente desabilitado (faltam dependências: numpy, etc)
-    # path('api/v1/ai/', include('ai_assistant.urls')),
+    # AI Assistant
+    path('api/v1/ai/', include('ai_assistant.urls')),
 ]
 
 if settings.DEBUG:

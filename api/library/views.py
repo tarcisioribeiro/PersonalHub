@@ -1,5 +1,8 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.db.models import Count, Sum, Avg, Q
 from app.permissions import GlobalDefaultPermission
 from library.models import Author, Publisher, Book, Summary, Reading
 from library.serializers import (
@@ -401,3 +404,145 @@ class ReadingDetailView(generics.RetrieveUpdateDestroyAPIView):
             instance.id,
             f'Deletou leitura de: {instance.book.title}'
         )
+
+
+# ============================================================================
+# LIBRARY DASHBOARD VIEWS
+# ============================================================================
+
+class LibraryDashboardStatsView(APIView):
+    """
+    GET /api/v1/library/dashboard/stats/
+
+    Retorna estatísticas agregadas do módulo de Leitura.
+
+    Response:
+    {
+        "total_books": 25,
+        "total_authors": 15,
+        "total_publishers": 8,
+        "books_reading": 3,
+        "books_to_read": 10,
+        "books_read": 12,
+        "average_rating": 4.2,
+        "total_pages_read": 1580,
+        "books_by_genre": [
+            {"genre": "Philosophy", "genre_display": "Filosofia", "count": 8},
+            {"genre": "Fiction", "genre_display": "Ficção", "count": 5}
+        ],
+        "recent_readings": [
+            {
+                "book_title": "1984",
+                "pages_read": 45,
+                "reading_date": "2025-03-15"
+            }
+        ],
+        "top_rated_books": [
+            {
+                "title": "Crime e Castigo",
+                "rating": 5,
+                "authors_names": ["Fiódor Dostoiévski"]
+            }
+        ]
+    }
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """Calcula estatísticas do módulo de leitura."""
+        user = request.user
+
+        # Querysets filtrados por owner e não deletados
+        books_qs = Book.objects.filter(
+            owner__user=user,
+            deleted_at__isnull=True
+        )
+        authors_qs = Author.objects.filter(
+            owner__user=user,
+            deleted_at__isnull=True
+        )
+        publishers_qs = Publisher.objects.filter(
+            owner__user=user,
+            deleted_at__isnull=True
+        )
+        readings_qs = Reading.objects.filter(
+            owner__user=user,
+            deleted_at__isnull=True
+        )
+
+        # Contadores gerais
+        total_books = books_qs.count()
+        total_authors = authors_qs.count()
+        total_publishers = publishers_qs.count()
+
+        # Status de leitura
+        books_reading = books_qs.filter(read_status='reading').count()
+        books_to_read = books_qs.filter(read_status='to_read').count()
+        books_read = books_qs.filter(read_status='read').count()
+
+        # Média de avaliações
+        avg_rating = books_qs.aggregate(avg=Avg('rating'))['avg'] or 0.0
+
+        # Total de páginas lidas
+        total_pages = readings_qs.aggregate(total=Sum('pages_read'))['total'] or 0
+
+        # Livros por gênero (Top 5)
+        books_by_genre = list(
+            books_qs
+            .values('genre')
+            .annotate(count=Count('id'))
+            .order_by('-count')[:5]
+        )
+
+        # Adicionar display name dos gêneros
+        from library.models import GENRES
+        genre_dict = dict(GENRES)
+        for item in books_by_genre:
+            item['genre_display'] = genre_dict.get(item['genre'], item['genre'])
+
+        # Leituras recentes (últimas 5)
+        recent_readings_qs = (
+            readings_qs
+            .select_related('book')
+            .order_by('-reading_date')[:5]
+        )
+
+        recent_readings = []
+        for reading in recent_readings_qs:
+            recent_readings.append({
+                'book_title': reading.book.title,
+                'pages_read': reading.pages_read,
+                'reading_date': reading.reading_date.isoformat()
+            })
+
+        # Top 3 livros mais bem avaliados
+        top_rated_qs = (
+            books_qs
+            .prefetch_related('authors')
+            .order_by('-rating', '-created_at')[:3]
+        )
+
+        top_rated_books = []
+        for book in top_rated_qs:
+            top_rated_books.append({
+                'title': book.title,
+                'rating': book.rating,
+                'authors_names': [author.name for author in book.authors.all()]
+            })
+
+        stats = {
+            'total_books': total_books,
+            'total_authors': total_authors,
+            'total_publishers': total_publishers,
+            'books_reading': books_reading,
+            'books_to_read': books_to_read,
+            'books_read': books_read,
+            'average_rating': round(float(avg_rating), 2),
+            'total_pages_read': total_pages,
+            'books_by_genre': books_by_genre,
+            'recent_readings': recent_readings,
+            'top_rated_books': top_rated_books
+        }
+
+        return Response(stats)
