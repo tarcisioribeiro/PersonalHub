@@ -43,6 +43,13 @@ const Readings = lazy(() => import('./pages/Readings'));
 // AI Assistant
 const AIAssistant = lazy(() => import('./pages/AIAssistant'));
 
+// Personal Planning Module
+const PersonalPlanningDashboard = lazy(() => import('./pages/PersonalPlanningDashboard'));
+const RoutineTasks = lazy(() => import('./pages/RoutineTasks'));
+const Goals = lazy(() => import('./pages/Goals'));
+const DailyReflections = lazy(() => import('./pages/DailyReflections'));
+const TodayTasks = lazy(() => import('./pages/TodayTasks'));
+
 // Loading component
 const LoadingFallback = () => (
   <div className="flex items-center justify-center h-screen">
@@ -118,6 +125,13 @@ function App() {
 
           {/* AI Assistant route */}
           <Route path="/ai-assistant" element={<Suspense fallback={<LoadingFallback />}><AIAssistant /></Suspense>} />
+
+          {/* Personal Planning Module routes */}
+          <Route path="/planning/dashboard" element={<Suspense fallback={<LoadingFallback />}><PersonalPlanningDashboard /></Suspense>} />
+          <Route path="/planning/routine-tasks" element={<Suspense fallback={<LoadingFallback />}><RoutineTasks /></Suspense>} />
+          <Route path="/planning/goals" element={<Suspense fallback={<LoadingFallback />}><Goals /></Suspense>} />
+          <Route path="/planning/reflections" element={<Suspense fallback={<LoadingFallback />}><DailyReflections /></Suspense>} />
+          <Route path="/planning/today" element={<Suspense fallback={<LoadingFallback />}><TodayTasks /></Suspense>} />
         </Route>
 
         {/* Fallback */}

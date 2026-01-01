@@ -17,9 +17,10 @@ interface PageHeaderProps {
     icon?: React.ReactNode;
     onClick: () => void;
   };
+  children?: React.ReactNode;
 }
 
-export const PageHeader: React.FC<PageHeaderProps> = ({ title, description, icon, action }) => {
+export const PageHeader: React.FC<PageHeaderProps> = ({ title, description, icon, action, children }) => {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -33,7 +34,8 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, description, icon
           {description && <p className="text-muted-foreground mt-2">{description}</p>}
         </div>
       </div>
-      {action && (
+      {children}
+      {!children && action && (
         <Button onClick={action.onClick} className="gap-2">
           {action.icon}
           {action.label}

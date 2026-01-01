@@ -1099,4 +1099,8 @@ export interface PersonalPlanningDashboardStats {
     target_value: number;
     days_active: number;
   }>;
+  total_tasks_today: number;
+  completed_tasks_today: number;
+  active_routine_tasks: RoutineTask[];
+  recent_reflections: DailyReflection[];
 }

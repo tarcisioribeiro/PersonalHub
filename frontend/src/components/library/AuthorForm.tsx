@@ -90,6 +90,34 @@ export function AuthorForm({
         </div>
 
         <div className="space-y-2">
+          <Label htmlFor="birthday">Data de Nascimento</Label>
+          <Input
+            id="birthday"
+            type="date"
+            {...register('birthday')}
+          />
+          {errors.birthday && (
+            <p className="text-sm text-destructive mt-1">
+              {errors.birthday.message}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="death_date">Data de Falecimento</Label>
+          <Input
+            id="death_date"
+            type="date"
+            {...register('death_date')}
+          />
+          {errors.death_date && (
+            <p className="text-sm text-destructive mt-1">
+              {errors.death_date.message}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="nationality">Nacionalidade *</Label>
           <Select
             value={watch('nationality')}

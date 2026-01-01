@@ -29,6 +29,10 @@ import {
   Home,
   Bot,
   MessageSquare,
+  Calendar,
+  Target,
+  CheckCircle2,
+  Notebook,
 } from 'lucide-react';
 
 interface NavSubItem {
@@ -79,6 +83,17 @@ const navModules: NavModule[] = [
       { title: 'Gastos do Cartão', href: '/credit-card-expenses', icon: <ShoppingCart className="w-4 h-4" /> },
       { title: 'Transferências', href: '/transfers', icon: <ArrowLeftRight className="w-4 h-4" /> },
       { title: 'Empréstimos', href: '/loans', icon: <HandCoins className="w-4 h-4" /> },
+    ],
+  },
+  {
+    title: 'Planejamento Pessoal',
+    icon: <Calendar className="w-5 h-5" />,
+    items: [
+      { title: 'Dashboard', href: '/planning/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+      { title: 'Tarefas de Hoje', href: '/planning/today', icon: <CheckCircle2 className="w-4 h-4" /> },
+      { title: 'Tarefas Rotineiras', href: '/planning/routine-tasks', icon: <Calendar className="w-4 h-4" /> },
+      { title: 'Objetivos', href: '/planning/goals', icon: <Target className="w-4 h-4" /> },
+      { title: 'Reflexões Diárias', href: '/planning/reflections', icon: <Notebook className="w-4 h-4" /> },
     ],
   },
   {
