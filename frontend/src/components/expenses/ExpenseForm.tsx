@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
 import { TRANSLATIONS } from '@/config/constants';
@@ -120,7 +121,12 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, accounts, loa
         </div>
         <div className="space-y-2">
           <Label htmlFor="date">Data *</Label>
-          <Input id="date" type="date" {...register('date', { required: true })} disabled={isLoading} />
+          <DatePicker
+            value={watch('date') ? new Date(watch('date')) : undefined}
+            onChange={(date) => setValue('date', date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data"
+            disabled={isLoading}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="horary">Horário *</Label>

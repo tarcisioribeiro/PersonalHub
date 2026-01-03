@@ -1,5 +1,6 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import { useAuthStore } from './stores/auth-store';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { Layout } from './components/layout/Layout';
@@ -58,22 +59,13 @@ const LoadingFallback = () => (
   </div>
 );
 
-function App() {
-  const { loadUserData, isAuthenticated, isInitializing } = useAuthStore();
-
-  useEffect(() => {
-    // Load user data from cookies on app start
-    loadUserData();
-  }, [loadUserData]);
-
-  // Mostra loading durante inicialização
-  if (isInitializing) {
-    return <LoadingFallback />;
-  }
+function AnimatedRoutes() {
+  const location = useLocation();
+  const { isAuthenticated } = useAuthStore();
 
   return (
-    <BrowserRouter>
-      <Routes>
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
         {/* Public routes */}
         <Route
           path="/login"
@@ -139,6 +131,26 @@ function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+    </AnimatePresence>
+  );
+}
+
+function App() {
+  const { loadUserData, isInitializing } = useAuthStore();
+
+  useEffect(() => {
+    // Load user data from cookies on app start
+    loadUserData();
+  }, [loadUserData]);
+
+  // Mostra loading durante inicialização
+  if (isInitializing) {
+    return <LoadingFallback />;
+  }
+
+  return (
+    <BrowserRouter>
+      <AnimatedRoutes />
       <Toaster />
       <AlertDialogProvider />
     </BrowserRouter>

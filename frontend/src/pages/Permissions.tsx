@@ -314,7 +314,7 @@ export default function Permissions() {
               </div>
             </div>
             <div className="flex items-start gap-2">
-              <div className="w-2 h-2 rounded-full bg-gray-400 mt-1.5" />
+              <div className="w-2 h-2 rounded-full bg-muted-foreground mt-1.5" />
               <div>
                 <p className="font-medium">Permissões Inativas</p>
                 <p className="text-muted-foreground">Permissões desmarcadas não estão disponíveis</p>

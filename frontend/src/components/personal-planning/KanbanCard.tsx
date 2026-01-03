@@ -52,11 +52,11 @@ export function KanbanCard({ card }: KanbanCardProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing"
+      className="bg-card p-4 rounded-lg border-2 border-border shadow-sm hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing"
     >
       <div className="flex items-start gap-3">
         {/* Drag Handle */}
-        <div className="mt-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400">
+        <div className="mt-1 text-muted-foreground hover:text-foreground">
           <GripVertical className="h-5 w-5" />
         </div>
 
@@ -64,10 +64,10 @@ export function KanbanCard({ card }: KanbanCardProps) {
         <div className="flex-1 space-y-2.5">
           {/* Title and Category */}
           <div className="flex items-start justify-between gap-2">
-            <h4 className="font-semibold text-sm leading-tight dark:text-gray-100">
+            <h4 className="font-semibold text-sm leading-tight">
               {card.task_name}
               {card.total_instances > 1 && (
-                <span className="ml-2 text-xs font-normal text-muted-foreground dark:text-gray-400">
+                <span className="ml-2 text-xs font-normal text-muted-foreground">
                   ({card.index + 1}º {card.unit})
                 </span>
               )}
@@ -79,16 +79,16 @@ export function KanbanCard({ card }: KanbanCardProps) {
 
           {/* Task Description */}
           {card.description && (
-            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               {card.description}
             </p>
           )}
 
           {/* Daily Notes */}
           {card.notes && (
-            <div className="p-2.5 bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-md">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Notas:</p>
-              <p className="text-xs leading-relaxed text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+            <div className="p-2.5 bg-warning/20 border border-warning rounded-md">
+              <p className="text-xs font-medium text-muted-foreground mb-1">Notas:</p>
+              <p className="text-xs leading-relaxed text-foreground whitespace-pre-wrap">
                 {card.notes}
               </p>
             </div>

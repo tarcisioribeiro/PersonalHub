@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
@@ -133,30 +134,30 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
 
         <div className="space-y-2">
           <Label htmlFor="invoice_beginning_date">Data de Início *</Label>
-          <Input
-            id="invoice_beginning_date"
-            type="date"
-            {...register('invoice_beginning_date', { required: true })}
+          <DatePicker
+            value={watch('invoice_beginning_date') ? new Date(watch('invoice_beginning_date')) : undefined}
+            onChange={(date) => setValue('invoice_beginning_date', date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data de início"
             disabled={isLoading}
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="invoice_ending_date">Data de Fim *</Label>
-          <Input
-            id="invoice_ending_date"
-            type="date"
-            {...register('invoice_ending_date', { required: true })}
+          <DatePicker
+            value={watch('invoice_ending_date') ? new Date(watch('invoice_ending_date')) : undefined}
+            onChange={(date) => setValue('invoice_ending_date', date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data de fim"
             disabled={isLoading}
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="due_date">Data de Vencimento</Label>
-          <Input
-            id="due_date"
-            type="date"
-            {...register('due_date')}
+          <DatePicker
+            value={watch('due_date') && watch('due_date') !== '' ? new Date(watch('due_date')!) : undefined}
+            onChange={(date) => setValue('due_date', date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data de vencimento"
             disabled={isLoading}
           />
         </div>
@@ -199,10 +200,10 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
 
         <div className="space-y-2">
           <Label htmlFor="payment_date">Data de Pagamento</Label>
-          <Input
-            id="payment_date"
-            type="date"
-            {...register('payment_date')}
+          <DatePicker
+            value={watch('payment_date') && watch('payment_date') !== '' ? new Date(watch('payment_date')!) : undefined}
+            onChange={(date) => setValue('payment_date', date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data de pagamento"
             disabled={isLoading}
           />
         </div>

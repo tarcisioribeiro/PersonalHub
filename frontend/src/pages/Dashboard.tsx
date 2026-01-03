@@ -1,6 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { Wallet, TrendingDown, TrendingUp, CreditCard, LayoutDashboard } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedPage } from '@/components/common/AnimatedPage';
+import { containerVariants, itemVariants } from '@/lib/animations';
+import { StatCard } from '@/components/common/StatCard';
 import { dashboardService } from '@/services/dashboard-service';
 import { expensesService } from '@/services/expenses-service';
 import { revenuesService } from '@/services/revenues-service';
@@ -86,58 +90,58 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Dashboard"
-        description="Visão geral das suas finanças"
-        icon={<LayoutDashboard />}
-      />
+    <AnimatedPage>
+      <div className="space-y-6">
+        <PageHeader
+          title="Dashboard"
+          description="Visão geral das suas finanças"
+          icon={<LayoutDashboard />}
+        />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Saldo Total</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats?.total_balance || 0)}</div>
-            <p className="text-xs text-muted-foreground mt-1">{stats?.accounts_count || 0} conta(s)</p>
-          </CardContent>
-        </Card>
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.div variants={itemVariants}>
+            <StatCard
+              title="Saldo Total"
+              value={formatCurrency(stats?.total_balance || 0)}
+              icon={<Wallet className="h-4 w-4" />}
+              subtitle={`${stats?.accounts_count || 0} conta(s)`}
+            />
+          </motion.div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Despesas do Mês</CardTitle>
-            <TrendingDown className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600 dark:text-red-400">{formatCurrency(stats?.total_expenses || 0)}</div>
-            <p className="text-xs text-muted-foreground mt-1">{expenses.length} transação(ões)</p>
-          </CardContent>
-        </Card>
+          <motion.div variants={itemVariants}>
+            <StatCard
+              title="Despesas do Mês"
+              value={formatCurrency(stats?.total_expenses || 0)}
+              icon={<TrendingDown className="h-4 w-4" />}
+              subtitle={`${expenses.length} transação(ões)`}
+              variant="danger"
+            />
+          </motion.div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Receitas do Mês</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{formatCurrency(stats?.total_revenues || 0)}</div>
-            <p className="text-xs text-muted-foreground mt-1">{revenues.length} transação(ões)</p>
-          </CardContent>
-        </Card>
+          <motion.div variants={itemVariants}>
+            <StatCard
+              title="Receitas do Mês"
+              value={formatCurrency(stats?.total_revenues || 0)}
+              icon={<TrendingUp className="h-4 w-4" />}
+              subtitle={`${revenues.length} transação(ões)`}
+              variant="success"
+            />
+          </motion.div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Limite de Crédito</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats?.total_credit_limit || 0)}</div>
-            <p className="text-xs text-muted-foreground mt-1">{stats?.credit_cards_count || 0} cartão(ões)</p>
-          </CardContent>
-        </Card>
-      </div>
+          <motion.div variants={itemVariants}>
+            <StatCard
+              title="Limite de Crédito"
+              value={formatCurrency(stats?.total_credit_limit || 0)}
+              icon={<CreditCard className="h-4 w-4" />}
+              subtitle={`${stats?.credit_cards_count || 0} cartão(ões)`}
+            />
+          </motion.div>
+        </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
@@ -170,7 +174,7 @@ export default function Dashboard() {
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
                         <span>{category.name}</span>
                       </div>
-                      <span className="font-semibold text-red-600 dark:text-red-400">{formatCurrency(category.value)}</span>
+                      <span className="font-semibold text-destructive">{formatCurrency(category.value)}</span>
                     </div>
                   ))}
                 </div>
@@ -209,7 +213,7 @@ export default function Dashboard() {
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
                         <span>{category.name}</span>
                       </div>
-                      <span className="font-semibold text-green-600 dark:text-green-400">{formatCurrency(category.value)}</span>
+                      <span className="font-semibold text-success">{formatCurrency(category.value)}</span>
                     </div>
                   ))}
                 </div>
@@ -241,5 +245,6 @@ export default function Dashboard() {
         </CardContent>
       </Card>
     </div>
+    </AnimatedPage>
   );
 }

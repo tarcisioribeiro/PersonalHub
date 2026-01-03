@@ -14,8 +14,8 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -369,11 +369,10 @@ export default function DailyChecklist() {
       <div className="flex items-center gap-4">
         <div className="flex-1">
           <Label htmlFor="date">Data</Label>
-          <Input
-            id="date"
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
+          <DatePicker
+            value={selectedDate ? new Date(selectedDate) : undefined}
+            onChange={(date) => setSelectedDate(date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data"
             className="max-w-xs"
           />
         </div>

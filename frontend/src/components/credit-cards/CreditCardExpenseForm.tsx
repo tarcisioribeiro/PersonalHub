@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
@@ -151,10 +152,10 @@ export const CreditCardExpenseForm: React.FC<CreditCardExpenseFormProps> = ({
 
         <div className="space-y-2">
           <Label htmlFor="date">Data *</Label>
-          <Input
-            id="date"
-            type="date"
-            {...register('date', { required: true })}
+          <DatePicker
+            value={watch('date') ? new Date(watch('date')) : undefined}
+            onChange={(date) => setValue('date', date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data"
             disabled={isLoading}
           />
         </div>

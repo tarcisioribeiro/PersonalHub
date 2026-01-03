@@ -21,24 +21,24 @@ export function DailyChecklistItem({
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
-      health: 'bg-green-500',
-      studies: 'bg-blue-500',
-      spiritual: 'bg-purple-500',
-      exercise: 'bg-orange-500',
-      nutrition: 'bg-emerald-500',
-      meditation: 'bg-indigo-500',
-      reading: 'bg-amber-500',
-      writing: 'bg-pink-500',
-      work: 'bg-slate-500',
-      leisure: 'bg-cyan-500',
-      family: 'bg-rose-500',
-      social: 'bg-violet-500',
-      finance: 'bg-teal-500',
-      household: 'bg-lime-500',
-      personal_care: 'bg-fuchsia-500',
-      other: 'bg-gray-500',
+      health: 'bg-category-health',
+      studies: 'bg-category-studies',
+      spiritual: 'bg-category-spiritual',
+      exercise: 'bg-category-exercise',
+      nutrition: 'bg-category-nutrition',
+      meditation: 'bg-primary',
+      reading: 'bg-warning',
+      writing: 'bg-accent',
+      work: 'bg-category-work',
+      leisure: 'bg-category-leisure',
+      family: 'bg-destructive',
+      social: 'bg-primary',
+      finance: 'bg-category-finance',
+      household: 'bg-success',
+      personal_care: 'bg-accent',
+      other: 'bg-muted',
     };
-    return colors[category] || 'bg-gray-500';
+    return colors[category] || 'bg-muted';
   };
 
   // Sincronizar com task.completed e quantity_completed
@@ -108,8 +108,8 @@ export function DailyChecklistItem({
 
       {/* Nota estilizada como post-it */}
       {task.notes && (
-        <div className="mt-2 p-3 bg-yellow-100 border-b-4 border-yellow-300 shadow-md rotate-[-1deg] rounded-sm">
-          <p className="text-sm italic text-gray-800">{task.notes}</p>
+        <div className="mt-2 p-3 bg-warning/20 border-b-4 border-warning shadow-md rotate-[-1deg] rounded-sm">
+          <p className="text-sm italic text-foreground">{task.notes}</p>
         </div>
       )}
     </div>

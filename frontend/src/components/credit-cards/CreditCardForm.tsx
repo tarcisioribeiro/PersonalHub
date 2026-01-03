@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TRANSLATIONS } from '@/config/constants';
 import type { CreditCard, CreditCardFormData, Account } from '@/types';
@@ -72,7 +73,12 @@ export const CreditCardForm: React.FC<CreditCardFormProps> = ({ creditCard, acco
         </div>
         <div className="space-y-2">
           <Label>Data de Validade *</Label>
-          <Input type="date" {...register('validation_date', { required: true })} disabled={isLoading} />
+          <DatePicker
+            value={watch('validation_date') ? new Date(watch('validation_date')) : undefined}
+            onChange={(date) => setValue('validation_date', date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data de validade"
+            disabled={isLoading}
+          />
         </div>
         <div className="space-y-2">
           <Label>Limite Atual *</Label>

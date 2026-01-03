@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -353,10 +354,10 @@ export function RoutineTaskForm({
                 <Label htmlFor="interval_start_date" className="text-sm">
                   Data de Início
                 </Label>
-                <Input
-                  id="interval_start_date"
-                  type="date"
-                  {...register('interval_start_date')}
+                <DatePicker
+                  value={watch('interval_start_date') && watch('interval_start_date') !== '' ? new Date(watch('interval_start_date')!) : undefined}
+                  onChange={(date) => setValue('interval_start_date', date ? date.toISOString().split('T')[0] : '')}
+                  placeholder="Selecione a data de início"
                 />
               </div>
             </div>

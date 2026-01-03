@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
 import {
   Select,
   SelectContent,
@@ -387,12 +388,10 @@ export default function Loans() {
 
               <div>
                 <Label htmlFor="date">Data *</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  required
+                <DatePicker
+                  value={formData.date ? new Date(formData.date) : undefined}
+                  onChange={(date) => setFormData({ ...formData, date: date ? date.toISOString().split('T')[0] : '' })}
+                  placeholder="Selecione a data"
                 />
               </div>
 
@@ -494,11 +493,10 @@ export default function Loans() {
 
               <div>
                 <Label htmlFor="due_date">Data de Vencimento</Label>
-                <Input
-                  id="due_date"
-                  type="date"
-                  value={formData.due_date || ''}
-                  onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
+                <DatePicker
+                  value={formData.due_date ? new Date(formData.due_date) : undefined}
+                  onChange={(date) => setFormData({ ...formData, due_date: date ? date.toISOString().split('T')[0] : '' })}
+                  placeholder="Selecione a data de vencimento"
                 />
               </div>
 

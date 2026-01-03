@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -91,10 +92,10 @@ export function AuthorForm({
 
         <div className="space-y-2">
           <Label htmlFor="birthday">Data de Nascimento</Label>
-          <Input
-            id="birthday"
-            type="date"
-            {...register('birthday')}
+          <DatePicker
+            value={watch('birthday') && watch('birthday') !== '' ? new Date(watch('birthday')!) : undefined}
+            onChange={(date) => setValue('birthday', date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data de nascimento"
           />
           {errors.birthday && (
             <p className="text-sm text-destructive mt-1">
@@ -105,10 +106,10 @@ export function AuthorForm({
 
         <div className="space-y-2">
           <Label htmlFor="death_date">Data de Falecimento</Label>
-          <Input
-            id="death_date"
-            type="date"
-            {...register('death_date')}
+          <DatePicker
+            value={watch('death_date') && watch('death_date') !== '' ? new Date(watch('death_date')!) : undefined}
+            onChange={(date) => setValue('death_date', date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data de falecimento"
           />
           {errors.death_date && (
             <p className="text-sm text-destructive mt-1">

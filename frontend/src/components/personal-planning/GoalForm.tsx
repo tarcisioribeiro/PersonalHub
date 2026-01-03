@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -208,10 +209,10 @@ export function GoalForm({
 
         <div>
           <Label htmlFor="start_date">Data de Início *</Label>
-          <Input
-            id="start_date"
-            type="date"
-            {...register('start_date')}
+          <DatePicker
+            value={watch('start_date') ? new Date(watch('start_date')) : undefined}
+            onChange={(date) => setValue('start_date', date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data de início"
           />
           {errors.start_date && (
             <p className="text-sm text-destructive mt-1">
@@ -222,10 +223,10 @@ export function GoalForm({
 
         <div>
           <Label htmlFor="end_date">Data de Término</Label>
-          <Input
-            id="end_date"
-            type="date"
-            {...register('end_date')}
+          <DatePicker
+            value={watch('end_date') && watch('end_date') !== '' ? new Date(watch('end_date')!) : undefined}
+            onChange={(date) => setValue('end_date', date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data de término"
           />
           {errors.end_date && (
             <p className="text-sm text-destructive mt-1">

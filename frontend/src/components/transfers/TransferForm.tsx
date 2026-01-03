@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TRANSLATIONS } from '@/config/constants';
 import type { Transfer, TransferFormData, Account } from '@/types';
@@ -57,7 +58,12 @@ export const TransferForm: React.FC<TransferFormProps> = ({ transfer, accounts, 
         </div>
         <div className="space-y-2">
           <Label>Data *</Label>
-          <Input type="date" {...register('date', { required: true })} disabled={isLoading} />
+          <DatePicker
+            value={watch('date') ? new Date(watch('date')) : undefined}
+            onChange={(date) => setValue('date', date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data"
+            disabled={isLoading}
+          />
         </div>
         <div className="space-y-2">
           <Label>Horário *</Label>

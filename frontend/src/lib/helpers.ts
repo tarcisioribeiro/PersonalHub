@@ -209,7 +209,7 @@ export const debounce = <T extends (...args: any[]) => any>(
  * @returns Classe CSS do Tailwind para cor do badge
  *
  * @example
- * getModuleBadgeColor('finance') // 'bg-green-500'
+ * getModuleBadgeColor('finance') // 'bg-category-finance text-white'
  */
 export const getModuleBadgeColor = (module: string): string => {
   switch (module) {

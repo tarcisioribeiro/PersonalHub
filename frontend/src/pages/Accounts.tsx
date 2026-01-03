@@ -154,8 +154,8 @@ export default function Accounts() {
         <span
           className={`font-semibold ${
             parseFloat(account.balance) >= 0
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-red-600 dark:text-red-400'
+              ? 'text-success'
+              : 'text-destructive'
           }`}
         >
           {formatCurrency(account.balance)}

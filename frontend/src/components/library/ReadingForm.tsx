@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -131,10 +132,10 @@ export function ReadingForm({
 
         <div className="space-y-2">
           <Label htmlFor="reading_date">Data da Leitura *</Label>
-          <Input
-            id="reading_date"
-            type="date"
-            {...register('reading_date')}
+          <DatePicker
+            value={watch('reading_date') ? new Date(watch('reading_date')) : undefined}
+            onChange={(date) => setValue('reading_date', date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data de leitura"
           />
           {errors.reading_date && (
             <p className="text-sm text-destructive mt-1">

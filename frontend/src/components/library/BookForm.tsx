@@ -5,6 +5,7 @@ import { Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -319,10 +320,10 @@ export function BookForm({
 
         <div>
           <Label htmlFor="publish_date">Data de Publicação</Label>
-          <Input
-            id="publish_date"
-            type="date"
-            {...register('publish_date')}
+          <DatePicker
+            value={watch('publish_date') && watch('publish_date') !== '' ? new Date(watch('publish_date')!) : undefined}
+            onChange={(date) => setValue('publish_date', date ? date.toISOString().split('T')[0] : '')}
+            placeholder="Selecione a data de publicação"
           />
           {errors.publish_date && (
             <p className="text-sm text-destructive mt-1">
