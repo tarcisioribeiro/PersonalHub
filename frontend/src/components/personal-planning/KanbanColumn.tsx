@@ -19,18 +19,18 @@ export function KanbanColumn({ status, title, cards }: KanbanColumnProps) {
 
   const getColorClasses = () => {
     const colors = {
-      todo: 'bg-slate-50 border-slate-300',
-      doing: 'bg-blue-50 border-blue-300',
-      done: 'bg-green-50 border-green-300',
+      todo: 'bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-600',
+      doing: 'bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700',
+      done: 'bg-green-50 dark:bg-green-950 border-green-300 dark:border-green-700',
     };
     return colors[status] || colors.todo;
   };
 
   const getHeaderColor = () => {
     const colors = {
-      todo: 'bg-slate-600',
-      doing: 'bg-blue-600',
-      done: 'bg-green-600',
+      todo: 'bg-slate-600 dark:bg-slate-700',
+      doing: 'bg-blue-600 dark:bg-blue-700',
+      done: 'bg-green-600 dark:bg-green-700',
     };
     return colors[status] || colors.todo;
   };
@@ -47,7 +47,7 @@ export function KanbanColumn({ status, title, cards }: KanbanColumnProps) {
       <div
         ref={setNodeRef}
         className={`flex-1 ${getColorClasses()} border-2 rounded-b-lg p-4 min-h-[500px] transition-colors ${
-          isOver ? 'border-dashed border-4 border-blue-400 bg-blue-100' : ''
+          isOver ? 'border-dashed border-4 border-blue-400 dark:border-blue-500 bg-blue-100 dark:bg-blue-900/30' : ''
         }`}
       >
         <SortableContext
@@ -56,7 +56,7 @@ export function KanbanColumn({ status, title, cards }: KanbanColumnProps) {
         >
           <div className="space-y-3">
             {cards.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-8 text-muted-foreground dark:text-gray-400">
                 <p className="text-sm">Nenhuma tarefa</p>
               </div>
             ) : (

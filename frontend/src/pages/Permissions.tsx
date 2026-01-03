@@ -307,7 +307,7 @@ export default function Permissions() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div className="flex items-start gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5" />
+              <div className="w-2 h-2 rounded-full bg-success mt-1.5" />
               <div>
                 <p className="font-medium">Permissões Ativas</p>
                 <p className="text-muted-foreground">Permissões marcadas estão ativas para o membro</p>
@@ -321,7 +321,7 @@ export default function Permissions() {
               </div>
             </div>
             <div className="flex items-start gap-2">
-              <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5" />
+              <div className="w-2 h-2 rounded-full bg-info mt-1.5" />
               <div>
                 <p className="font-medium">Granularidade</p>
                 <p className="text-muted-foreground">Controle fino de visualização e adição</p>

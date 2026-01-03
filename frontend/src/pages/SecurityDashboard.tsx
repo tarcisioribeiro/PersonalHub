@@ -8,6 +8,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useChartColors } from '@/lib/chart-colors';
 
 export default function SecurityDashboard() {
   const [stats, setStats] = useState<SecurityDashboardStats | null>(null);
@@ -34,7 +35,7 @@ export default function SecurityDashboard() {
     }
   };
 
-  const COLORS = ['#bd93f9', '#ff79c6', '#8be9fd', '#50fa7b', '#ffb86c', '#ff5555'];
+  const COLORS = useChartColors();
 
   if (isLoading) {
     return <LoadingState fullScreen />;

@@ -185,7 +185,7 @@ export function StoredAccountForm({
             <p className="text-sm text-destructive mt-1">{errors.password.message}</p>
           )}
           {account && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+            <p className="text-xs text-warning mt-1">
               Deixe vazio para manter a senha atual (criptografada)
             </p>
           )}

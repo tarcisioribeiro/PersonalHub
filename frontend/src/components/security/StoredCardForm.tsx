@@ -132,7 +132,7 @@ export function StoredCardForm({
             </p>
           )}
           {card && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+            <p className="text-xs text-warning mt-1">
               Deixe vazio para manter o número atual (criptografado)
             </p>
           )}
@@ -170,7 +170,7 @@ export function StoredCardForm({
             </p>
           )}
           {card && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+            <p className="text-xs text-warning mt-1">
               Deixe vazio para manter o CVV atual
             </p>
           )}

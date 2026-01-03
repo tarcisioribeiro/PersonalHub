@@ -31,9 +31,9 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   const variantClasses = {
     default: '',
-    success: 'border-green-500/50 bg-green-500/5',
-    warning: 'border-yellow-500/50 bg-yellow-500/5',
-    danger: 'border-red-500/50 bg-red-500/5',
+    success: 'border-success/50 bg-success/5',
+    warning: 'border-warning/50 bg-warning/5',
+    danger: 'border-destructive/50 bg-destructive/5',
   };
 
   return (
@@ -48,15 +48,15 @@ export const StatCard: React.FC<StatCardProps> = ({
         {trend && (
           <div className="flex items-center gap-1 mt-2">
             {trend.isPositive ? (
-              <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />
+              <TrendingUp className="w-4 h-4 text-success" />
             ) : (
-              <TrendingDown className="w-4 h-4 text-red-600 dark:text-red-400" />
+              <TrendingDown className="w-4 h-4 text-destructive" />
             )}
             <span
               className={`text-xs font-medium ${
                 trend.isPositive
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-red-600 dark:text-red-400'
+                  ? 'text-success'
+                  : 'text-destructive'
               }`}
             >
               {trend.value > 0 ? '+' : ''}

@@ -126,9 +126,9 @@ export default function RoutineTasks() {
   };
 
   const getCompletionRateColor = (rate: number) => {
-    if (rate >= 80) return 'bg-green-500';
-    if (rate >= 50) return 'bg-yellow-500';
-    return 'bg-red-500';
+    if (rate >= 80) return 'bg-success';
+    if (rate >= 50) return 'bg-warning';
+    return 'bg-destructive';
   };
 
   // Define table columns

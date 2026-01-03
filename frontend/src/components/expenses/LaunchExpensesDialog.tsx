@@ -175,7 +175,7 @@ export const LaunchExpensesDialog = ({
           {/* Total */}
           <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
             <span className="font-semibold">Total:</span>
-            <span className="text-2xl font-bold text-red-600 dark:text-red-400">
+            <span className="text-2xl font-bold text-destructive">
               {formatCurrency(totalValue)}
             </span>
           </div>

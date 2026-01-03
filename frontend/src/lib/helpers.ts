@@ -214,13 +214,13 @@ export const debounce = <T extends (...args: any[]) => any>(
 export const getModuleBadgeColor = (module: string): string => {
   switch (module) {
     case 'finance':
-      return 'bg-green-500';
+      return 'bg-category-finance text-white';
     case 'security':
-      return 'bg-blue-500';
+      return 'bg-category-studies text-white';
     case 'library':
-      return 'bg-purple-500';
+      return 'bg-category-spiritual text-white';
     default:
-      return 'bg-gray-500';
+      return 'bg-muted text-muted-foreground';
   }
 };
 

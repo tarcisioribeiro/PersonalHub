@@ -173,7 +173,7 @@ export function ArchiveForm({
             accept={FILE_TYPES_ACCEPT}
           />
           {archive ? (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+            <p className="text-xs text-warning mt-1">
               Deixe vazio para manter o arquivo atual. Upload de novo arquivo substituirá o existente.
             </p>
           ) : (

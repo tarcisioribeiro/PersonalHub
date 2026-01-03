@@ -56,6 +56,16 @@ export default {
           DEFAULT: 'hsl(var(--info))',
           foreground: 'hsl(var(--info-foreground))',
         },
+        category: {
+          finance: 'hsl(var(--category-finance))',
+          health: 'hsl(var(--category-health))',
+          studies: 'hsl(var(--category-studies))',
+          spiritual: 'hsl(var(--category-spiritual))',
+          exercise: 'hsl(var(--category-exercise))',
+          nutrition: 'hsl(var(--category-nutrition))',
+          work: 'hsl(var(--category-work))',
+          leisure: 'hsl(var(--category-leisure))',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',

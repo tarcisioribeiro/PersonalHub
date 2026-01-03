@@ -158,7 +158,7 @@ export default function CreditCardExpenses() {
       label: 'Valor',
       align: 'right',
       render: (expense) => (
-        <span className="font-semibold text-red-600 dark:text-red-400">
+        <span className="font-semibold text-destructive">
           {formatCurrency(expense.value)}
         </span>
       ),
@@ -248,7 +248,7 @@ export default function CreditCardExpenses() {
         </div>
         <div className="flex justify-between items-center pt-2 border-t">
           <span className="text-sm text-muted-foreground">{filteredExpenses.length} despesa(s) encontrada(s)</span>
-          <span className="text-lg font-bold text-red-600 dark:text-red-400">Total: {formatCurrency(totalExpenses)}</span>
+          <span className="text-lg font-bold text-destructive">Total: {formatCurrency(totalExpenses)}</span>
         </div>
       </div>
 

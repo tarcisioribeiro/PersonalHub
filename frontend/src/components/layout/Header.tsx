@@ -96,7 +96,7 @@ export const Header = () => {
           >
             <div className="relative">
               {darkMode ? (
-                <Sun className="w-5 h-5 text-amber-500 transition-transform rotate-0 hover:rotate-180 duration-500" />
+                <Sun className="w-5 h-5 text-warning transition-transform rotate-0 hover:rotate-180 duration-500" />
               ) : (
                 <Moon className="w-5 h-5 text-primary transition-transform rotate-0 hover:rotate-[-15deg] duration-300" />
               )}

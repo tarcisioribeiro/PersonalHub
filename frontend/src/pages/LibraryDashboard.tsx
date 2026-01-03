@@ -8,6 +8,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useChartColors } from '@/lib/chart-colors';
 
 export default function LibraryDashboard() {
   const [stats, setStats] = useState<LibraryDashboardStats | null>(null);
@@ -34,7 +35,7 @@ export default function LibraryDashboard() {
     }
   };
 
-  const COLORS = ['#bd93f9', '#ff79c6', '#8be9fd', '#50fa7b', '#ffb86c', '#ff5555'];
+  const COLORS = useChartColors();
 
   const renderStars = (rating: number) => {
     return (
@@ -44,8 +45,8 @@ export default function LibraryDashboard() {
             key={star}
             className={`h-4 w-4 ${
               star <= rating
-                ? 'fill-yellow-400 text-yellow-400'
-                : 'fill-gray-300 text-gray-300 dark:fill-gray-600 dark:text-gray-600'
+                ? 'fill-warning text-warning'
+                : 'fill-muted text-muted'
             }`}
           />
         ))}
@@ -140,10 +141,10 @@ export default function LibraryDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Para Ler</CardTitle>
-            <BookOpen className="h-4 w-4 text-yellow-500" />
+            <BookOpen className="h-4 w-4 text-warning" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+            <div className="text-2xl font-bold text-warning">
               {stats?.books_to_read || 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">

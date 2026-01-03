@@ -9,7 +9,7 @@
   :root {
     /* Backgrounds - Tons claros */
     --background: 0 0% 97%;
-    --foreground: 231 15% 18%;
+    --foreground: 231 15% 15%;
 
     /* Cards - Branco puro */
     --card: 0 0% 100%;
@@ -29,7 +29,7 @@
 
     /* Muted - Comment (#6272a4) clareado */
     --muted: 220 13% 95%;
-    --muted-foreground: 226 38% 48%;
+    --muted-foreground: 226 38% 40%;
 
     /* Accent - Pink (#ff79c6) */
     --accent: 330 100% 71%;
@@ -58,17 +58,27 @@
 
     /* Border radius */
     --radius: 0.5rem;
+
+    /* Category colors */
+    --category-finance: 142 76% 36%;      /* verde escuro */
+    --category-health: 152 69% 31%;       /* verde-azulado */
+    --category-studies: 217 91% 60%;      /* azul */
+    --category-spiritual: 265 89% 58%;    /* roxo */
+    --category-exercise: 24 100% 50%;     /* laranja */
+    --category-nutrition: 142 76% 36%;    /* verde */
+    --category-work: 215 28% 39%;         /* cinza-azulado */
+    --category-leisure: 191 97% 77%;      /* ciano */
   }
 
   /* Tema Escuro - Dracula Theme */
   .dark {
     /* Backgrounds - Background (#282a36) */
     --background: 231 15% 18%;
-    --foreground: 60 30% 96%; /* Foreground (#f8f8f2) */
+    --foreground: 60 30% 98%; /* Foreground (#f8f8f2) */
 
     /* Cards - Current Line (#44475a) */
     --card: 232 14% 31%;
-    --card-foreground: 60 30% 96%;
+    --card-foreground: 60 30% 98%;
 
     /* Popovers - Current Line (#44475a) */
     --popover: 232 14% 31%;
@@ -110,6 +120,16 @@
     --border: 232 14% 31%;
     --input: 232 14% 31%;
     --ring: 265 89% 78%; /* Purple (#bd93f9) */
+
+    /* Category colors */
+    --category-finance: 135 94% 65%;      /* verde Dracula */
+    --category-health: 142 76% 50%;
+    --category-studies: 217 91% 70%;
+    --category-spiritual: 265 89% 78%;
+    --category-exercise: 31 100% 71%;
+    --category-nutrition: 135 94% 65%;
+    --category-work: 225 27% 51%;
+    --category-leisure: 191 97% 77%;
   }
 }
 
@@ -220,5 +240,49 @@
   /* Remover opacidade em hover para melhor feedback visual */
   .sidebar-text:hover {
     opacity: 1;
+  }
+
+  /* Custom scrollbar para browsers com suporte */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 5px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 5px;
+    transition: background 0.2s;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+
+  /* Page heights consistentes */
+  .page-height {
+    height: calc(100vh - 8rem);
+  }
+
+  .page-height-with-filters {
+    height: calc(100vh - 12rem);
+  }
+
+  .full-page-height {
+    height: calc(100vh - 4rem);
+  }
+
+  /* Text emphasis utilities */
+  .text-emphasis {
+    color: hsl(var(--foreground));
+    font-weight: 500;
+  }
+
+  .text-subtle {
+    color: hsl(var(--muted-foreground));
   }
 }

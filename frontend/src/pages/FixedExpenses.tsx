@@ -124,7 +124,7 @@ export default function FixedExpenses() {
       label: 'Valor Padrão',
       align: 'right',
       render: (item) => (
-        <span className="font-semibold text-red-600 dark:text-red-400">
+        <span className="font-semibold text-destructive">
           {formatCurrency(item.default_value)}
         </span>
       ),

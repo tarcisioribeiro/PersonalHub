@@ -134,15 +134,15 @@ export default function Goals() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-blue-500';
+        return 'bg-info';
       case 'completed':
-        return 'bg-green-500';
+        return 'bg-success';
       case 'failed':
-        return 'bg-red-500';
+        return 'bg-destructive';
       case 'cancelled':
-        return 'bg-gray-500';
+        return 'bg-muted';
       default:
-        return 'bg-gray-500';
+        return 'bg-muted';
     }
   };
 

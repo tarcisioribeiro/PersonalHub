@@ -84,6 +84,7 @@ export default function DailyChecklist() {
           id: `${task.task_id}-${i}`,
           task_id: task.task_id,
           task_name: task.task_name,
+          description: task.description,
           category: task.category,
           category_display: task.category_display,
           unit: task.unit,

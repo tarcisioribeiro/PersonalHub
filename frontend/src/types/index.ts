@@ -1046,6 +1046,7 @@ export interface DailyTaskRecordFormData {
 export interface TaskForToday {
   task_id: number;
   task_name: string;
+  description?: string;
   category: string;
   category_display: string;
   target_quantity: number;
@@ -1070,6 +1071,7 @@ export interface TaskCard {
   id: string; // unique ID for the card (task_id + index)
   task_id: number; // original task ID
   task_name: string;
+  description?: string;
   category: string;
   category_display: string;
   unit: string;

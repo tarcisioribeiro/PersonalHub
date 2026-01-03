@@ -32,7 +32,7 @@ export default function Home() {
       description: 'Gestão Financeira Completa',
       icon: <Wallet className="w-8 h-8" />,
       href: '/dashboard',
-      color: 'from-green-500 to-emerald-600',
+      color: 'from-success to-success/70',
       features: [
         'Controle de Contas Bancárias',
         'Gestão de Despesas e Receitas',
@@ -46,7 +46,7 @@ export default function Home() {
       description: 'Gerenciador de Senhas e Segurança',
       icon: <Shield className="w-8 h-8" />,
       href: '/security/passwords',
-      color: 'from-blue-500 to-indigo-600',
+      color: 'from-info to-primary',
       features: [
         'Armazenamento Seguro de Senhas',
         'Cartões e Contas Bancárias',
@@ -60,7 +60,7 @@ export default function Home() {
       description: 'Biblioteca Pessoal Digital',
       icon: <Library className="w-8 h-8" />,
       href: '/library/books',
-      color: 'from-purple-500 to-pink-600',
+      color: 'from-primary to-accent',
       features: [
         'Catálogo de Livros',
         'Autores e Editoras',
@@ -74,7 +74,7 @@ export default function Home() {
       description: 'Assistente Inteligente',
       icon: <Bot className="w-8 h-8" />,
       href: '/ai-assistant',
-      color: 'from-amber-500 to-orange-600',
+      color: 'from-warning to-warning/70',
       features: [
         'Consultas em Linguagem Natural',
         'Análise de Dados Financeiros',

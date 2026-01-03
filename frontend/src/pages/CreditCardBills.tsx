@@ -165,7 +165,7 @@ export default function CreditCardBills() {
       label: 'Pago',
       align: 'right',
       render: (bill) => (
-        <span className="font-semibold text-green-600 dark:text-green-400">
+        <span className="font-semibold text-success">
           {formatCurrency(bill.paid_amount)}
         </span>
       ),

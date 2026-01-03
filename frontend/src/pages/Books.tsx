@@ -157,13 +157,13 @@ export default function Books() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'read':
-        return 'bg-green-500';
+        return 'bg-success';
       case 'reading':
-        return 'bg-blue-500';
+        return 'bg-info';
       case 'to_read':
-        return 'bg-gray-500';
+        return 'bg-muted';
       default:
-        return 'bg-gray-500';
+        return 'bg-muted';
     }
   };
 

@@ -121,7 +121,7 @@ export default function Revenues() {
       label: 'Valor',
       align: 'right',
       render: (revenue) => (
-        <span className="font-semibold text-green-600 dark:text-green-400">
+        <span className="font-semibold text-success">
           {formatCurrency(revenue.value)}
         </span>
       ),
@@ -161,7 +161,7 @@ export default function Revenues() {
         <span className="text-sm text-muted-foreground">
           {revenues.length} receita(s) cadastrada(s)
         </span>
-        <span className="text-lg font-bold text-green-600 dark:text-green-400">
+        <span className="text-lg font-bold text-success">
           Total: {formatCurrency(totalRevenues)}
         </span>
       </div>

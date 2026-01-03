@@ -53,7 +53,7 @@ export default function TodayTasks() {
             <div key={task.id} className="border rounded-lg p-4 flex items-center gap-4">
               <CheckCircle2
                 className={`h-6 w-6 ${
-                  task.completed ? 'text-green-500' : 'text-gray-300'
+                  task.completed ? 'text-success' : 'text-muted'
                 }`}
               />
               <div className="flex-1">

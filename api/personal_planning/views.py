@@ -217,6 +217,7 @@ class TasksForTodayView(APIView):
                 tasks_for_today.append({
                     'task_id': task.id,
                     'task_name': task.name,
+                    'description': task.description,
                     'category': task.category,
                     'category_display': task.get_category_display(),
                     'target_quantity': task.target_quantity,

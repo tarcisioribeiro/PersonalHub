@@ -13,6 +13,7 @@ import type { DashboardStats, Expense, Revenue } from '@/types';
 import { Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { format, subMonths, startOfMonth, endOfMonth, eachMonthOfInterval } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useChartColors } from '@/lib/chart-colors';
 
 export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -78,7 +79,7 @@ export default function Dashboard() {
     });
   }, [expenses, revenues]);
 
-  const COLORS = ['#bd93f9', '#ff79c6', '#8be9fd', '#50fa7b', '#ffb86c', '#ff5555'];
+  const COLORS = useChartColors();
 
   if (isLoading) {
     return <LoadingState fullScreen />;
@@ -231,9 +232,9 @@ export default function Dashboard() {
                 <YAxis />
                 <Tooltip formatter={(value: number) => formatCurrency(value)} />
                 <Legend />
-                <Line type="monotone" dataKey="despesas" stroke="#ff5555" strokeWidth={2} name="Despesas" />
-                <Line type="monotone" dataKey="receitas" stroke="#50fa7b" strokeWidth={2} name="Receitas" />
-                <Line type="monotone" dataKey="saldo" stroke="#bd93f9" strokeWidth={2} name="Saldo" />
+                <Line type="monotone" dataKey="despesas" stroke={COLORS[5]} strokeWidth={2} name="Despesas" />
+                <Line type="monotone" dataKey="receitas" stroke={COLORS[3]} strokeWidth={2} name="Receitas" />
+                <Line type="monotone" dataKey="saldo" stroke={COLORS[0]} strokeWidth={2} name="Saldo" />
               </LineChart>
             </ResponsiveContainer>
           )}
