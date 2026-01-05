@@ -54,7 +54,7 @@ export function ReadingForm({
       : {
           book: 0,
           pages_read: 0,
-          reading_date: new Date().toISOString().split('T')[0],
+          reading_date: formatLocalDate(new Date()),
           reading_time: 0,
           notes: '',
           owner: 0,

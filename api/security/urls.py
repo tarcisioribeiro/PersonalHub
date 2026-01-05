@@ -16,6 +16,7 @@ from security.views import (
     ArchiveListCreateView,
     ArchiveDetailView,
     ArchiveRevealView,
+    ArchiveDownloadView,
     # Activity Log views
     ActivityLogListView,
     # Dashboard views
@@ -45,6 +46,7 @@ urlpatterns = [
     path('archives/', ArchiveListCreateView.as_view(), name='archive-list-create'),
     path('archives/<int:pk>/', ArchiveDetailView.as_view(), name='archive-detail'),
     path('archives/<int:pk>/reveal/', ArchiveRevealView.as_view(), name='archive-reveal'),
+    path('archives/<int:pk>/download/', ArchiveDownloadView.as_view(), name='archive-download'),
 
     # Activity Logs
     path('activity-logs/', ActivityLogListView.as_view(), name='activity-log-list'),

@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
 from app.permissions import GlobalDefaultPermission
@@ -352,6 +353,7 @@ class StoredBankAccountRevealView(generics.RetrieveAPIView):
 class ArchiveListCreateView(generics.ListCreateAPIView):
     """Lista todos os arquivos ou cria um novo."""
     permission_classes = [IsAuthenticated, GlobalDefaultPermission]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     queryset = Archive.objects.all()
 
     def get_queryset(self):
@@ -382,6 +384,7 @@ class ArchiveListCreateView(generics.ListCreateAPIView):
 class ArchiveDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Recupera, atualiza ou deleta um arquivo."""
     permission_classes = [IsAuthenticated, GlobalDefaultPermission]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     queryset = Archive.objects.all()
 
     def get_queryset(self):
@@ -443,6 +446,58 @@ class ArchiveRevealView(generics.RetrieveAPIView):
 
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+
+class ArchiveDownloadView(APIView):
+    """Faz download do arquivo criptografado."""
+    permission_classes = [IsAuthenticated, GlobalDefaultPermission]
+
+    def get(self, request, pk):
+        """Download do arquivo criptografado."""
+        try:
+            archive = Archive.objects.get(
+                pk=pk,
+                owner__user=request.user,
+                deleted_at__isnull=True
+            )
+        except Archive.DoesNotExist:
+            return Response(
+                {'error': 'Arquivo não encontrado'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if not archive.encrypted_file:
+            return Response(
+                {'error': 'Este arquivo não possui um arquivo anexado'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Log da atividade
+        log_activity(
+            request,
+            'download',
+            'Archive',
+            archive.id,
+            f'Fez download do arquivo: {archive.title}'
+        )
+
+        # Retornar o arquivo
+        from django.http import FileResponse
+        import os
+
+        file_path = archive.encrypted_file.path
+        if os.path.exists(file_path):
+            response = FileResponse(
+                open(file_path, 'rb'),
+                as_attachment=True,
+                filename=os.path.basename(file_path)
+            )
+            return response
+        else:
+            return Response(
+                {'error': 'Arquivo não encontrado no sistema de arquivos'},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 
 # ============================================================================

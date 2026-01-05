@@ -36,7 +36,7 @@ export const CreditCardExpenseForm: React.FC<CreditCardExpenseFormProps> = ({
     defaultValues: {
       description: '',
       value: 0,
-      date: new Date().toISOString().split('T')[0],
+      date: formatLocalDate(new Date()),
       horary: new Date().toTimeString().split(' ')[0].substring(0, 5),
       category: '',
       card: 0,

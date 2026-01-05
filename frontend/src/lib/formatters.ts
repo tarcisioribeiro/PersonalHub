@@ -6,6 +6,7 @@
  */
 
 import { format } from 'date-fns';
+import { parseLocalDate } from './utils';
 
 /**
  * Formata valores monetários em Real Brasileiro (BRL)
@@ -44,7 +45,8 @@ export const formatCurrency = (value: string | number): string => {
  */
 export const formatDate = (date: string | Date, formatStr: string = 'dd/MM/yyyy'): string => {
   try {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    const dateObj = typeof date === 'string' ? parseLocalDate(date) : date;
+    if (!dateObj) return 'Data inválida';
     return format(dateObj, formatStr);
   } catch (error) {
     return 'Data inválida';
@@ -64,7 +66,8 @@ export const formatDate = (date: string | Date, formatStr: string = 'dd/MM/yyyy'
  */
 export const formatDateTime = (date: string, time?: string): string => {
   try {
-    const dateObj = new Date(date);
+    const dateObj = parseLocalDate(date);
+    if (!dateObj) return 'Data inválida';
 
     if (time) {
       const [hours, minutes] = time.split(':');

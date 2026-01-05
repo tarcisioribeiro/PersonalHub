@@ -41,7 +41,7 @@ export const RevenueForm: React.FC<RevenueFormProps> = ({ revenue, accounts, loa
       notes: revenue.notes,
       related_loan: revenue.related_loan || null,
     } : {
-      date: new Date().toISOString().split('T')[0],
+      date: formatLocalDate(new Date()),
       horary: new Date().toTimeString().slice(0, 5),
       received: false,
       recurring: false,

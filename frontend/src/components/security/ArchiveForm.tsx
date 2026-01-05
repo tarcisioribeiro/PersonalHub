@@ -26,6 +26,14 @@ const ARCHIVE_CATEGORIES = [
   { value: 'other', label: 'Outro' },
 ];
 
+const ARCHIVE_TYPES = [
+  { value: 'text', label: 'Texto' },
+  { value: 'pdf', label: 'PDF' },
+  { value: 'image', label: 'Imagem' },
+  { value: 'document', label: 'Documento' },
+  { value: 'other', label: 'Outro' },
+];
+
 const FILE_TYPES_ACCEPT = [
   '.txt',
   '.pdf',
@@ -75,7 +83,7 @@ export function ArchiveForm({
       ? {
           title: archive.title,
           category: archive.category as any,
-          archive_type: 'file' as any,
+          archive_type: archive.archive_type as any,
           text_content: archive.text_content || '',
           notes: archive.notes || '',
           tags: archive.tags || '',
@@ -84,7 +92,7 @@ export function ArchiveForm({
       : {
           title: '',
           category: 'personal' as const,
-          archive_type: 'file' as const,
+          archive_type: 'other' as const,
           text_content: '',
           notes: '',
           tags: '',
@@ -127,7 +135,7 @@ export function ArchiveForm({
           )}
         </div>
 
-        <div className="col-span-2">
+        <div>
           <Label htmlFor="category">Categoria *</Label>
           <Select
             value={watch('category')}
@@ -146,6 +154,28 @@ export function ArchiveForm({
           </Select>
           {errors.category && (
             <p className="text-sm text-destructive mt-1">{errors.category.message}</p>
+          )}
+        </div>
+
+        <div>
+          <Label htmlFor="archive_type">Tipo de Arquivo *</Label>
+          <Select
+            value={watch('archive_type')}
+            onValueChange={(value) => setValue('archive_type', value as any)}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ARCHIVE_TYPES.map((type) => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.archive_type && (
+            <p className="text-sm text-destructive mt-1">{errors.archive_type.message}</p>
           )}
         </div>
 

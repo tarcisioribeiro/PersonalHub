@@ -70,7 +70,7 @@ export function GoalForm({
           related_task: undefined,
           target_value: 30,
           current_value: 0,
-          start_date: new Date().toISOString().split('T')[0],
+          start_date: formatLocalDate(new Date()),
           end_date: '',
           status: 'active',
           owner: 0,

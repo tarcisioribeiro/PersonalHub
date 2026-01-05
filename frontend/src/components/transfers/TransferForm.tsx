@@ -28,7 +28,7 @@ export const TransferForm: React.FC<TransferFormProps> = ({ transfer, accounts, 
       origin_account: transfer.origin_account,
       destiny_account: transfer.destiny_account,
     } : {
-      date: new Date().toISOString().split('T')[0],
+      date: formatLocalDate(new Date()),
       horary: new Date().toTimeString().split(' ')[0].substring(0, 5),
       category: 'pix',
       transfered: false,

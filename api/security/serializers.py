@@ -268,6 +268,7 @@ class ArchiveSerializer(serializers.ModelSerializer):
 class ArchiveCreateUpdateSerializer(serializers.ModelSerializer):
     """Serializer para criação/atualização de arquivos."""
     text_content = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    encrypted_file = serializers.FileField(required=False, allow_null=True)
 
     class Meta:
         model = Archive

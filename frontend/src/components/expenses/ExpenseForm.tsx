@@ -30,7 +30,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, accounts, loa
     defaultValues: {
       description: '',
       value: 0,
-      date: new Date().toISOString().split('T')[0],
+      date: formatLocalDate(new Date()),
       horary: new Date().toTimeString().split(' ')[0].substring(0, 5),
       payed: false,
       category: '',

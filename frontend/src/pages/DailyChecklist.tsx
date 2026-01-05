@@ -41,10 +41,10 @@ import { membersService } from '@/services/members-service';
 import { useToast } from '@/hooks/use-toast';
 import { MOOD_CHOICES, type TaskForToday, type TaskCard, type KanbanStatus } from '@/types';
 
-import { formatLocalDate } from '@/lib/utils';
+import { formatLocalDate, parseLocalDate } from '@/lib/utils';
 export default function DailyChecklist() {
   const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
+    formatLocalDate(new Date())
   );
   const [tasksData, setTasksData] = useState<TaskForToday[]>([]);
   const [cards, setCards] = useState<TaskCard[]>([]);
@@ -371,7 +371,7 @@ export default function DailyChecklist() {
         <div className="flex-1">
           <Label htmlFor="date">Data</Label>
           <DatePicker
-            value={selectedDate ? new Date(selectedDate) : undefined}
+            value={selectedDate ? parseLocalDate(selectedDate) : undefined}
             onChange={(date) => setSelectedDate(date ? formatLocalDate(date) : '')}
             placeholder="Selecione a data"
             className="max-w-xs"

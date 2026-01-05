@@ -1,10 +1,11 @@
 import { apiClient } from './api-client';
 import { API_CONFIG } from '@/config/constants';
-import type { Loan, LoanFormData } from '@/types';
+import type { Loan, LoanFormData, PaginatedResponse } from '@/types';
 
 class LoansService {
   async getAll(): Promise<Loan[]> {
-    return apiClient.get<Loan[]>(API_CONFIG.ENDPOINTS.LOANS);
+    const response = await apiClient.get<PaginatedResponse<Loan>>(API_CONFIG.ENDPOINTS.LOANS);
+    return response.results;
   }
 
   async getById(id: number): Promise<Loan> {
