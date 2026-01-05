@@ -14,7 +14,7 @@ import { formatCurrency } from '@/lib/formatters';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import type { DashboardStats, Expense, Revenue } from '@/types';
-import { Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie } from 'recharts';
 import { format, subMonths, startOfMonth, endOfMonth, eachMonthOfInterval } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useChartColors } from '@/lib/chart-colors';
@@ -24,6 +24,8 @@ export default function Dashboard() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [revenues, setRevenues] = useState<Revenue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isExpensesChart3D, setIsExpensesChart3D] = useState(false);
+  const [isRevenuesChart3D, setIsRevenuesChart3D] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -54,11 +56,15 @@ export default function Dashboard() {
     return expenses
       .filter(exp => exp.payed) // Apenas despesas pagas
       .reduce((acc: any[], exp) => {
-        const existing = acc.find(item => item.name === exp.category);
+        const existing = acc.find(item => item.category === exp.category);
         if (existing) {
           existing.value += parseFloat(exp.value);
         } else {
-          acc.push({ name: translate('expenseCategories', exp.category), value: parseFloat(exp.value) });
+          acc.push({
+            category: exp.category,
+            name: translate('expenseCategories', exp.category),
+            value: parseFloat(exp.value)
+          });
         }
         return acc;
       }, []).sort((a, b) => b.value - a.value).slice(0, 5);
@@ -68,11 +74,15 @@ export default function Dashboard() {
     return revenues
       .filter(rev => rev.received) // Apenas receitas recebidas
       .reduce((acc: any[], rev) => {
-        const existing = acc.find(item => item.name === rev.category);
+        const existing = acc.find(item => item.category === rev.category);
         if (existing) {
           existing.value += parseFloat(rev.value);
         } else {
-          acc.push({ name: translate('revenueCategories', rev.category), value: parseFloat(rev.value) });
+          acc.push({
+            category: rev.category,
+            name: translate('revenueCategories', rev.category),
+            value: parseFloat(rev.value)
+          });
         }
         return acc;
       }, []).sort((a, b) => b.value - a.value).slice(0, 5);
@@ -156,7 +166,10 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Despesas por Categoria (Top 5)</CardTitle>
+            <CardTitle className="flex items-center justify-between">
+              <span>Despesas por Categoria (Top 5)</span>
+              <span className="text-xs text-muted-foreground cursor-help">Clique no gráfico para alternar visualização</span>
+            </CardTitle>
             <p className="text-sm text-muted-foreground">Distribuição das maiores categorias de gastos</p>
           </CardHeader>
           <CardContent>
@@ -164,27 +177,67 @@ export default function Dashboard() {
               <div className="h-64 flex items-center justify-center text-muted-foreground">Nenhuma despesa cadastrada</div>
             ) : (
               <>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={expensesByCategory} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                    <XAxis type="number" />
-                    <YAxis dataKey="name" type="category" width={150} />
-                    <Tooltip
-                      formatter={(value: number) => formatCurrency(value)}
-                      labelStyle={{ color: 'hsl(var(--foreground))' }}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '6px'
-                      }}
-                    />
-                    <Bar dataKey="value" radius={[0, 8, 8, 0]} name="Valor">
-                      {expensesByCategory.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                <div onClick={() => setIsExpensesChart3D(!isExpensesChart3D)} className="cursor-pointer">
+                  <ResponsiveContainer width="100%" height={300}>
+                    {isExpensesChart3D ? (
+                      <PieChart>
+                        <defs>
+                          {COLORS.map((color, idx) => (
+                            <linearGradient key={`gradient-exp-${idx}`} id={`gradient-exp-${idx}`} x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor={color} stopOpacity={1} />
+                              <stop offset="100%" stopColor={color} stopOpacity={0.6} />
+                            </linearGradient>
+                          ))}
+                        </defs>
+                        <Pie
+                          data={expensesByCategory}
+                          cx="50%"
+                          cy="50%"
+                          startAngle={180}
+                          endAngle={0}
+                          innerRadius={60}
+                          outerRadius={100}
+                          paddingAngle={2}
+                          dataKey="value"
+                          label={(entry) => entry.name}
+                        >
+                          {expensesByCategory.map((_, index) => (
+                            <Cell key={`cell-${index}`} fill={`url(#gradient-exp-${index % COLORS.length})`} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value: number) => formatCurrency(value)}
+                          labelStyle={{ color: 'hsl(var(--foreground))' }}
+                          contentStyle={{
+                            backgroundColor: 'hsl(var(--background))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '6px'
+                          }}
+                        />
+                      </PieChart>
+                    ) : (
+                      <BarChart data={expensesByCategory} layout="vertical">
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                        <XAxis type="number" />
+                        <YAxis dataKey="name" type="category" width={150} />
+                        <Tooltip
+                          formatter={(value: number) => formatCurrency(value)}
+                          labelStyle={{ color: 'hsl(var(--foreground))' }}
+                          contentStyle={{
+                            backgroundColor: 'hsl(var(--background))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '6px'
+                          }}
+                        />
+                        <Bar dataKey="value" radius={[0, 8, 8, 0]} name="Valor">
+                          {expensesByCategory.map((_, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    )}
+                  </ResponsiveContainer>
+                </div>
                 <div className="mt-4 space-y-2">
                   {expensesByCategory.map((category, index) => (
                     <div key={index} className="flex items-center justify-between text-sm">
@@ -203,7 +256,10 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Receitas por Categoria (Top 5)</CardTitle>
+            <CardTitle className="flex items-center justify-between">
+              <span>Receitas por Categoria (Top 5)</span>
+              <span className="text-xs text-muted-foreground cursor-help">Clique no gráfico para alternar visualização</span>
+            </CardTitle>
             <p className="text-sm text-muted-foreground">Distribuição das fontes de receita</p>
           </CardHeader>
           <CardContent>
@@ -211,27 +267,67 @@ export default function Dashboard() {
               <div className="h-64 flex items-center justify-center text-muted-foreground">Nenhuma receita cadastrada</div>
             ) : (
               <>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={revenuesByCategory} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                    <XAxis type="number" />
-                    <YAxis dataKey="name" type="category" width={150} />
-                    <Tooltip
-                      formatter={(value: number) => formatCurrency(value)}
-                      labelStyle={{ color: 'hsl(var(--foreground))' }}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '6px'
-                      }}
-                    />
-                    <Bar dataKey="value" radius={[0, 8, 8, 0]} name="Valor">
-                      {revenuesByCategory.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                <div onClick={() => setIsRevenuesChart3D(!isRevenuesChart3D)} className="cursor-pointer">
+                  <ResponsiveContainer width="100%" height={300}>
+                    {isRevenuesChart3D ? (
+                      <PieChart>
+                        <defs>
+                          {COLORS.map((color, idx) => (
+                            <linearGradient key={`gradient-rev-${idx}`} id={`gradient-rev-${idx}`} x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor={color} stopOpacity={1} />
+                              <stop offset="100%" stopColor={color} stopOpacity={0.6} />
+                            </linearGradient>
+                          ))}
+                        </defs>
+                        <Pie
+                          data={revenuesByCategory}
+                          cx="50%"
+                          cy="50%"
+                          startAngle={180}
+                          endAngle={0}
+                          innerRadius={60}
+                          outerRadius={100}
+                          paddingAngle={2}
+                          dataKey="value"
+                          label={(entry) => entry.name}
+                        >
+                          {revenuesByCategory.map((_, index) => (
+                            <Cell key={`cell-${index}`} fill={`url(#gradient-rev-${index % COLORS.length})`} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value: number) => formatCurrency(value)}
+                          labelStyle={{ color: 'hsl(var(--foreground))' }}
+                          contentStyle={{
+                            backgroundColor: 'hsl(var(--background))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '6px'
+                          }}
+                        />
+                      </PieChart>
+                    ) : (
+                      <BarChart data={revenuesByCategory} layout="vertical">
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                        <XAxis type="number" />
+                        <YAxis dataKey="name" type="category" width={150} />
+                        <Tooltip
+                          formatter={(value: number) => formatCurrency(value)}
+                          labelStyle={{ color: 'hsl(var(--foreground))' }}
+                          contentStyle={{
+                            backgroundColor: 'hsl(var(--background))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '6px'
+                          }}
+                        />
+                        <Bar dataKey="value" radius={[0, 8, 8, 0]} name="Valor">
+                          {revenuesByCategory.map((_, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    )}
+                  </ResponsiveContainer>
+                </div>
                 <div className="mt-4 space-y-2">
                   {revenuesByCategory.map((category, index) => (
                     <div key={index} className="flex items-center justify-between text-sm">

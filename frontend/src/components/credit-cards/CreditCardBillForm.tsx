@@ -101,9 +101,11 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
             <SelectContent>
               {creditCards.map((c) => {
                 const last4 = c.card_number_masked ? c.card_number_masked.slice(-4) : '****';
+                const brandName = TRANSLATIONS.cardBrands[c.flag as keyof typeof TRANSLATIONS.cardBrands] || c.flag;
+                const accountName = c.associated_account_name || 'Conta não informada';
                 return (
                   <SelectItem key={c.id} value={c.id.toString()}>
-                    {c.on_card_name} ****{last4}
+                    {c.on_card_name} ****{last4} - {brandName} - {accountName}
                   </SelectItem>
                 );
               })}

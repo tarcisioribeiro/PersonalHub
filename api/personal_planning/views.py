@@ -509,7 +509,15 @@ class PersonalPlanningDashboardStatsView(APIView):
         return Response(stats)
 
     def _calculate_current_streak(self, user, today):
-        """Calcula sequencia atual de dias com 100% de cumprimento."""
+        """
+        Calcula sequencia atual de dias com 100% de cumprimento.
+
+        Um dia conta para o streak se:
+        1. Há tarefas programadas para aquele dia
+        2. TODAS as tarefas programadas foram completadas (têm registro completo)
+
+        NOTA: Se uma tarefa não tem registro, conta como não completada.
+        """
         # Buscar todas as tarefas ativas uma única vez
         active_tasks = RoutineTask.objects.filter(
             owner__user=user,
@@ -527,13 +535,14 @@ class PersonalPlanningDashboardStatsView(APIView):
         days_without_tasks = 0
 
         for _ in range(max_lookback_days):
+            # Verificar quais tarefas deveriam aparecer nesta data
             tasks_for_day = [
                 t for t in active_tasks
                 if t.should_appear_on_date(check_date)
             ]
 
             if not tasks_for_day:
-                # Se nao ha tarefas para o dia, nao quebra o streak
+                # Se não há tarefas para o dia, não quebra o streak
                 days_without_tasks += 1
                 # Se já passaram 30 dias sem tarefas, pare
                 if days_without_tasks >= 30:
@@ -544,51 +553,92 @@ class PersonalPlanningDashboardStatsView(APIView):
             # Reset contador de dias sem tarefas
             days_without_tasks = 0
 
-            # Verificar se todas foram cumpridas
+            # Buscar registros do dia
             records = DailyTaskRecord.objects.filter(
                 owner__user=user,
                 date=check_date,
                 deleted_at__isnull=True
             )
 
-            completed_tasks = records.filter(completed=True).count()
+            # Contar apenas registros completados
+            completed_count = records.filter(completed=True).count()
+            expected_count = len(tasks_for_day)
 
-            if completed_tasks == len(tasks_for_day):
+            # Para manter o streak, TODAS as tarefas devem estar completadas
+            if completed_count == expected_count and completed_count > 0:
                 streak += 1
                 check_date -= timedelta(days=1)
             else:
-                # Streak quebrado
+                # Streak quebrado: falta registro ou alguma tarefa não foi completada
                 break
 
         return streak
 
     def _calculate_best_streak(self, user):
         """Calcula a melhor sequencia de todos os tempos."""
-        # Implementacao simplificada - pode ser otimizada
-        # Buscar todos os registros e calcular a melhor sequencia
+        # Buscar todas as tarefas ativas
+        active_tasks = RoutineTask.objects.filter(
+            owner__user=user,
+            is_active=True,
+            deleted_at__isnull=True
+        )
+
+        # Se não há tarefas ativas, streak é 0
+        if not active_tasks.exists():
+            return 0
+
+        # Buscar todos os registros agrupados por data
         records = DailyTaskRecord.objects.filter(
             owner__user=user,
             deleted_at__isnull=True
         ).order_by('date')
 
-        if not records:
+        if not records.exists():
             return 0
 
-        # Logica para calcular melhor streak (simplificada)
-        best = 0
-        current = 0
-        last_date = None
-
+        # Agrupar registros por data
+        from collections import defaultdict
+        records_by_date = defaultdict(list)
         for record in records:
-            if last_date and (record.date - last_date).days == 1:
-                if record.completed:
-                    current += 1
-                    best = max(best, current)
+            records_by_date[record.date].append(record)
+
+        # Obter todas as datas únicas ordenadas
+        all_dates = sorted(records_by_date.keys())
+
+        best_streak = 0
+        current_streak = 0
+
+        # Iterar por todas as datas desde a primeira até a última
+        if all_dates:
+            start_date = all_dates[0]
+            end_date = all_dates[-1]
+            check_date = start_date
+
+            while check_date <= end_date:
+                # Verificar quais tarefas deveriam aparecer nesta data
+                tasks_for_day = [
+                    t for t in active_tasks
+                    if t.should_appear_on_date(check_date)
+                ]
+
+                # Se não há tarefas para o dia, não afeta o streak
+                if not tasks_for_day:
+                    check_date += timedelta(days=1)
+                    continue
+
+                # Verificar quantas tarefas foram completadas
+                day_records = records_by_date.get(check_date, [])
+                completed_count = sum(1 for r in day_records if r.completed)
+                expected_count = len(tasks_for_day)
+
+                # Se todas as tarefas foram completadas, incrementar streak
+                if completed_count == expected_count and completed_count > 0:
+                    current_streak += 1
+                    best_streak = max(best_streak, current_streak)
                 else:
-                    current = 0
-            else:
-                current = 1 if record.completed else 0
+                    # Streak quebrado
+                    current_streak = 0
 
-            last_date = record.date
+                check_date += timedelta(days=1)
 
-        return best
+        return best_streak

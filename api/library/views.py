@@ -487,6 +487,14 @@ class LibraryDashboardStatsView(APIView):
         # Total de páginas lidas
         total_pages = readings_qs.aggregate(total=Sum('pages_read'))['total'] or 0
 
+        # Tempo total de leitura (horas)
+        total_reading_time = readings_qs.aggregate(total=Sum('reading_time'))['total'] or 0
+        total_reading_time_hours = round(total_reading_time / 60, 1)
+
+        # Média de páginas por livro
+        avg_pages = books_qs.aggregate(avg=Avg('pages'))['avg'] or 0.0
+        average_pages_per_book = round(float(avg_pages), 1)
+
         # Livros por gênero (Top 5)
         books_by_genre = list(
             books_qs
@@ -500,6 +508,35 @@ class LibraryDashboardStatsView(APIView):
         genre_dict = dict(GENRES)
         for item in books_by_genre:
             item['genre_display'] = genre_dict.get(item['genre'], item['genre'])
+
+        # Livros por idioma
+        books_by_language = list(
+            books_qs
+            .values('language')
+            .annotate(count=Count('id'))
+            .order_by('-count')
+        )
+
+        # Adicionar display name dos idiomas
+        from library.models import LANGUAGES
+        language_dict = dict(LANGUAGES)
+        for item in books_by_language:
+            item['language_display'] = language_dict.get(item['language'], item['language'])
+
+        # Livros por tipo de mídia
+        books_by_media_type = list(
+            books_qs
+            .filter(media_type__isnull=False)
+            .values('media_type')
+            .annotate(count=Count('id'))
+            .order_by('-count')
+        )
+
+        # Adicionar display name dos tipos de mídia
+        from library.models import MEDIA_TYPE
+        media_type_dict = dict(MEDIA_TYPE)
+        for item in books_by_media_type:
+            item['media_type_display'] = media_type_dict.get(item['media_type'], item['media_type'])
 
         # Leituras recentes (últimas 5)
         recent_readings_qs = (
@@ -531,6 +568,125 @@ class LibraryDashboardStatsView(APIView):
                 'authors_names': [author.name for author in book.authors.all()]
             })
 
+        # Autor e editora mais lidos (baseado em livros com read_status='read')
+        read_books_qs = books_qs.filter(read_status='read')
+
+        most_read_author = None
+        if read_books_qs.exists():
+            author_stats = (
+                Author.objects
+                .filter(
+                    books__in=read_books_qs,
+                    owner__user=user,
+                    deleted_at__isnull=True
+                )
+                .annotate(
+                    books_count=Count('books', filter=Q(books__in=read_books_qs)),
+                    total_pages=Sum('books__pages', filter=Q(books__in=read_books_qs))
+                )
+                .order_by('-books_count', '-total_pages')
+                .first()
+            )
+
+            if author_stats:
+                most_read_author = {
+                    'name': author_stats.name,
+                    'books_count': author_stats.books_count,
+                    'total_pages': author_stats.total_pages or 0
+                }
+
+        most_read_publisher = None
+        if read_books_qs.exists():
+            publisher_stats = (
+                Publisher.objects
+                .filter(
+                    books__in=read_books_qs,
+                    owner__user=user,
+                    deleted_at__isnull=True
+                )
+                .annotate(
+                    books_count=Count('books', filter=Q(books__in=read_books_qs)),
+                    total_pages=Sum('books__pages', filter=Q(books__in=read_books_qs))
+                )
+                .order_by('-books_count', '-total_pages')
+                .first()
+            )
+
+            if publisher_stats:
+                most_read_publisher = {
+                    'name': publisher_stats.name,
+                    'books_count': publisher_stats.books_count,
+                    'total_pages': publisher_stats.total_pages or 0
+                }
+
+        # Status de leitura (para gráfico de pizza)
+        from library.models import READ_STATUS_CHOICES
+
+        reading_status_distribution = []
+        for status_value, status_display in READ_STATUS_CHOICES:
+            count = books_qs.filter(read_status=status_value).count()
+            if count > 0:
+                reading_status_distribution.append({
+                    'status': status_value,
+                    'status_display': status_display,
+                    'count': count
+                })
+
+        # Timeline mensal (últimos 6 meses)
+        from django.db.models.functions import TruncMonth
+        from datetime import datetime, timedelta
+
+        six_months_ago = datetime.now() - timedelta(days=180)
+
+        reading_timeline_monthly = list(
+            readings_qs
+            .filter(reading_date__gte=six_months_ago)
+            .annotate(month=TruncMonth('reading_date'))
+            .values('month')
+            .annotate(
+                pages_read=Sum('pages_read'),
+                reading_time_minutes=Sum('reading_time')
+            )
+            .order_by('month')
+        )
+
+        # Formatar month e adicionar reading_time_hours
+        for item in reading_timeline_monthly:
+            item['month'] = item['month'].strftime('%Y-%m')
+            item['reading_time_hours'] = round(item['reading_time_minutes'] / 60, 1)
+            del item['reading_time_minutes']
+
+        # Top 5 autores por quantidade de livros
+        top_authors = list(
+            Author.objects
+            .filter(
+                books__in=books_qs,
+                owner__user=user,
+                deleted_at__isnull=True
+            )
+            .annotate(books_count=Count('books', filter=Q(books__in=books_qs)))
+            .order_by('-books_count')[:5]
+            .values('name', 'books_count')
+        )
+
+        # Distribuição de ratings (agrupado em 5 faixas)
+        rating_distribution = []
+        rating_ranges = [
+            ('1-2', 1, 2),
+            ('3-4', 3, 4),
+            ('5-6', 5, 6),
+            ('7-8', 7, 8),
+            ('9-10', 9, 10)
+        ]
+
+        for range_label, min_rating, max_rating in rating_ranges:
+            count = books_qs.filter(rating__gte=min_rating, rating__lte=max_rating).count()
+            if count > 0:
+                rating_distribution.append({
+                    'rating_range': range_label,
+                    'count': count
+                })
+
         stats = {
             'total_books': total_books,
             'total_authors': total_authors,
@@ -542,7 +698,18 @@ class LibraryDashboardStatsView(APIView):
             'total_pages_read': total_pages,
             'books_by_genre': books_by_genre,
             'recent_readings': recent_readings,
-            'top_rated_books': top_rated_books
+            'top_rated_books': top_rated_books,
+            # Novos campos
+            'total_reading_time_hours': total_reading_time_hours,
+            'average_pages_per_book': average_pages_per_book,
+            'books_by_language': books_by_language,
+            'books_by_media_type': books_by_media_type,
+            'most_read_author': most_read_author,
+            'most_read_publisher': most_read_publisher,
+            'reading_status_distribution': reading_status_distribution,
+            'reading_timeline_monthly': reading_timeline_monthly,
+            'top_authors': top_authors,
+            'rating_distribution': rating_distribution,
         }
 
         return Response(stats)
