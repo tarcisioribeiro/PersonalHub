@@ -191,7 +191,6 @@ export function DatePicker({
             <Edit3
               className="h-3.5 w-3.5 opacity-50 hover:opacity-100 transition-opacity text-muted-foreground"
               onClick={toggleMode}
-              title="Digitar data manualmente"
             />
           </div>
         </Button>
