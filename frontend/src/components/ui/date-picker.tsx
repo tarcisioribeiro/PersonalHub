@@ -3,7 +3,7 @@ import { ptBR } from 'date-fns/locale';
 import { Calendar as CalendarIcon, X, Edit3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { cn, formatLocalDate, parseLocalDate } from '@/lib/utils';
+import { cn, formatLocalDate, parseLocalDate, toLocalDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/popover';
 
 interface DatePickerProps {
-  value?: Date;
+  value?: Date | string;
   onChange?: (date: Date | undefined) => void;
   placeholder?: string;
   disabled?: boolean;
@@ -34,11 +34,14 @@ export function DatePicker({
   const [isManualMode, setIsManualMode] = useState(false);
   const [open, setOpen] = useState(false);
 
+  // Converte value para Date, tratando tanto Date quanto string
+  const dateValue = toLocalDate(value);
+
   useEffect(() => {
-    if (value && !isManualMode) {
-      setManualInput(formatLocalDate(value));
+    if (dateValue && !isManualMode) {
+      setManualInput(formatLocalDate(dateValue));
     }
-  }, [value, isManualMode]);
+  }, [dateValue, isManualMode]);
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -147,7 +150,7 @@ export function DatePicker({
         >
           <CalendarIcon className="mr-2 h-4 w-4 text-primary/70 group-hover:text-primary transition-colors" />
           <AnimatePresence mode="wait">
-            {value ? (
+            {dateValue ? (
               <motion.span
                 key="date-value"
                 initial={{ opacity: 0, y: -5 }}
@@ -156,7 +159,7 @@ export function DatePicker({
                 transition={{ duration: 0.15 }}
                 className="flex-1 font-medium"
               >
-                {formatDisplayDate(value)}
+                {formatDisplayDate(dateValue)}
               </motion.span>
             ) : (
               <motion.span
@@ -172,7 +175,7 @@ export function DatePicker({
             )}
           </AnimatePresence>
           <div className="flex items-center gap-1 ml-2">
-            {clearable && value && (
+            {clearable && dateValue && (
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -180,14 +183,15 @@ export function DatePicker({
                 transition={{ duration: 0.15 }}
               >
                 <X
-                  className="h-4 w-4 opacity-0 group-hover:opacity-60 hover:opacity-100 transition-opacity hover:text-destructive"
+                  className="h-4 w-4 opacity-60 group-hover:opacity-100 transition-opacity hover:text-destructive"
                   onClick={handleClear}
                 />
               </motion.div>
             )}
             <Edit3
-              className="h-3.5 w-3.5 opacity-0 group-hover:opacity-50 hover:opacity-100 transition-opacity text-muted-foreground"
+              className="h-3.5 w-3.5 opacity-50 hover:opacity-100 transition-opacity text-muted-foreground"
               onClick={toggleMode}
+              title="Digitar data manualmente"
             />
           </div>
         </Button>
@@ -204,7 +208,7 @@ export function DatePicker({
         >
           <Calendar
             mode="single"
-            selected={value}
+            selected={dateValue}
             onSelect={handleCalendarSelect}
             initialFocus
             locale={ptBR}

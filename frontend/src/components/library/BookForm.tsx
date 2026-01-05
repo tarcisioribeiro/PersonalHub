@@ -322,7 +322,7 @@ export function BookForm({
         <div>
           <Label htmlFor="publish_date">Data de Publicação</Label>
           <DatePicker
-            value={watch('publish_date') && watch('publish_date') !== '' ? new Date(watch('publish_date')!) : undefined}
+            value={watch('publish_date')}
             onChange={(date) => setValue('publish_date', date ? formatLocalDate(date) : '')}
             placeholder="Selecione a data de publicação"
           />

@@ -94,7 +94,7 @@ export function AuthorForm({
         <div className="space-y-2">
           <Label htmlFor="birthday">Data de Nascimento</Label>
           <DatePicker
-            value={watch('birthday') && watch('birthday') !== '' ? new Date(watch('birthday')!) : undefined}
+            value={watch('birthday')}
             onChange={(date) => setValue('birthday', date ? formatLocalDate(date) : '')}
             placeholder="Selecione a data de nascimento"
           />
@@ -108,7 +108,7 @@ export function AuthorForm({
         <div className="space-y-2">
           <Label htmlFor="death_date">Data de Falecimento</Label>
           <DatePicker
-            value={watch('death_date') && watch('death_date') !== '' ? new Date(watch('death_date')!) : undefined}
+            value={watch('death_date')}
             onChange={(date) => setValue('death_date', date ? formatLocalDate(date) : '')}
             placeholder="Selecione a data de falecimento"
           />

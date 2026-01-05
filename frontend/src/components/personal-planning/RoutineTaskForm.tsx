@@ -356,7 +356,7 @@ export function RoutineTaskForm({
                   Data de Início
                 </Label>
                 <DatePicker
-                  value={watch('interval_start_date') && watch('interval_start_date') !== '' ? new Date(watch('interval_start_date')!) : undefined}
+                  value={watch('interval_start_date')}
                   onChange={(date) => setValue('interval_start_date', date ? formatLocalDate(date) : '')}
                   placeholder="Selecione a data de início"
                 />

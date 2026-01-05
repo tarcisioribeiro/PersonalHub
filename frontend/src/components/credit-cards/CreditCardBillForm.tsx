@@ -136,7 +136,7 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
         <div className="space-y-2">
           <Label htmlFor="invoice_beginning_date">Data de Início *</Label>
           <DatePicker
-            value={watch('invoice_beginning_date') ? new Date(watch('invoice_beginning_date')) : undefined}
+            value={watch('invoice_beginning_date')}
             onChange={(date) => setValue('invoice_beginning_date', date ? formatLocalDate(date) : '')}
             placeholder="Selecione a data de início"
             disabled={isLoading}
@@ -146,7 +146,7 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
         <div className="space-y-2">
           <Label htmlFor="invoice_ending_date">Data de Fim *</Label>
           <DatePicker
-            value={watch('invoice_ending_date') ? new Date(watch('invoice_ending_date')) : undefined}
+            value={watch('invoice_ending_date')}
             onChange={(date) => setValue('invoice_ending_date', date ? formatLocalDate(date) : '')}
             placeholder="Selecione a data de fim"
             disabled={isLoading}
@@ -156,7 +156,7 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
         <div className="space-y-2">
           <Label htmlFor="due_date">Data de Vencimento</Label>
           <DatePicker
-            value={watch('due_date') && watch('due_date') !== '' ? new Date(watch('due_date')!) : undefined}
+            value={watch('due_date')}
             onChange={(date) => setValue('due_date', date ? formatLocalDate(date) : '')}
             placeholder="Selecione a data de vencimento"
             disabled={isLoading}
@@ -202,7 +202,7 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
         <div className="space-y-2">
           <Label htmlFor="payment_date">Data de Pagamento</Label>
           <DatePicker
-            value={watch('payment_date') && watch('payment_date') !== '' ? new Date(watch('payment_date')!) : undefined}
+            value={watch('payment_date')}
             onChange={(date) => setValue('payment_date', date ? formatLocalDate(date) : '')}
             placeholder="Selecione a data de pagamento"
             disabled={isLoading}

@@ -211,7 +211,7 @@ export function GoalForm({
         <div>
           <Label htmlFor="start_date">Data de Início *</Label>
           <DatePicker
-            value={watch('start_date') ? new Date(watch('start_date')) : undefined}
+            value={watch('start_date')}
             onChange={(date) => setValue('start_date', date ? formatLocalDate(date) : '')}
             placeholder="Selecione a data de início"
           />
@@ -225,7 +225,7 @@ export function GoalForm({
         <div>
           <Label htmlFor="end_date">Data de Término</Label>
           <DatePicker
-            value={watch('end_date') && watch('end_date') !== '' ? new Date(watch('end_date')!) : undefined}
+            value={watch('end_date')}
             onChange={(date) => setValue('end_date', date ? formatLocalDate(date) : '')}
             placeholder="Selecione a data de término"
           />

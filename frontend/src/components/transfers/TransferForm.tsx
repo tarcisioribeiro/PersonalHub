@@ -60,7 +60,7 @@ export const TransferForm: React.FC<TransferFormProps> = ({ transfer, accounts, 
         <div className="space-y-2">
           <Label>Data *</Label>
           <DatePicker
-            value={watch('date') ? new Date(watch('date')) : undefined}
+            value={watch('date')}
             onChange={(date) => setValue('date', date ? formatLocalDate(date) : '')}
             placeholder="Selecione a data"
             disabled={isLoading}

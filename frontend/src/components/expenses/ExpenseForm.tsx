@@ -123,7 +123,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, accounts, loa
         <div className="space-y-2">
           <Label htmlFor="date">Data *</Label>
           <DatePicker
-            value={watch('date') ? new Date(watch('date')) : undefined}
+            value={watch('date')}
             onChange={(date) => setValue('date', date ? formatLocalDate(date) : '')}
             placeholder="Selecione a data"
             disabled={isLoading}

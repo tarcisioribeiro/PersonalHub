@@ -75,7 +75,7 @@ export const CreditCardForm: React.FC<CreditCardFormProps> = ({ creditCard, acco
         <div className="space-y-2">
           <Label>Data de Validade *</Label>
           <DatePicker
-            value={watch('validation_date') ? new Date(watch('validation_date')) : undefined}
+            value={watch('validation_date')}
             onChange={(date) => setValue('validation_date', date ? formatLocalDate(date) : '')}
             placeholder="Selecione a data de validade"
             disabled={isLoading}

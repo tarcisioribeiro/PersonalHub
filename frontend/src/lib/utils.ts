@@ -40,3 +40,13 @@ export function parseLocalDate(dateStr: string): Date | undefined {
 
   return date;
 }
+
+/**
+ * Converte uma string ou Date para Date object, evitando problemas de timezone
+ * Se receber uma string YYYY-MM-DD, usa parseLocalDate para evitar conversão UTC
+ */
+export function toLocalDate(value: string | Date | undefined): Date | undefined {
+  if (!value) return undefined;
+  if (value instanceof Date) return value;
+  return parseLocalDate(value);
+}

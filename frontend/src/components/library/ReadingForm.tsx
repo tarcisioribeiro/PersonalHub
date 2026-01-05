@@ -134,7 +134,7 @@ export function ReadingForm({
         <div className="space-y-2">
           <Label htmlFor="reading_date">Data da Leitura *</Label>
           <DatePicker
-            value={watch('reading_date') ? new Date(watch('reading_date')) : undefined}
+            value={watch('reading_date')}
             onChange={(date) => setValue('reading_date', date ? formatLocalDate(date) : '')}
             placeholder="Selecione a data de leitura"
           />
