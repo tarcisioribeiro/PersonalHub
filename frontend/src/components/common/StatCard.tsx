@@ -62,22 +62,40 @@ export const StatCard: React.FC<StatCardProps> = ({
 
   // Parse numeric value for counter animation
   // For currency strings (R$ 1.234,56), we need to extract the number correctly
+  // Skip animation for ratio/fraction values (e.g., "8 / 18")
+  const isRatio = typeof value === 'string' && value.includes('/');
+  const isPercentage = typeof value === 'string' && value.includes('%');
+
   const extractNumber = (val: string | number): number => {
     if (typeof val === 'number') return val;
+
+    const stringVal = String(val);
+
+    // For percentages, remove % and parse as decimal number
+    if (stringVal.includes('%')) {
+      const cleaned = stringVal.replace('%', '').trim();
+      return parseFloat(cleaned);
+    }
+
+    // For currency (R$ 1.234,56), convert pt-BR format to standard
     // Remove currency symbol and convert pt-BR format (1.234,56) to standard (1234.56)
-    const cleaned = String(val)
+    const cleaned = stringVal
       .replace(/[^\d.,-]/g, '') // Remove non-numeric chars except . , -
       .replace(/\./g, '') // Remove thousands separator (dot in pt-BR)
       .replace(',', '.'); // Convert decimal separator (comma to dot)
     return parseFloat(cleaned);
   };
 
-  const numericValue = extractNumber(value);
+  const numericValue = isRatio ? NaN : extractNumber(value);
   const isNumeric = !isNaN(numericValue);
   const animatedCount = useCounterAnimation(isNumeric ? numericValue : 0);
 
   // Format the displayed value
-  const displayValue = isNumeric && typeof value === 'string' && value.includes('R$')
+  const displayValue = isRatio
+    ? value // Don't animate ratios/fractions
+    : isPercentage
+    ? `${animatedCount.toFixed(1)}%` // Format percentage with 1 decimal place
+    : isNumeric && typeof value === 'string' && value.includes('R$')
     ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(animatedCount)
     : isNumeric
     ? animatedCount.toLocaleString('pt-BR')
