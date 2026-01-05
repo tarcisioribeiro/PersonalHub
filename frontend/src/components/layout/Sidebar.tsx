@@ -71,6 +71,16 @@ const navItems: NavItem[] = [
 
 const navModules: NavModule[] = [
   {
+    title: 'Planejamento Pessoal',
+    icon: <Calendar className="w-5 h-5" />,
+    items: [
+      { title: 'Dashboard', href: '/planning/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+      { title: 'Checklist Diário', href: '/planning/daily', icon: <CheckCircle2 className="w-4 h-4" /> },
+      { title: 'Tarefas Rotineiras', href: '/planning/routine-tasks', icon: <Calendar className="w-4 h-4" /> },
+      { title: 'Objetivos', href: '/planning/goals', icon: <Target className="w-4 h-4" /> },
+    ],
+  },
+  {
     title: 'Controle Financeiro',
     icon: <Wallet className="w-5 h-5" />,
     items: [
@@ -85,16 +95,6 @@ const navModules: NavModule[] = [
       { title: 'Transferências', href: '/transfers', icon: <ArrowLeftRight className="w-4 h-4" /> },
       { title: 'Empréstimos', href: '/loans', icon: <HandCoins className="w-4 h-4" /> },
       { title: 'Beneficiários/Credores', href: '/members', icon: <Users className="w-4 h-4" /> },
-    ],
-  },
-  {
-    title: 'Planejamento Pessoal',
-    icon: <Calendar className="w-5 h-5" />,
-    items: [
-      { title: 'Dashboard', href: '/planning/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
-      { title: 'Checklist Diário', href: '/planning/daily', icon: <CheckCircle2 className="w-4 h-4" /> },
-      { title: 'Tarefas Rotineiras', href: '/planning/routine-tasks', icon: <Calendar className="w-4 h-4" /> },
-      { title: 'Objetivos', href: '/planning/goals', icon: <Target className="w-4 h-4" /> },
     ],
   },
   {

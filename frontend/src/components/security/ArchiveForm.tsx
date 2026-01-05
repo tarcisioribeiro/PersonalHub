@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { archiveSchema, type ArchiveFormData } from '@/lib/validations';
 import type { Archive, Member } from '@/types';
+import { useAuthStore } from '@/stores/auth-store';
 
 const ARCHIVE_CATEGORIES = [
   { value: 'personal', label: 'Pessoal' },
@@ -49,7 +50,7 @@ const FILE_TYPES_ACCEPT = [
 
 interface ArchiveFormProps {
   archive?: Archive;
-  members: Member[];
+  members?: Member[];
   onSubmit: (data: ArchiveFormData & { file?: File }) => void;
   onCancel: () => void;
   isLoading?: boolean;
@@ -57,11 +58,11 @@ interface ArchiveFormProps {
 
 export function ArchiveForm({
   archive,
-  members,
   onSubmit,
   onCancel,
   isLoading = false,
 }: ArchiveFormProps) {
+  const { user } = useAuthStore();
   const {
     register,
     handleSubmit,
@@ -87,7 +88,7 @@ export function ArchiveForm({
           text_content: '',
           notes: '',
           tags: '',
-          owner: members[0]?.id || 0,
+          owner: user?.id || 0,
         },
   });
 
@@ -101,7 +102,14 @@ export function ArchiveForm({
       return;
     }
 
-    onSubmit({ ...data, file });
+    // Use logged-in user as owner for new archives
+    const submitData = {
+      ...data,
+      owner: archive ? data.owner : (user?.id || 0),
+      file,
+    };
+
+    onSubmit(submitData);
   });
 
   return (
@@ -119,7 +127,7 @@ export function ArchiveForm({
           )}
         </div>
 
-        <div>
+        <div className="col-span-2">
           <Label htmlFor="category">Categoria *</Label>
           <Select
             value={watch('category')}
@@ -138,28 +146,6 @@ export function ArchiveForm({
           </Select>
           {errors.category && (
             <p className="text-sm text-destructive mt-1">{errors.category.message}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor="owner">Proprietário *</Label>
-          <Select
-            value={watch('owner')?.toString()}
-            onValueChange={(value) => setValue('owner', parseInt(value))}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {members.map((member) => (
-                <SelectItem key={member.id} value={member.id.toString()}>
-                  {member.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.owner && (
-            <p className="text-sm text-destructive mt-1">{errors.owner.message}</p>
           )}
         </div>
 

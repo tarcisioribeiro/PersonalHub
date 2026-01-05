@@ -298,6 +298,14 @@ class Archive(BaseModel):
             self._encrypted_text = None
             self.file_size = None
 
+    def has_text_content(self):
+        """Retorna True se o arquivo tem conteúdo de texto."""
+        return bool(self._encrypted_text)
+
+    def has_file_content(self):
+        """Retorna True se o arquivo tem um arquivo carregado."""
+        return bool(self.encrypted_file)
+
     class Meta:
         verbose_name = "Arquivo Confidencial"
         verbose_name_plural = "Arquivos Confidenciais"

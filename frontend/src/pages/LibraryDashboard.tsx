@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Library, BookOpen, User, Building2, FileText, BookMarked, BookCheck, Star } from 'lucide-react';
+import { Library, BookOpen, User, Building2, FileText, BookMarked, BookCheck, Star, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { libraryDashboardService, type LibraryDashboardStats } from '@/services/library-dashboard-service';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
-import { Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, LineChart, Line, Legend } from 'recharts';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useChartColors } from '@/lib/chart-colors';
@@ -169,6 +169,83 @@ export default function LibraryDashboard() {
         </Card>
       </div>
 
+      {/* Row 3: Novas Estatísticas - Grid 4 colunas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: Tempo Total de Leitura */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Tempo de Leitura</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.total_reading_time_hours || 0}h</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Tempo total registrado
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Card 2: Média de Páginas por Livro */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Média por Livro</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {stats?.average_pages_per_book?.toFixed(0) || 0}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Páginas por livro
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Card 3: Autor Mais Lido */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Autor Mais Lido</CardTitle>
+            <User className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {stats?.most_read_author ? (
+              <>
+                <div className="text-lg font-bold truncate" title={stats.most_read_author.name}>
+                  {stats.most_read_author.name}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats.most_read_author.books_count} {stats.most_read_author.books_count === 1 ? 'livro lido' : 'livros lidos'}
+                </p>
+              </>
+            ) : (
+              <div className="text-sm text-muted-foreground">Nenhum livro lido</div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Card 4: Editora Mais Lida */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Editora Mais Lida</CardTitle>
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {stats?.most_read_publisher ? (
+              <>
+                <div className="text-lg font-bold truncate" title={stats.most_read_publisher.name}>
+                  {stats.most_read_publisher.name}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats.most_read_publisher.books_count} {stats.most_read_publisher.books_count === 1 ? 'livro lido' : 'livros lidos'}
+                </p>
+              </>
+            ) : (
+              <div className="text-sm text-muted-foreground">Nenhum livro lido</div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Livros por Gênero */}
         <Card>
@@ -249,6 +326,309 @@ export default function LibraryDashboard() {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Gráfico: Status de Leitura (Donut/Pie) */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Status de Leitura</CardTitle>
+            <p className="text-sm text-muted-foreground">Distribuição por status</p>
+          </CardHeader>
+          <CardContent>
+            {!stats || stats.reading_status_distribution.length === 0 ? (
+              <div className="h-64 flex items-center justify-center text-muted-foreground">
+                Nenhum livro cadastrado
+              </div>
+            ) : (
+              <>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={stats.reading_status_distribution}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="count"
+                      label
+                      labelLine={false}
+                    >
+                      {stats.reading_status_distribution.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      labelStyle={{ color: 'hsl(var(--foreground))' }}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '6px'
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="mt-4 space-y-2">
+                  {stats.reading_status_distribution.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                        ></div>
+                        <span>{item.status_display}</span>
+                      </div>
+                      <span className="font-semibold">
+                        {item.count} {item.count === 1 ? 'livro' : 'livros'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Row 5: Timeline e Top Autores */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Gráfico: Timeline de Leituras (Line) */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Linha do Tempo de Leitura</CardTitle>
+            <p className="text-sm text-muted-foreground">Páginas lidas por mês (últimos 6 meses)</p>
+          </CardHeader>
+          <CardContent>
+            {!stats || stats.reading_timeline_monthly.length === 0 ? (
+              <div className="h-64 flex items-center justify-center text-muted-foreground">
+                Nenhuma leitura registrada
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={stats.reading_timeline_monthly}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="month"
+                    tickFormatter={(value) => {
+                      const [year, month] = value.split('-');
+                      const date = new Date(parseInt(year), parseInt(month) - 1);
+                      return format(date, 'MMM/yy', { locale: ptBR });
+                    }}
+                  />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip
+                    labelFormatter={(value) => {
+                      const [year, month] = value.split('-');
+                      const date = new Date(parseInt(year), parseInt(month) - 1);
+                      return format(date, 'MMMM yyyy', { locale: ptBR });
+                    }}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--background))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '6px'
+                    }}
+                  />
+                  <Legend />
+                  <Line
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="pages_read"
+                    stroke={COLORS[0]}
+                    strokeWidth={2}
+                    name="Páginas Lidas"
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="reading_time_hours"
+                    stroke={COLORS[1]}
+                    strokeWidth={2}
+                    name="Tempo (horas)"
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Gráfico: Top 5 Autores (Horizontal Bar) */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Top 5 Autores</CardTitle>
+            <p className="text-sm text-muted-foreground">Autores com mais livros</p>
+          </CardHeader>
+          <CardContent>
+            {!stats || stats.top_authors.length === 0 ? (
+              <div className="h-64 flex items-center justify-center text-muted-foreground">
+                Nenhum autor cadastrado
+              </div>
+            ) : (
+              <>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={stats.top_authors} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                    <XAxis type="number" />
+                    <YAxis dataKey="name" type="category" width={120} />
+                    <Tooltip
+                      labelStyle={{ color: 'hsl(var(--foreground))' }}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '6px'
+                      }}
+                    />
+                    <Bar dataKey="books_count" radius={[0, 8, 8, 0]} name="Livros">
+                      {stats.top_authors.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+                <div className="mt-4 space-y-2">
+                  {stats.top_authors.map((author, index) => (
+                    <div key={index} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                        ></div>
+                        <span className="truncate max-w-[200px]" title={author.name}>
+                          {author.name}
+                        </span>
+                      </div>
+                      <span className="font-semibold">
+                        {author.books_count} {author.books_count === 1 ? 'livro' : 'livros'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Row 6: Ratings e Distribuições */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Gráfico: Distribuição de Ratings (Vertical Bar) */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Distribuição de Avaliações</CardTitle>
+            <p className="text-sm text-muted-foreground">Livros por faixa de avaliação (1-10)</p>
+          </CardHeader>
+          <CardContent>
+            {!stats || stats.rating_distribution.length === 0 ? (
+              <div className="h-64 flex items-center justify-center text-muted-foreground">
+                Nenhum livro avaliado
+              </div>
+            ) : (
+              <>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={stats.rating_distribution}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="rating_range" />
+                    <YAxis />
+                    <Tooltip
+                      labelStyle={{ color: 'hsl(var(--foreground))' }}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '6px'
+                      }}
+                    />
+                    <Bar dataKey="count" radius={[8, 8, 0, 0]} name="Livros">
+                      {stats.rating_distribution.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+                <div className="mt-4 space-y-2">
+                  {stats.rating_distribution.map((rating, index) => (
+                    <div key={index} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                        ></div>
+                        <span>Avaliação {rating.rating_range}</span>
+                      </div>
+                      <span className="font-semibold">
+                        {rating.count} {rating.count === 1 ? 'livro' : 'livros'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Card: Distribuições (Idioma e Mídia) */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Distribuições</CardTitle>
+            <p className="text-sm text-muted-foreground">Por idioma e tipo de mídia</p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Seção: Por Idioma */}
+              <div>
+                <h4 className="text-sm font-semibold mb-3">Por Idioma</h4>
+                {stats?.books_by_language && stats.books_by_language.length > 0 ? (
+                  <div className="space-y-2">
+                    {stats.books_by_language.map((lang, index) => (
+                      <div key={index} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                          ></div>
+                          <span>{lang.language_display}</span>
+                        </div>
+                        <span className="font-semibold">
+                          {lang.count} {lang.count === 1 ? 'livro' : 'livros'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Nenhum livro cadastrado</p>
+                )}
+              </div>
+
+              {/* Seção: Por Tipo de Mídia */}
+              <div>
+                <h4 className="text-sm font-semibold mb-3">Por Tipo de Mídia</h4>
+                {stats?.books_by_media_type && stats.books_by_media_type.length > 0 ? (
+                  <div className="space-y-2">
+                    {stats.books_by_media_type.map((media, index) => (
+                      <div key={index} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: COLORS[(index + 3) % COLORS.length] }}
+                          ></div>
+                          <span>{media.media_type_display}</span>
+                        </div>
+                        <span className="font-semibold">
+                          {media.count} {media.count === 1 ? 'livro' : 'livros'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Nenhum livro com mídia definida</p>
+                )}
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
