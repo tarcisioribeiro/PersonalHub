@@ -1,4 +1,4 @@
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, type PieLabelRenderProps } from 'recharts';
 import { EnhancedTooltip } from './EnhancedTooltip';
 
 interface EnhancedPieChartProps {
@@ -60,7 +60,7 @@ export const EnhancedPieChart = ({
           outerRadius={100}
           paddingAngle={2}
           dataKey={dataKey}
-          label={(entry) => entry[nameKey]}
+          label={(entry: PieLabelRenderProps) => (entry.payload as { [key: string]: any })?.[nameKey]}
           animationBegin={0}
           animationDuration={800}
           animationEasing="ease-in-out"

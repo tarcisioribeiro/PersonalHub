@@ -5,11 +5,24 @@ import { securityDashboardService, type SecurityDashboardStats } from '@/service
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
-import { format } from 'date-fns';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useChartColors } from '@/lib/chart-colors';
 import { ChartContainer } from '@/components/charts';
+
+type PasswordStrength = 'weak' | 'medium' | 'strong';
+
+interface PasswordStrengthEntry {
+  strength: PasswordStrength;
+  count: number;
+  strength_display: string;
+}
+
+const strengthColors: Record<PasswordStrength, string> = {
+    weak: '#ef4444',
+    medium: '#f59e0b',
+    strong: '#22c55e'
+};
 
 export default function SecurityDashboard() {
   const [stats, setStats] = useState<SecurityDashboardStats | null>(null);
@@ -194,11 +207,7 @@ export default function SecurityDashboard() {
               nameKey="strength_display"
               formatter={(value) => `${value} ${value === 1 ? 'senha' : 'senhas'}`}
               colors={COLORS}
-              customColors={(entry) => ({
-                weak: '#ef4444',
-                medium: '#f59e0b',
-                strong: '#22c55e'
-              }[entry.strength] || COLORS[0])}
+              customColors={(entry: PasswordStrengthEntry) => strengthColors[entry.strength] || COLORS[0]}
               emptyMessage="Nenhuma senha cadastrada"
               layout="horizontal"
             />

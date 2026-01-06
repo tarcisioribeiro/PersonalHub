@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
-import { useChartType, ChartType } from '@/hooks/use-chart-type';
+import { useChartType, type ChartType } from '@/hooks/use-chart-type';
 import { EnhancedPieChart } from './EnhancedPieChart';
 import { EnhancedBarChart } from './EnhancedBarChart';
 import { EnhancedLineChart } from './EnhancedLineChart';
