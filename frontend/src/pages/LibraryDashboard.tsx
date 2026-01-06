@@ -5,10 +5,10 @@ import { libraryDashboardService, type LibraryDashboardStats } from '@/services/
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
-import { Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, LineChart, Line, Legend } from 'recharts';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useChartColors } from '@/lib/chart-colors';
+import { ChartContainer } from '@/components/charts';
 
 export default function LibraryDashboard() {
   const [stats, setStats] = useState<LibraryDashboardStats | null>(null);
@@ -254,50 +254,32 @@ export default function LibraryDashboard() {
             <p className="text-sm text-muted-foreground">Distribuição por gênero literário</p>
           </CardHeader>
           <CardContent>
-            {!stats || stats.books_by_genre.length === 0 ? (
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Nenhum livro cadastrado
-              </div>
-            ) : (
-              <>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={stats.books_by_genre} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                    <XAxis type="number" />
-                    <YAxis dataKey="genre_display" type="category" width={120} />
-                    <Tooltip
-                      labelStyle={{ color: 'hsl(var(--foreground))' }}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '6px'
-                      }}
-                      formatter={(value: any) => [`${value} ${value === 1 ? 'livro' : 'livros'}`, 'Quantidade']}
-                    />
-                    <Bar dataKey="count" radius={[0, 8, 8, 0]}>
-                      {stats.books_by_genre.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-                <div className="mt-4 space-y-2">
-                  {stats.books_by_genre.map((genre, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                        ></div>
-                        <span>{genre.genre_display}</span>
-                      </div>
-                      <span className="font-semibold">
-                        {genre.count} {genre.count === 1 ? 'livro' : 'livros'}
-                      </span>
+            <ChartContainer
+              chartId="library-books-genre"
+              data={stats?.books_by_genre || []}
+              dataKey="count"
+              nameKey="genre_display"
+              formatter={(value) => `${value} ${value === 1 ? 'livro' : 'livros'}`}
+              colors={COLORS}
+              emptyMessage="Nenhum livro cadastrado"
+            />
+            {stats && stats.books_by_genre.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {stats.books_by_genre.map((genre, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      ></div>
+                      <span>{genre.genre_display}</span>
                     </div>
-                  ))}
-                </div>
-              </>
+                    <span className="font-semibold">
+                      {genre.count} {genre.count === 1 ? 'livro' : 'livros'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -344,60 +326,32 @@ export default function LibraryDashboard() {
             <p className="text-sm text-muted-foreground">Distribuição por status</p>
           </CardHeader>
           <CardContent>
-            {!stats || stats.reading_status_distribution.length === 0 ? (
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Nenhum livro cadastrado
-              </div>
-            ) : (
-              <>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={stats.reading_status_distribution}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
-                      paddingAngle={5}
-                      dataKey="count"
-                      label
-                      labelLine={false}
-                    >
-                      {stats.reading_status_distribution.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      labelStyle={{ color: 'hsl(var(--foreground))' }}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '6px'
-                      }}
-                      formatter={(value: any, name: string, props: any) => {
-                        const status = props.payload.status_display || name;
-                        return [`${value} ${value === 1 ? 'livro' : 'livros'}`, status];
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="mt-4 space-y-2">
-                  {stats.reading_status_distribution.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                        ></div>
-                        <span>{item.status_display}</span>
-                      </div>
-                      <span className="font-semibold">
-                        {item.count} {item.count === 1 ? 'livro' : 'livros'}
-                      </span>
+            <ChartContainer
+              chartId="library-reading-status"
+              data={stats?.reading_status_distribution || []}
+              dataKey="count"
+              nameKey="status_display"
+              formatter={(value) => `${value} ${value === 1 ? 'livro' : 'livros'}`}
+              colors={COLORS}
+              emptyMessage="Nenhum livro cadastrado"
+            />
+            {stats && stats.reading_status_distribution.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {stats.reading_status_distribution.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      ></div>
+                      <span>{item.status_display}</span>
                     </div>
-                  ))}
-                </div>
-              </>
+                    <span className="font-semibold">
+                      {item.count} {item.count === 1 ? 'livro' : 'livros'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -412,66 +366,23 @@ export default function LibraryDashboard() {
             <p className="text-sm text-muted-foreground">Páginas lidas por mês (últimos 6 meses)</p>
           </CardHeader>
           <CardContent>
-            {!stats || stats.reading_timeline_monthly.length === 0 ? (
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Nenhuma leitura registrada
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={stats.reading_timeline_monthly}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="month"
-                    tickFormatter={(value) => {
-                      const [year, month] = value.split('-');
-                      const date = new Date(parseInt(year), parseInt(month) - 1);
-                      return format(date, 'MMM/yy', { locale: ptBR });
-                    }}
-                  />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
-                  <Tooltip
-                    labelFormatter={(value) => {
-                      const [year, month] = value.split('-');
-                      const date = new Date(parseInt(year), parseInt(month) - 1);
-                      return format(date, 'MMMM yyyy', { locale: ptBR });
-                    }}
-                    labelStyle={{ color: 'hsl(var(--foreground))' }}
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--background))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '6px'
-                    }}
-                    formatter={(value: any, name: string) => {
-                      if (name === 'Páginas Lidas') return [value, 'Páginas'];
-                      if (name === 'Tempo (horas)') return [`${value}h`, 'Tempo'];
-                      return [value, name];
-                    }}
-                  />
-                  <Legend />
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="pages_read"
-                    stroke={COLORS[0]}
-                    strokeWidth={2}
-                    name="Páginas Lidas"
-                    dot={{ r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                  <Line
-                    yAxisId="right"
-                    type="monotone"
-                    dataKey="reading_time_hours"
-                    stroke={COLORS[1]}
-                    strokeWidth={2}
-                    name="Tempo (horas)"
-                    dot={{ r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
+            <ChartContainer
+              chartId="library-reading-timeline"
+              data={stats?.reading_timeline_monthly || []}
+              dataKey="pages_read"
+              nameKey="month"
+              formatter={(value) => value.toString()}
+              colors={COLORS}
+              emptyMessage="Nenhuma leitura registrada"
+              dualYAxis={{
+                left: { dataKey: 'pages_read', label: 'Páginas', color: COLORS[0] },
+                right: { dataKey: 'reading_time_hours', label: 'Horas', color: COLORS[1] }
+              }}
+              lines={[
+                { dataKey: 'pages_read', stroke: COLORS[0], yAxisId: 'left', name: 'Páginas Lidas' },
+                { dataKey: 'reading_time_hours', stroke: COLORS[1], yAxisId: 'right', name: 'Tempo (horas)' }
+              ]}
+            />
           </CardContent>
         </Card>
 
@@ -482,52 +393,34 @@ export default function LibraryDashboard() {
             <p className="text-sm text-muted-foreground">Autores com mais livros</p>
           </CardHeader>
           <CardContent>
-            {!stats || stats.top_authors.length === 0 ? (
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Nenhum autor cadastrado
-              </div>
-            ) : (
-              <>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={stats.top_authors} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                    <XAxis type="number" />
-                    <YAxis dataKey="name" type="category" width={120} />
-                    <Tooltip
-                      labelStyle={{ color: 'hsl(var(--foreground))' }}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '6px'
-                      }}
-                      formatter={(value: any) => [`${value} ${value === 1 ? 'livro' : 'livros'}`, 'Quantidade']}
-                    />
-                    <Bar dataKey="books_count" radius={[0, 8, 8, 0]} name="Livros">
-                      {stats.top_authors.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-                <div className="mt-4 space-y-2">
-                  {stats.top_authors.map((author, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                        ></div>
-                        <span className="truncate max-w-[200px]" title={author.name}>
-                          {author.name}
-                        </span>
-                      </div>
-                      <span className="font-semibold">
-                        {author.books_count} {author.books_count === 1 ? 'livro' : 'livros'}
+            <ChartContainer
+              chartId="library-top-authors"
+              data={stats?.top_authors || []}
+              dataKey="books_count"
+              nameKey="name"
+              formatter={(value) => `${value} ${value === 1 ? 'livro' : 'livros'}`}
+              colors={COLORS}
+              emptyMessage="Nenhum autor cadastrado"
+            />
+            {stats && stats.top_authors.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {stats.top_authors.map((author, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      ></div>
+                      <span className="truncate max-w-[200px]" title={author.name}>
+                        {author.name}
                       </span>
                     </div>
-                  ))}
-                </div>
-              </>
+                    <span className="font-semibold">
+                      {author.books_count} {author.books_count === 1 ? 'livro' : 'livros'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -542,50 +435,33 @@ export default function LibraryDashboard() {
             <p className="text-sm text-muted-foreground">Livros por faixa de avaliação (1-10)</p>
           </CardHeader>
           <CardContent>
-            {!stats || stats.rating_distribution.length === 0 ? (
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Nenhum livro avaliado
-              </div>
-            ) : (
-              <>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={stats.rating_distribution}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="rating_range" />
-                    <YAxis />
-                    <Tooltip
-                      labelStyle={{ color: 'hsl(var(--foreground))' }}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '6px'
-                      }}
-                      formatter={(value: any) => [`${value} ${value === 1 ? 'livro' : 'livros'}`, 'Quantidade']}
-                    />
-                    <Bar dataKey="count" radius={[8, 8, 0, 0]} name="Livros">
-                      {stats.rating_distribution.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-                <div className="mt-4 space-y-2">
-                  {stats.rating_distribution.map((rating, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                        ></div>
-                        <span>Avaliação {rating.rating_range}</span>
-                      </div>
-                      <span className="font-semibold">
-                        {rating.count} {rating.count === 1 ? 'livro' : 'livros'}
-                      </span>
+            <ChartContainer
+              chartId="library-rating-distribution"
+              data={stats?.rating_distribution || []}
+              dataKey="count"
+              nameKey="rating_range"
+              formatter={(value) => `${value} ${value === 1 ? 'livro' : 'livros'}`}
+              colors={COLORS}
+              emptyMessage="Nenhum livro avaliado"
+              layout="horizontal"
+            />
+            {stats && stats.rating_distribution.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {stats.rating_distribution.map((rating, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      ></div>
+                      <span>Avaliação {rating.rating_range}</span>
                     </div>
-                  ))}
-                </div>
-              </>
+                    <span className="font-semibold">
+                      {rating.count} {rating.count === 1 ? 'livro' : 'livros'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>

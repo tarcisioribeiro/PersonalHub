@@ -4,11 +4,6 @@ import {
   Award, ListTodo, Flag, Smile, Frown, Meh,
   SmilePlus, Angry
 } from 'lucide-react';
-import {
-  LineChart, Line, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-  ResponsiveContainer, Cell
-} from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { personalPlanningDashboardService } from '@/services/personal-planning-dashboard-service';
@@ -18,6 +13,7 @@ import { LoadingState } from '@/components/common/LoadingState';
 import { StatCard } from '@/components/common/StatCard';
 import { useChartColors } from '@/lib/chart-colors';
 import type { PersonalPlanningDashboardStats, DailyReflection } from '@/types';
+import { ChartContainer } from '@/components/charts';
 
 export default function PersonalPlanningDashboard() {
   const [stats, setStats] = useState<PersonalPlanningDashboardStats | null>(null);
@@ -206,61 +202,25 @@ export default function PersonalPlanningDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={350}>
-                <LineChart data={weeklyProgressData}>
-                  <defs>
-                    <linearGradient id="gradient-total" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={COLORS[0]} stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor={COLORS[0]} stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="gradient-completed" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={COLORS[3]} stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor={COLORS[3]} stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="gradient-rate" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={COLORS[1]} stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor={COLORS[1]} stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis
-                    yAxisId="left"
-                    label={{ value: 'Tarefas', angle: -90, position: 'insideLeft' }}
-                  />
-                  <YAxis
-                    yAxisId="right"
-                    orientation="right"
-                    label={{ value: 'Taxa %', angle: 90, position: 'insideRight' }}
-                  />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="total"
-                    stroke={COLORS[0]}
-                    strokeWidth={2}
-                    name="Total"
-                  />
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="completadas"
-                    stroke={COLORS[3]}
-                    strokeWidth={2}
-                    name="Completadas"
-                  />
-                  <Line
-                    yAxisId="right"
-                    type="monotone"
-                    dataKey="taxa"
-                    stroke={COLORS[1]}
-                    strokeWidth={2}
-                    name="Taxa %"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <ChartContainer
+                chartId="planning-weekly-progress"
+                data={weeklyProgressData}
+                dataKey="total"
+                nameKey="date"
+                formatter={(value) => value.toString()}
+                colors={COLORS}
+                emptyMessage="Nenhum dado de progresso"
+                dualYAxis={{
+                  left: { dataKey: 'total', label: 'Tarefas', color: COLORS[0] },
+                  right: { dataKey: 'taxa', label: 'Taxa %', color: COLORS[1] }
+                }}
+                lines={[
+                  { dataKey: 'total', stroke: COLORS[0], yAxisId: 'left', name: 'Total' },
+                  { dataKey: 'completadas', stroke: COLORS[3], yAxisId: 'left', name: 'Completadas' },
+                  { dataKey: 'taxa', stroke: COLORS[1], yAxisId: 'right', name: 'Taxa %' }
+                ]}
+                height={350}
+              />
             </CardContent>
           </Card>
         )}
@@ -275,19 +235,18 @@ export default function PersonalPlanningDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={350}>
-                <BarChart data={tasksByCategoryData} layout="horizontal">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis type="category" dataKey="name" width={120} />
-                  <Tooltip />
-                  <Bar dataKey="count" radius={[0, 8, 8, 0]} name="Tarefas">
-                    {tasksByCategoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={getCategoryColor(entry.category)} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <ChartContainer
+                chartId="planning-tasks-category"
+                data={tasksByCategoryData}
+                dataKey="count"
+                nameKey="name"
+                formatter={(value) => `${value} ${value === 1 ? 'tarefa' : 'tarefas'}`}
+                colors={COLORS}
+                customColors={(entry) => getCategoryColor(entry.category)}
+                emptyMessage="Nenhuma tarefa cadastrada"
+                layout="vertical"
+                height={350}
+              />
             </CardContent>
           </Card>
         )}

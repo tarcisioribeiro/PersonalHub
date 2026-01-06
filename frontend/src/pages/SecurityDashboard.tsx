@@ -5,11 +5,11 @@ import { securityDashboardService, type SecurityDashboardStats } from '@/service
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
-import { Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, LineChart, Line, Legend } from 'recharts';
 import { format } from 'date-fns';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useChartColors } from '@/lib/chart-colors';
+import { ChartContainer } from '@/components/charts';
 
 export default function SecurityDashboard() {
   const [stats, setStats] = useState<SecurityDashboardStats | null>(null);
@@ -113,60 +113,32 @@ export default function SecurityDashboard() {
             <p className="text-sm text-muted-foreground">Tipos de itens armazenados</p>
           </CardHeader>
           <CardContent>
-            {!stats || stats.items_distribution.length === 0 ? (
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Nenhum item cadastrado
-              </div>
-            ) : (
-              <>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={stats.items_distribution}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
-                      paddingAngle={5}
-                      dataKey="count"
-                      label
-                      labelLine={false}
-                    >
-                      {stats.items_distribution.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      labelStyle={{ color: 'hsl(var(--foreground))' }}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '6px'
-                      }}
-                      formatter={(value: any, name: string, props: any) => {
-                        const type = props.payload.type_display || name;
-                        return [`${value} ${value === 1 ? 'item' : 'itens'}`, type];
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="mt-4 space-y-2">
-                  {stats.items_distribution.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                        ></div>
-                        <span>{item.type_display}</span>
-                      </div>
-                      <span className="font-semibold">
-                        {item.count} {item.count === 1 ? 'item' : 'itens'}
-                      </span>
+            <ChartContainer
+              chartId="security-items-distribution"
+              data={stats?.items_distribution || []}
+              dataKey="count"
+              nameKey="type_display"
+              formatter={(value) => `${value} ${value === 1 ? 'item' : 'itens'}`}
+              colors={COLORS}
+              emptyMessage="Nenhum item cadastrado"
+            />
+            {stats && stats.items_distribution.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {stats.items_distribution.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      ></div>
+                      <span>{item.type_display}</span>
                     </div>
-                  ))}
-                </div>
-              </>
+                    <span className="font-semibold">
+                      {item.count} {item.count === 1 ? 'item' : 'itens'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -178,50 +150,32 @@ export default function SecurityDashboard() {
             <p className="text-sm text-muted-foreground">Distribuição de senhas por categoria</p>
           </CardHeader>
           <CardContent>
-            {!stats || stats.passwords_by_category.length === 0 ? (
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Nenhuma senha cadastrada
-              </div>
-            ) : (
-              <>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={stats.passwords_by_category} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                    <XAxis type="number" />
-                    <YAxis dataKey="category_display" type="category" width={150} />
-                    <Tooltip
-                      labelStyle={{ color: 'hsl(var(--foreground))' }}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '6px'
-                      }}
-                      formatter={(value: any) => [`${value} ${value === 1 ? 'senha' : 'senhas'}`, 'Quantidade']}
-                    />
-                    <Bar dataKey="count" radius={[0, 8, 8, 0]}>
-                      {stats.passwords_by_category.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-                <div className="mt-4 space-y-2">
-                  {stats.passwords_by_category.map((category, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                        ></div>
-                        <span>{category.category_display}</span>
-                      </div>
-                      <span className="font-semibold">
-                        {category.count} {category.count === 1 ? 'senha' : 'senhas'}
-                      </span>
+            <ChartContainer
+              chartId="security-passwords-category"
+              data={stats?.passwords_by_category || []}
+              dataKey="count"
+              nameKey="category_display"
+              formatter={(value) => `${value} ${value === 1 ? 'senha' : 'senhas'}`}
+              colors={COLORS}
+              emptyMessage="Nenhuma senha cadastrada"
+            />
+            {stats && stats.passwords_by_category.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {stats.passwords_by_category.map((category, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      ></div>
+                      <span>{category.category_display}</span>
                     </div>
-                  ))}
-                </div>
-              </>
+                    <span className="font-semibold">
+                      {category.count} {category.count === 1 ? 'senha' : 'senhas'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -233,62 +187,43 @@ export default function SecurityDashboard() {
             <p className="text-sm text-muted-foreground">Distribuição por nível de segurança</p>
           </CardHeader>
           <CardContent>
-            {!stats || stats.password_strength_distribution.length === 0 ? (
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Nenhuma senha cadastrada
-              </div>
-            ) : (
-              <>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={stats.password_strength_distribution}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="strength_display" />
-                    <YAxis />
-                    <Tooltip
-                      labelStyle={{ color: 'hsl(var(--foreground))' }}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '6px'
-                      }}
-                      formatter={(value: any) => [`${value} ${value === 1 ? 'senha' : 'senhas'}`, 'Quantidade']}
-                    />
-                    <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-                      {stats.password_strength_distribution.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={
-                            entry.strength === 'weak' ? '#ef4444' :
-                            entry.strength === 'medium' ? '#f59e0b' :
+            <ChartContainer
+              chartId="security-password-strength"
+              data={stats?.password_strength_distribution || []}
+              dataKey="count"
+              nameKey="strength_display"
+              formatter={(value) => `${value} ${value === 1 ? 'senha' : 'senhas'}`}
+              colors={COLORS}
+              customColors={(entry) => ({
+                weak: '#ef4444',
+                medium: '#f59e0b',
+                strong: '#22c55e'
+              }[entry.strength] || COLORS[0])}
+              emptyMessage="Nenhuma senha cadastrada"
+              layout="horizontal"
+            />
+            {stats && stats.password_strength_distribution.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {stats.password_strength_distribution.map((strength, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{
+                          backgroundColor:
+                            strength.strength === 'weak' ? '#ef4444' :
+                            strength.strength === 'medium' ? '#f59e0b' :
                             '#22c55e'
-                          }
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-                <div className="mt-4 space-y-2">
-                  {stats.password_strength_distribution.map((strength, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{
-                            backgroundColor:
-                              strength.strength === 'weak' ? '#ef4444' :
-                              strength.strength === 'medium' ? '#f59e0b' :
-                              '#22c55e'
-                          }}
-                        ></div>
-                        <span>{strength.strength_display}</span>
-                      </div>
-                      <span className="font-semibold">
-                        {strength.count} {strength.count === 1 ? 'senha' : 'senhas'}
-                      </span>
+                        }}
+                      ></div>
+                      <span>{strength.strength_display}</span>
                     </div>
-                  ))}
-                </div>
-              </>
+                    <span className="font-semibold">
+                      {strength.count} {strength.count === 1 ? 'senha' : 'senhas'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -300,50 +235,32 @@ export default function SecurityDashboard() {
             <p className="text-sm text-muted-foreground">Distribuição de ações realizadas</p>
           </CardHeader>
           <CardContent>
-            {!stats || stats.activities_by_action.length === 0 ? (
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Nenhuma atividade registrada
-              </div>
-            ) : (
-              <>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={stats.activities_by_action} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                    <XAxis type="number" />
-                    <YAxis dataKey="action_display" type="category" width={100} />
-                    <Tooltip
-                      labelStyle={{ color: 'hsl(var(--foreground))' }}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '6px'
-                      }}
-                      formatter={(value: any) => [`${value} ${value === 1 ? 'ação' : 'ações'}`, 'Quantidade']}
-                    />
-                    <Bar dataKey="count" radius={[0, 8, 8, 0]}>
-                      {stats.activities_by_action.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-                <div className="mt-4 space-y-2">
-                  {stats.activities_by_action.map((action, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                        ></div>
-                        <span>{action.action_display}</span>
-                      </div>
-                      <span className="font-semibold">
-                        {action.count} {action.count === 1 ? 'ação' : 'ações'}
-                      </span>
+            <ChartContainer
+              chartId="security-activities-action"
+              data={stats?.activities_by_action || []}
+              dataKey="count"
+              nameKey="action_display"
+              formatter={(value) => `${value} ${value === 1 ? 'ação' : 'ações'}`}
+              colors={COLORS}
+              emptyMessage="Nenhuma atividade registrada"
+            />
+            {stats && stats.activities_by_action.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {stats.activities_by_action.map((action, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      ></div>
+                      <span>{action.action_display}</span>
                     </div>
-                  ))}
-                </div>
-              </>
+                    <span className="font-semibold">
+                      {action.count} {action.count === 1 ? 'ação' : 'ações'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -358,50 +275,18 @@ export default function SecurityDashboard() {
             <p className="text-sm text-muted-foreground">Atividades nos últimos 6 meses</p>
           </CardHeader>
           <CardContent>
-            {!stats || stats.activities_timeline.length === 0 ? (
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Nenhuma atividade registrada
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={stats.activities_timeline}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="month"
-                    tickFormatter={(value) => {
-                      const [year, month] = value.split('-');
-                      const date = new Date(parseInt(year), parseInt(month) - 1);
-                      return format(date, 'MMM/yy', { locale: ptBR });
-                    }}
-                  />
-                  <YAxis />
-                  <Tooltip
-                    labelFormatter={(value) => {
-                      const [year, month] = value.split('-');
-                      const date = new Date(parseInt(year), parseInt(month) - 1);
-                      return format(date, 'MMMM yyyy', { locale: ptBR });
-                    }}
-                    labelStyle={{ color: 'hsl(var(--foreground))' }}
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--background))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '6px'
-                    }}
-                    formatter={(value: any) => [`${value} ${value === 1 ? 'atividade' : 'atividades'}`, 'Quantidade']}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="count"
-                    stroke={COLORS[0]}
-                    strokeWidth={2}
-                    name="Atividades"
-                    dot={{ r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
+            <ChartContainer
+              chartId="security-activities-timeline"
+              data={stats?.activities_timeline || []}
+              dataKey="count"
+              nameKey="month"
+              formatter={(value) => `${value} ${value === 1 ? 'atividade' : 'atividades'}`}
+              colors={COLORS}
+              emptyMessage="Nenhuma atividade registrada"
+              lines={[
+                { dataKey: 'count', stroke: COLORS[0], name: 'Atividades' }
+              ]}
+            />
           </CardContent>
         </Card>
 
