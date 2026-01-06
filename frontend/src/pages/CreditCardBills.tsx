@@ -122,7 +122,11 @@ export default function CreditCardBills() {
     // Usa os dados que vêm diretamente da fatura (do backend expandido)
     const cardholderName = bill.credit_card_on_card_name || 'N/A';
     const last4 = bill.credit_card_number_masked || '****';
-    const cardNumber = `**** ${last4}`;
+
+    // Verifica se last4 contém apenas dígitos e tem 4 caracteres
+    const isValidNumber = last4 !== '****' && /^\d{4}$/.test(last4);
+    const cardNumber = isValidNumber ? `**** ${last4}` : 'Não cadastrado';
+
     const flag = bill.credit_card_flag ? translate('cardBrands', bill.credit_card_flag) : 'N/A';
     const account = bill.credit_card_associated_account_name || 'N/A';
 

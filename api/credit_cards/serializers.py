@@ -134,9 +134,12 @@ class CreditCardBillsSerializer(serializers.ModelSerializer):
         """
         if obj.credit_card and obj.credit_card.card_number_masked:
             masked = obj.credit_card.card_number_masked
-            # Se já está mascarado, pega os últimos 4
-            if len(masked) >= 4:
-                return masked[-4:]
+            # Verifica se o cartão tem número válido (não é apenas asteriscos)
+            if masked and masked != "****" and len(masked) >= 4:
+                # Remove os asteriscos e pega apenas os últimos 4 dígitos numéricos
+                digits_only = ''.join(c for c in masked if c.isdigit())
+                if len(digits_only) >= 4:
+                    return digits_only[-4:]
         return "****"
 
 

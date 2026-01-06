@@ -180,7 +180,9 @@ export const CreditCardExpenseForm: React.FC<CreditCardExpenseFormProps> = ({
             <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
             <SelectContent>
               {creditCards.map((c) => {
-                const last4 = c.card_number_masked ? c.card_number_masked.slice(-4) : '****';
+                // Extrai apenas os dígitos do número mascarado
+                const digitsOnly = c.card_number_masked ? c.card_number_masked.replace(/[^\d]/g, '') : '';
+                const last4 = digitsOnly && digitsOnly.length >= 4 ? digitsOnly.slice(-4) : '****';
                 return (
                   <SelectItem key={c.id} value={c.id.toString()}>
                     {c.on_card_name} ****{last4}

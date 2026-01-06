@@ -123,7 +123,9 @@ export default function CreditCardExpenses() {
   const getCardName = (cardId: number) => {
     const card = creditCards.find(c => c.id === cardId);
     if (card) {
-      const last4 = card.card_number_masked ? card.card_number_masked.slice(-4) : '****';
+      // Extrai apenas os dígitos do número mascarado
+      const digitsOnly = card.card_number_masked ? card.card_number_masked.replace(/[^\d]/g, '') : '';
+      const last4 = digitsOnly && digitsOnly.length >= 4 ? digitsOnly.slice(-4) : '****';
       return `${card.on_card_name} ****${last4}`;
     }
     return 'N/A';
