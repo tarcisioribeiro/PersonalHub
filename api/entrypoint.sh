@@ -14,6 +14,12 @@ done
 
 echo "Banco de dados está disponível!"
 
+# Criar diretórios necessários para upload de arquivos
+echo "Criando diretórios necessários..."
+mkdir -p /app/media/security/archives
+mkdir -p /app/logs
+mkdir -p /app/staticfiles
+
 export PGPASSWORD="$DB_PASSWORD"
 
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d postgres <<EOF

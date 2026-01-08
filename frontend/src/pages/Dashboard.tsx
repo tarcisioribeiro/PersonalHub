@@ -236,6 +236,7 @@ export default function Dashboard() {
             formatter={formatCurrency}
             colors={COLORS}
             emptyMessage="Nenhum dado disponível"
+            lockChartType="line"
             lines={[
               { dataKey: 'despesas', stroke: COLORS[5], name: 'Despesas' },
               { dataKey: 'receitas', stroke: COLORS[3], name: 'Receitas' },

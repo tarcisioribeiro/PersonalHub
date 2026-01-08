@@ -41,6 +41,7 @@ interface ChartContainerProps {
   layout?: 'horizontal' | 'vertical';
   withArea?: boolean;
   defaultType?: ChartType;
+  lockChartType?: ChartType;
 }
 
 /**
@@ -67,9 +68,13 @@ export const ChartContainer = ({
   layout = 'vertical',
   withArea = true,
   defaultType = 'pie',
+  lockChartType,
 }: ChartContainerProps) => {
-  const { chartType, cycleChartType } = useChartType(chartId, defaultType);
+  const { chartType: storedChartType, cycleChartType } = useChartType(chartId, defaultType);
   const [isAnimating, setIsAnimating] = useState(false);
+
+  // Se lockChartType estiver definido, use ele; caso contrário, use o tipo armazenado
+  const chartType = lockChartType || storedChartType;
 
   const handleToggle = () => {
     setIsAnimating(true);
@@ -91,32 +96,34 @@ export const ChartContainer = ({
 
   return (
     <div className="relative">
-      {/* Toggle Button */}
-      <div className="absolute top-0 right-0 z-10 group">
-        <motion.button
-          onClick={handleToggle}
-          disabled={isAnimating}
-          className="p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border
-                     hover:bg-accent transition-colors disabled:opacity-50 shadow-sm"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          aria-label="Alternar visualização do gráfico"
-        >
-          <RefreshCw
-            className={cn('h-4 w-4 transition-transform', isAnimating && 'animate-spin')}
-          />
-        </motion.button>
+      {/* Toggle Button - Oculto quando lockChartType está definido */}
+      {!lockChartType && (
+        <div className="absolute top-0 right-0 z-10 group">
+          <motion.button
+            onClick={handleToggle}
+            disabled={isAnimating}
+            className="p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border
+                       hover:bg-accent transition-colors disabled:opacity-50 shadow-sm"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            aria-label="Alternar visualização do gráfico"
+          >
+            <RefreshCw
+              className={cn('h-4 w-4 transition-transform', isAnimating && 'animate-spin')}
+            />
+          </motion.button>
 
-        {/* Tooltip hint on hover */}
-        <div
-          className="absolute top-12 right-0 opacity-0 group-hover:opacity-100
-                      text-xs text-muted-foreground bg-background/95 backdrop-blur-sm
-                      border border-border rounded px-2 py-1 shadow-sm transition-opacity
-                      whitespace-nowrap pointer-events-none"
-        >
-          Clique para alternar
+          {/* Tooltip hint on hover */}
+          <div
+            className="absolute top-12 right-0 opacity-0 group-hover:opacity-100
+                        text-xs text-muted-foreground bg-background/95 backdrop-blur-sm
+                        border border-border rounded px-2 py-1 shadow-sm transition-opacity
+                        whitespace-nowrap pointer-events-none"
+          >
+            Clique para alternar
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Chart Renderer with Transition Animation */}
       <AnimatePresence mode="wait">

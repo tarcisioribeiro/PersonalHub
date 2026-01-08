@@ -244,7 +244,8 @@ export default function PersonalPlanningDashboard() {
                 colors={COLORS}
                 customColors={(entry) => getCategoryColor(entry.category)}
                 emptyMessage="Nenhuma tarefa cadastrada"
-                layout="vertical"
+                defaultType="bar"
+                layout="horizontal"
                 height={350}
               />
             </CardContent>

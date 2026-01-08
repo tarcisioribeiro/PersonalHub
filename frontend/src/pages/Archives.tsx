@@ -82,8 +82,25 @@ export default function Archives() {
     setIsDialogOpen(true);
   };
 
-  const handleEdit = (archive: Archive) => {
-    setSelectedArchive(archive);
+  const handleEdit = async (archive: Archive) => {
+    // Se for arquivo de texto, carregar o conteúdo descriptografado
+    if (archive.archive_type === 'text' && archive.has_text) {
+      try {
+        const data = await archivesService.reveal(archive.id);
+        // Adiciona o texto descriptografado ao objeto archive
+        setSelectedArchive({ ...archive, text_content: data.text_content });
+      } catch (error: any) {
+        toast({
+          title: 'Erro ao carregar conteúdo',
+          description: error.message,
+          variant: 'destructive',
+        });
+        // Ainda abre o diálogo, mas sem o conteúdo
+        setSelectedArchive(archive);
+      }
+    } else {
+      setSelectedArchive(archive);
+    }
     setIsDialogOpen(true);
   };
 
@@ -129,6 +146,16 @@ export default function Archives() {
       setIsRevealing(true);
       setSelectedArchive(archive);
       const data = await archivesService.reveal(archive.id);
+
+      if (!data.text_content && data.text_content !== '') {
+        toast({
+          title: 'Conteúdo vazio',
+          description: 'Este arquivo não possui conteúdo de texto armazenado.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       setRevealedContent(data.text_content || '');
       setIsContentDialogOpen(true);
       toast({

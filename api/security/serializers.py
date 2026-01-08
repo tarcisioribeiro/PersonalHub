@@ -301,8 +301,14 @@ class ArchiveCreateUpdateSerializer(serializers.ModelSerializer):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
+        # Só atualizar text_content se foi fornecido um valor não-vazio
+        # String vazia '' também não atualiza para preservar conteúdo existente
         if text_content:
             instance.text_content = text_content
+        elif text_content == '':
+            # String vazia explícita - não atualizar, preservar existente
+            # Se quiser limpar, deve deletar o arquivo
+            pass
 
         # Atualizar o nome do arquivo se um novo arquivo foi enviado
         if encrypted_file:
@@ -320,7 +326,26 @@ class ArchiveRevealSerializer(serializers.Serializer):
     text_content = serializers.SerializerMethodField()
 
     def get_text_content(self, obj):
-        return obj.text_content  # Property getter descriptografa
+        """Retorna o conteúdo descriptografado ou levanta exceção se falhar."""
+        if not obj._encrypted_text:
+            return None
+
+        try:
+            from app.encryption import FieldEncryption
+            decrypted = FieldEncryption.decrypt_data(obj._encrypted_text)
+            if decrypted is None:
+                raise serializers.ValidationError(
+                    "Não foi possível descriptografar o conteúdo. "
+                    "A chave de criptografia pode ter sido alterada."
+                )
+            return decrypted
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Erro ao descriptografar arquivo {obj.id}: {str(e)}")
+            raise serializers.ValidationError(
+                f"Erro ao descriptografar o conteúdo: {str(e)}"
+            )
 
 
 # ============================================================================

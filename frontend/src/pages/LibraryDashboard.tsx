@@ -299,6 +299,7 @@ export default function LibraryDashboard() {
               formatter={(value) => `${value} ${value === 1 ? 'livro' : 'livros'}`}
               colors={COLORS}
               emptyMessage="Nenhum livro cadastrado"
+              lockChartType="pie"
             />
             {stats && stats.reading_status_distribution.length > 0 && (
               <div className="mt-4 space-y-2">
@@ -401,6 +402,8 @@ export default function LibraryDashboard() {
               formatter={(value) => `${value} ${value === 1 ? 'livro' : 'livros'}`}
               colors={COLORS}
               emptyMessage="Nenhum autor cadastrado"
+              defaultType="bar"
+              layout="horizontal"
             />
             {stats && stats.top_authors.length > 0 && (
               <div className="mt-4 space-y-2">

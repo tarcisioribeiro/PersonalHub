@@ -171,6 +171,8 @@ export default function SecurityDashboard() {
               formatter={(value) => `${value} ${value === 1 ? 'senha' : 'senhas'}`}
               colors={COLORS}
               emptyMessage="Nenhuma senha cadastrada"
+              defaultType="bar"
+              layout="horizontal"
             />
             {stats && stats.passwords_by_category.length > 0 && (
               <div className="mt-4 space-y-2">
@@ -292,6 +294,7 @@ export default function SecurityDashboard() {
               formatter={(value) => `${value} ${value === 1 ? 'atividade' : 'atividades'}`}
               colors={COLORS}
               emptyMessage="Nenhuma atividade registrada"
+              lockChartType="line"
               lines={[
                 { dataKey: 'count', stroke: COLORS[0], name: 'Atividades' }
               ]}

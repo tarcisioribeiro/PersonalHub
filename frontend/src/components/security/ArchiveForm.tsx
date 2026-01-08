@@ -104,18 +104,37 @@ export function ArchiveForm({
     const fileInput = document.getElementById('file') as HTMLInputElement;
     const file = fileInput?.files?.[0];
 
-    if (!archive && !file) {
-      // Validação de arquivo para novos registros
+    // Validação: para novos arquivos, deve ter arquivo OU conteúdo de texto
+    if (!archive && !file && data.archive_type !== 'text') {
       alert('Por favor, selecione um arquivo.');
       return;
     }
 
+    if (!archive && data.archive_type === 'text' && !data.text_content) {
+      alert('Por favor, insira o conteúdo do texto.');
+      return;
+    }
+
     // Use logged-in user as owner for new archives
-    const submitData = {
+    const submitData: any = {
       ...data,
       owner: archive ? data.owner : (user?.id || 0),
       file,
     };
+
+    // Durante update, se text_content estiver vazio e o tipo não for 'text',
+    // não enviar o campo para preservar conteúdo existente
+    if (archive && !data.text_content && data.archive_type !== 'text') {
+      delete submitData.text_content;
+    }
+
+    // Durante update de arquivo tipo texto, se text_content estiver vazio,
+    // não enviar para preservar o conteúdo existente (exceto se usuário realmente quer limpar)
+    if (archive && data.archive_type === 'text' && !data.text_content && archive.archive_type === 'text') {
+      // Avisar que não pode deixar vazio
+      alert('Arquivos de texto não podem ter conteúdo vazio. Se quiser remover o conteúdo, exclua o arquivo.');
+      return;
+    }
 
     onSubmit(submitData);
   });
@@ -179,25 +198,44 @@ export function ArchiveForm({
           )}
         </div>
 
-        <div className="col-span-2">
-          <Label htmlFor="file">
-            Arquivo {!archive && '*'}
-          </Label>
-          <Input
-            id="file"
-            type="file"
-            accept={FILE_TYPES_ACCEPT}
-          />
-          {archive ? (
-            <p className="text-xs text-warning mt-1">
-              Deixe vazio para manter o arquivo atual. Upload de novo arquivo substituirá o existente.
-            </p>
-          ) : (
+        {watch('archive_type') === 'text' ? (
+          <div className="col-span-2">
+            <Label htmlFor="text_content">Conteúdo de Texto *</Label>
+            <Textarea
+              id="text_content"
+              {...register('text_content')}
+              placeholder="Digite ou cole o conteúdo do texto aqui..."
+              rows={10}
+              className="font-mono text-sm"
+            />
+            {errors.text_content && (
+              <p className="text-sm text-destructive mt-1">{errors.text_content.message}</p>
+            )}
             <p className="text-xs text-muted-foreground mt-1">
-              O arquivo será criptografado antes de ser armazenado. Tipos suportados: PDF, Word, Excel, PowerPoint, JSON, XML, CSV, imagens, compactados, etc.
+              O texto será criptografado antes de ser armazenado
             </p>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="col-span-2">
+            <Label htmlFor="file">
+              Arquivo {!archive && '*'}
+            </Label>
+            <Input
+              id="file"
+              type="file"
+              accept={FILE_TYPES_ACCEPT}
+            />
+            {archive ? (
+              <p className="text-xs text-warning mt-1">
+                Deixe vazio para manter o arquivo atual. Upload de novo arquivo substituirá o existente.
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground mt-1">
+                O arquivo será criptografado antes de ser armazenado. Tipos suportados: PDF, Word, Excel, PowerPoint, JSON, XML, CSV, imagens, compactados, etc.
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="col-span-2">
           <Label htmlFor="tags">Tags</Label>
