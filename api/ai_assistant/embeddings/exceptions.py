@@ -10,30 +10,6 @@ class EmbeddingError(Exception):
     pass
 
 
-class OllamaConnectionError(EmbeddingError):
-    """Raised when unable to connect to Ollama server."""
-
-    def __init__(self, url: str, original_error: Exception = None):
-        self.url = url
-        self.original_error = original_error
-        message = f"Failed to connect to Ollama at {url}"
-        if original_error:
-            message += f": {str(original_error)}"
-        super().__init__(message)
-
-
-class OllamaModelNotFoundError(EmbeddingError):
-    """Raised when the requested model is not available in Ollama."""
-
-    def __init__(self, model: str):
-        self.model = model
-        message = (
-            f"Model '{model}' not found in Ollama. "
-            f"Run 'ollama pull {model}' to download it."
-        )
-        super().__init__(message)
-
-
 class EmbeddingGenerationError(EmbeddingError):
     """Raised when embedding generation fails."""
 

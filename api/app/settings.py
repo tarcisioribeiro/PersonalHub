@@ -187,13 +187,11 @@ CACHES = {
     }
 }
 
-# Ollama Configuration (local LLM and embeddings)
-OLLAMA_CONFIG = {
-    'URL': os.getenv('OLLAMA_URL', 'http://localhost:11435'),
-    'EMBED_MODEL': os.getenv('OLLAMA_EMBED_MODEL', 'nomic-embed-text'),
-    'LLM_MODEL': os.getenv('OLLAMA_LLM_MODEL', 'mistral:7b'),
-    'TIMEOUT': 120,  # seconds
-    'EMBED_DIMENSIONS': 768,
+# Embedding Configuration (using sentence-transformers - local, fast, free)
+EMBEDDING_CONFIG = {
+    'MODEL': 'all-MiniLM-L6-v2',  # Fast, multilingual, 384 dimensions
+    'DIMENSIONS': 384,
+    'BATCH_SIZE': 32,
 }
 
 # AI Assistant Configuration
@@ -206,17 +204,10 @@ AI_ASSISTANT_CONFIG = {
     'EMBEDDING_BATCH_SIZE': 32,
 }
 
-# OpenAI Configuration (for embeddings when Ollama unavailable)
-OPENAI_CONFIG = {
-    'API_KEY': os.getenv('OPENAI_API_KEY'),
-    'EMBED_MODEL': 'text-embedding-3-small',
-    'EMBED_DIMENSIONS': 1536,
-}
-
-# Groq Configuration (for complex queries, low sensitivity only)
+# Groq Configuration (for all LLM text generation)
 GROQ_CONFIG = {
     'API_KEY': os.getenv('GROQ_API_KEY'),
-    'MODEL': 'llama-3.3-70b-versatile',
+    'MODEL': 'llama-3.3-70b-versatile',  # Fast, accurate, generous free tier
     'TIMEOUT': 60,
 }
 

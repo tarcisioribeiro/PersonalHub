@@ -2,8 +2,8 @@
 Embedding Service
 
 Centralized service for generating and managing embeddings.
-This service uses Ollama for local embedding generation to ensure
-sensitive data never leaves the infrastructure.
+This service uses sentence-transformers for fast, local embedding generation
+to ensure sensitive data never leaves the infrastructure.
 """
 
 import logging
@@ -12,8 +12,11 @@ from dataclasses import dataclass
 
 from django.conf import settings
 
-from .ollama_client import OllamaClient, get_ollama_client, EmbeddingResponse
-from .openai_client import OpenAIEmbeddingClient, get_openai_client
+from .sentence_transformer_client import (
+    SentenceTransformerClient,
+    get_sentence_transformer_client,
+    EmbeddingResponse
+)
 from .exceptions import EmbeddingError, EmbeddingGenerationError
 
 logger = logging.getLogger(__name__)
@@ -34,77 +37,63 @@ class EmbeddingResult:
 
 class EmbeddingService:
     """
-    Service for generating embeddings using Ollama.
+    Service for generating embeddings using sentence-transformers.
 
     This service provides a high-level interface for embedding generation,
     with support for single and batch operations. All embeddings are
-    generated locally using Ollama to protect sensitive data.
+    generated locally using sentence-transformers (all-MiniLM-L6-v2) which:
+    - Is fast (5x faster than larger models)
+    - Is lightweight (~80MB RAM)
+    - Supports multilingual text (including Portuguese)
+    - Runs entirely locally (no API calls, no costs)
 
     Attributes
     ----------
     model : str
-        The embedding model to use (default: nomic-embed-text)
+        The embedding model to use (default: all-MiniLM-L6-v2)
     dimensions : int
-        Expected embedding dimensions (768 for nomic-embed-text)
+        Expected embedding dimensions (384 for all-MiniLM-L6-v2)
     batch_size : int
         Maximum batch size for batch operations
     """
 
     def __init__(
         self,
-        client: Optional[OllamaClient] = None,
+        client: Optional[SentenceTransformerClient] = None,
         model: Optional[str] = None,
         dimensions: Optional[int] = None,
         batch_size: Optional[int] = None
     ):
-        self.ollama_client = client or get_ollama_client()
-        self.openai_client = get_openai_client()
+        self.client = client or get_sentence_transformer_client(model)
 
-        ollama_config = getattr(settings, 'OLLAMA_CONFIG', {})
-        openai_config = getattr(settings, 'OPENAI_CONFIG', {})
+        embedding_config = getattr(settings, 'EMBEDDING_CONFIG', {})
         ai_config = getattr(settings, 'AI_ASSISTANT_CONFIG', {})
 
-        self.ollama_model = model or ollama_config.get('EMBED_MODEL', 'nomic-embed-text')
-        self.ollama_dimensions = dimensions or ollama_config.get('EMBED_DIMENSIONS', 768)
-        self.openai_model = openai_config.get('EMBED_MODEL', 'text-embedding-3-small')
-        self.openai_dimensions = openai_config.get('EMBED_DIMENSIONS', 1536)
+        self._model = model or embedding_config.get('MODEL', 'all-MiniLM-L6-v2')
+        self._dimensions = dimensions or embedding_config.get('DIMENSIONS', 384)
         self.batch_size = batch_size or ai_config.get('EMBEDDING_BATCH_SIZE', 32)
-
         self._model_verified = False
-        self._active_provider = None  # Will be set on first use
 
     def _ensure_model(self) -> None:
         """Verify model is available (cached after first check)."""
         if not self._model_verified:
-            # Try Ollama first (local, private)
-            if self.ollama_client.health_check() and self.ollama_client.is_model_available(self.ollama_model):
-                self._active_provider = 'ollama'
-                logger.info("Using Ollama for embeddings (local, private)")
-            # Fallback to OpenAI
-            elif self.openai_client.is_available():
-                self._active_provider = 'openai'
-                logger.warning("Ollama unavailable, using OpenAI for embeddings (cloud)")
-            else:
+            if not self.client.is_available():
                 raise ValueError(
-                    "No embedding provider available. Either:\n"
-                    "1. Start Ollama: docker-compose --profile ollama up -d\n"
-                    "2. Set OPENAI_API_KEY in .env (get at https://platform.openai.com/api-keys)"
+                    "sentence-transformers not available. Install with:\n"
+                    "pip install sentence-transformers"
                 )
             self._model_verified = True
+            logger.info(f"Using sentence-transformers model: {self._model} ({self._dimensions}D)")
 
     @property
     def model(self) -> str:
         """Get active model name."""
-        if self._active_provider == 'openai':
-            return self.openai_model
-        return self.ollama_model
+        return self._model
 
     @property
     def dimensions(self) -> int:
         """Get active embedding dimensions."""
-        if self._active_provider == 'openai':
-            return self.openai_dimensions
-        return self.ollama_dimensions
+        return self._dimensions
 
     def is_available(self) -> bool:
         """
@@ -113,14 +102,10 @@ class EmbeddingService:
         Returns
         -------
         bool
-            True if any embedding provider is available
+            True if sentence-transformers is available
         """
         try:
-            # Check Ollama first
-            if self.ollama_client.health_check() and self.ollama_client.is_model_available(self.ollama_model):
-                return True
-            # Fallback to OpenAI
-            return self.openai_client.is_available()
+            return self.client.is_available()
         except Exception:
             return False
 
@@ -149,22 +134,13 @@ class EmbeddingService:
         self._ensure_model()
 
         try:
-            if self._active_provider == 'openai':
-                embedding = self.openai_client.generate_embedding(text)
-                return EmbeddingResult(
-                    text=text,
-                    embedding=embedding,
-                    model=self.openai_model,
-                    dimensions=len(embedding)
-                )
-            else:
-                response = self.ollama_client.generate_embedding(text, self.ollama_model)
-                return EmbeddingResult(
-                    text=text,
-                    embedding=response.embedding,
-                    model=response.model,
-                    dimensions=len(response.embedding)
-                )
+            response = self.client.generate_embedding(text)
+            return EmbeddingResult(
+                text=text,
+                embedding=response.embedding,
+                model=response.model,
+                dimensions=response.dimensions
+            )
         except EmbeddingError:
             raise
         except Exception as e:
@@ -210,24 +186,14 @@ class EmbeddingService:
             batch_texts = [t for _, t in batch]
 
             try:
-                if self._active_provider == 'openai':
-                    embeddings = self.openai_client.generate_embeddings_batch(batch_texts)
-                    for (original_idx, text), embedding in zip(batch, embeddings):
-                        results[original_idx] = EmbeddingResult(
-                            text=text,
-                            embedding=embedding,
-                            model=self.openai_model,
-                            dimensions=len(embedding)
-                        )
-                else:
-                    responses = self.ollama_client.generate_embeddings_batch(batch_texts, self.ollama_model)
-                    for (original_idx, text), response in zip(batch, responses):
-                        results[original_idx] = EmbeddingResult(
-                            text=text,
-                            embedding=response.embedding,
-                            model=response.model,
-                            dimensions=len(response.embedding)
-                        )
+                responses = self.client.generate_embeddings_batch(batch_texts, self.batch_size)
+                for (original_idx, text), response in zip(batch, responses):
+                    results[original_idx] = EmbeddingResult(
+                        text=text,
+                        embedding=response.embedding,
+                        model=response.model,
+                        dimensions=response.dimensions
+                    )
 
             except EmbeddingError:
                 raise

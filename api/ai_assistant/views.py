@@ -308,8 +308,8 @@ class AIStreamingQueryView(APIView):
             for source in response.sources:
                 class RAGResult:
                     def __init__(self, s):
-                        self.module = s.get('module', 'unknown')
-                        self.entity_type = s.get('type', 'unknown')
+                        self.module = s.get('tipo', 'unknown')
+                        self.entity_type = s.get('content_type', 'unknown')
                         self.score = s.get('score', 0)
                         self.metadata = s.get('metadata', {})
                 rag_results.append(RAGResult(source))

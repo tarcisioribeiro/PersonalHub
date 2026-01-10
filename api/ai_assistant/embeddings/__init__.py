@@ -1,31 +1,31 @@
 """
 Embeddings Module
 
-This module provides embedding generation services using Ollama local inference.
-All embeddings are generated locally to ensure sensitive data never leaves
-the infrastructure.
+This module provides embedding generation services using sentence-transformers.
+All embeddings are generated locally to ensure no API calls are needed.
 
 Main components:
-- OllamaClient: HTTP client for Ollama API
+- SentenceTransformerClient: Local embedding generation using sentence-transformers
 - EmbeddingService: Centralized embedding generation
 - EmbeddingIndexer: Background indexing of content
 """
 
-from .service import EmbeddingService, get_embedding_service
-from .ollama_client import OllamaClient
+from .service import EmbeddingService, get_embedding_service, EmbeddingResult
+from .sentence_transformer_client import (
+    SentenceTransformerClient,
+    get_sentence_transformer_client
+)
 from .exceptions import (
     EmbeddingError,
-    OllamaConnectionError,
-    OllamaModelNotFoundError,
     EmbeddingGenerationError
 )
 
 __all__ = [
     'EmbeddingService',
     'get_embedding_service',
-    'OllamaClient',
+    'EmbeddingResult',
+    'SentenceTransformerClient',
+    'get_sentence_transformer_client',
     'EmbeddingError',
-    'OllamaConnectionError',
-    'OllamaModelNotFoundError',
     'EmbeddingGenerationError',
 ]

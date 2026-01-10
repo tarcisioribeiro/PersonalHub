@@ -1,7 +1,8 @@
 """
 LLM Router
 
-Routes LLM requests based on data sensitivity and query complexity.
+Simplified router using only Groq for all LLM operations.
+All data is processed using Groq's fast cloud inference.
 """
 
 import logging
@@ -14,7 +15,6 @@ from django.conf import settings
 from ..retrieval.service import RetrievalResult
 from .sensitivity import SensitivityClassifier, SensitivityAnalysis, QueryComplexity
 from .providers.base import BaseLLMProvider, GenerationResult
-from .providers.ollama import OllamaProvider
 from .providers.groq import GroqProvider
 from .prompts import get_system_prompt, build_context_prompt
 
@@ -23,8 +23,7 @@ logger = logging.getLogger(__name__)
 
 class RoutingDecision(Enum):
     """Routing decision for LLM selection."""
-    LOCAL = 'local'    # Use Ollama (sensitive data or default)
-    CLOUD = 'cloud'    # Use Groq (complex query, low sensitivity)
+    CLOUD = 'cloud'    # Use Groq for all operations
 
 
 @dataclass
@@ -40,38 +39,27 @@ class RoutingContext:
 
 class LLMRouter:
     """
-    Routes LLM requests based on content sensitivity.
+    Simplified LLM router using only Groq.
 
-    Routing Rules:
-    1. If ANY result has sensibilidade='alta' -> LOCAL (Ollama)
-    2. If query involves security module content -> LOCAL
-    3. If query mentions security topics -> LOCAL
-    4. If query is complex AND sensitivity is low -> CLOUD (Groq)
-    5. Default: LOCAL (privacy-first)
+    All queries are processed using Groq's fast cloud inference.
+    Embeddings are generated locally using sentence-transformers,
+    so sensitive data is only sent to Groq for final text generation.
 
     Attributes
     ----------
-    ollama_provider : OllamaProvider
-        Local LLM provider
     groq_provider : GroqProvider
-        Cloud LLM provider
+        Groq LLM provider for all text generation
     classifier : SensitivityClassifier
-        Sensitivity analysis
-    prefer_local : bool
-        If True, always use local when possible
+        Sensitivity analysis (for logging/monitoring)
     """
 
     def __init__(
         self,
-        ollama_provider: Optional[OllamaProvider] = None,
         groq_provider: Optional[GroqProvider] = None,
-        classifier: Optional[SensitivityClassifier] = None,
-        prefer_local: bool = True
+        classifier: Optional[SensitivityClassifier] = None
     ):
-        self.ollama = ollama_provider or OllamaProvider()
         self.groq = groq_provider or GroqProvider()
         self.classifier = classifier or SensitivityClassifier()
-        self.prefer_local = prefer_local
 
     def route(
         self,
@@ -79,7 +67,7 @@ class LLMRouter:
         results: List[RetrievalResult]
     ) -> Tuple[RoutingDecision, BaseLLMProvider, RoutingContext]:
         """
-        Determine which LLM to use based on context.
+        Route request to Groq (always uses Groq now).
 
         Parameters
         ----------
@@ -93,97 +81,35 @@ class LLMRouter:
         Tuple[RoutingDecision, BaseLLMProvider, RoutingContext]
             (decision, provider, context)
         """
-        # Analyze sensitivity
+        # Analyze sensitivity (for logging/monitoring only)
         analysis = self.classifier.analyze(query, results)
 
-        # Determine routing
-        if analysis.requires_local:
-            decision = RoutingDecision.LOCAL
-            provider = self.ollama
-        elif self.prefer_local:
-            decision = RoutingDecision.LOCAL
-            provider = self.ollama
-            analysis = SensitivityAnalysis(
-                max_sensitivity=analysis.max_sensitivity,
-                has_security_content=analysis.has_security_content,
-                query_complexity=analysis.query_complexity,
-                requires_local=True,
-                reason="Preferencia por processamento local"
-            )
-        elif self.groq.is_available():
-            decision = RoutingDecision.CLOUD
-            provider = self.groq
-        else:
-            # Fallback to local if cloud not available
-            decision = RoutingDecision.LOCAL
-            provider = self.ollama
-            analysis = SensitivityAnalysis(
-                max_sensitivity=analysis.max_sensitivity,
-                has_security_content=analysis.has_security_content,
-                query_complexity=analysis.query_complexity,
-                requires_local=True,
-                reason="Groq indisponivel, usando Ollama"
-            )
+        # Always use Groq
+        decision = RoutingDecision.CLOUD
+        provider = self.groq
 
-        # Check if selected provider is available
+        # Check if Groq is available
         if not provider.is_available():
-            if decision == RoutingDecision.LOCAL:
-                # Try fallback to cloud if not sensitive
-                if not analysis.requires_local and self.groq.is_available():
-                    logger.warning("Ollama nao disponivel, usando Groq como fallback")
-                    decision = RoutingDecision.CLOUD
-                    provider = self.groq
-                    analysis = SensitivityAnalysis(
-                        max_sensitivity=analysis.max_sensitivity,
-                        has_security_content=analysis.has_security_content,
-                        query_complexity=analysis.query_complexity,
-                        requires_local=False,
-                        reason="Fallback para Groq (Ollama indisponivel)"
-                    )
-                elif self.groq.is_available() and not analysis.has_security_content:
-                    # Allow Groq for non-security content even if high sensitivity
-                    logger.warning("Ollama nao disponivel, usando Groq (dados nao-seguranca)")
-                    decision = RoutingDecision.CLOUD
-                    provider = self.groq
-                    analysis = SensitivityAnalysis(
-                        max_sensitivity=analysis.max_sensitivity,
-                        has_security_content=False,
-                        query_complexity=analysis.query_complexity,
-                        requires_local=False,
-                        reason="Fallback para Groq (Ollama indisponivel)"
-                    )
-                else:
-                    logger.error("Ollama nao disponivel e Groq nao pode ser usado")
-                    raise RuntimeError(
-                        "Ollama nao esta disponivel. Instale o modelo com: "
-                        "docker compose exec ollama ollama pull mistral:7b"
-                    )
-            else:
-                # Try fallback to local
-                if self.ollama.is_available():
-                    decision = RoutingDecision.LOCAL
-                    provider = self.ollama
-                    analysis = SensitivityAnalysis(
-                        max_sensitivity=analysis.max_sensitivity,
-                        has_security_content=analysis.has_security_content,
-                        query_complexity=analysis.query_complexity,
-                        requires_local=True,
-                        reason="Fallback para Ollama"
-                    )
-                else:
-                    raise RuntimeError("Nenhum provedor LLM disponivel")
+            logger.error("Groq nao esta disponivel")
+            raise RuntimeError(
+                "Groq nao esta disponivel. Verifique:\n"
+                "1. GROQ_API_KEY esta configurada no .env\n"
+                "2. A chave API e valida\n"
+                "3. Acesso a internet esta funcionando"
+            )
 
         context = RoutingContext(
             max_sensitivity=analysis.max_sensitivity,
             has_security_content=analysis.has_security_content,
             query_complexity=analysis.query_complexity.value,
             decision=decision,
-            reason=analysis.reason,
+            reason="Usando Groq para inferencia rapida",
             provider_name=provider.name
         )
 
         logger.info(
-            f"Routing decision: {decision.value} ({provider.name}) - {analysis.reason}"
+            f"Routing decision: {decision.value} ({provider.name}) - "
+            f"sensitivity={analysis.max_sensitivity}, security={analysis.has_security_content}"
         )
 
         return (decision, provider, context)
@@ -246,7 +172,7 @@ class LLMRouter:
 
     def get_provider_status(self) -> dict:
         """
-        Get status of all providers.
+        Get status of Groq provider.
 
         Returns
         -------
@@ -254,17 +180,12 @@ class LLMRouter:
             Provider status information
         """
         return {
-            'ollama': {
-                'available': self.ollama.is_available(),
-                'model': self.ollama.model,
-                'is_local': True
-            },
             'groq': {
                 'available': self.groq.is_available(),
                 'model': self.groq.model,
                 'is_local': False
             },
-            'prefer_local': self.prefer_local
+            'note': 'Using Groq for all LLM operations (embeddings are local via sentence-transformers)'
         }
 
 

@@ -214,11 +214,17 @@ export const debounce = <T extends (...args: any[]) => any>(
 export const getModuleBadgeColor = (module: string): string => {
   switch (module) {
     case 'finance':
+    case 'financeiro':
       return 'bg-category-finance text-white';
     case 'security':
+    case 'seguranca':
       return 'bg-category-studies text-white';
     case 'library':
+    case 'leitura':
       return 'bg-category-spiritual text-white';
+    case 'planning':
+    case 'planejamento':
+      return 'bg-category-health text-white';
     default:
       return 'bg-muted text-muted-foreground';
   }
@@ -236,11 +242,17 @@ export const getModuleBadgeColor = (module: string): string => {
 export const getModuleLabel = (module: string): string => {
   switch (module) {
     case 'finance':
+    case 'financeiro':
       return 'Finanças';
     case 'security':
+    case 'seguranca':
       return 'Segurança';
     case 'library':
+    case 'leitura':
       return 'Biblioteca';
+    case 'planning':
+    case 'planejamento':
+      return 'Planejamento';
     default:
       return module;
   }
@@ -257,19 +269,34 @@ export const getModuleLabel = (module: string): string => {
  */
 export const getEntityLabel = (type: string): string => {
   const labels: Record<string, string> = {
+    // Finance
     expense: 'Despesa',
     revenue: 'Receita',
     account: 'Conta',
+    transfer: 'Transferência',
+    creditcard: 'Cartão de Crédito',
+    credit_card: 'Cartão de Crédito',
+    creditcardexpense: 'Fatura do Cartão',
+    loan: 'Empréstimo',
+
+    // Security
     password: 'Senha',
+    storedcreditcard: 'Cartão Armazenado',
+    storedbankaccount: 'Conta Armazenada',
     archive: 'Arquivo',
+
+    // Library
     book: 'Livro',
     summary: 'Resumo',
-    transfer: 'Transferência',
-    credit_card: 'Cartão de Crédito',
-    loan: 'Empréstimo',
+    reading: 'Leitura',
     author: 'Autor',
     publisher: 'Editora',
-    reading: 'Leitura',
+
+    // Planning
+    routinetask: 'Tarefa Rotineira',
+    dailytaskrecord: 'Registro Diário',
+    goal: 'Objetivo',
+    dailyreflection: 'Reflexão Diária',
   };
   return labels[type] || type;
 };

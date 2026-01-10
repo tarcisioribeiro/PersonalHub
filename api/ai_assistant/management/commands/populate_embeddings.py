@@ -61,19 +61,23 @@ class Command(BaseCommand):
             f"{'='*60}\n"
         ))
 
-        # Check Ollama availability
-        self.stdout.write("Checking Ollama availability...")
+        # Check embedding service availability
+        self.stdout.write("Checking embedding service availability...")
         try:
             embedding_service = get_embedding_service()
             if not embedding_service.health_check():
                 raise CommandError(
-                    "Ollama is not available. Please ensure:\n"
-                    "1. Ollama is running (docker-compose up -d ollama)\n"
-                    "2. The model is installed (docker-compose exec ollama ollama pull nomic-embed-text)"
+                    "Embedding service is not available. Please ensure:\n"
+                    "1. sentence-transformers is installed (pip install sentence-transformers)\n"
+                    "2. Model will auto-download on first use (~80MB)"
                 )
-            self.stdout.write(self.style.SUCCESS("Ollama is available"))
+            model_info = embedding_service.client.get_model_info()
+            self.stdout.write(self.style.SUCCESS(
+                f"Embedding service available: {model_info['model_name']} "
+                f"({model_info['dimensions']}D)"
+            ))
         except Exception as e:
-            raise CommandError(f"Failed to connect to Ollama: {e}")
+            raise CommandError(f"Failed to initialize embedding service: {e}")
 
         indexer = EmbeddingIndexer(batch_size=batch_size)
 

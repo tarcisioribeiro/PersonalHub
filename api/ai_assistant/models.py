@@ -41,9 +41,9 @@ class ContentEmbedding(BaseModel):
     This model uses pgvector for efficient similarity search and supports
     filtering by content type, sensitivity level, tags, and date range.
 
-    The embedding is generated using nomic-embed-text (768 dimensions) via
-    Ollama local inference to ensure sensitive data never leaves the
-    infrastructure.
+    The embedding is generated using all-MiniLM-L6-v2 (384 dimensions) via
+    sentence-transformers local inference to ensure embeddings are generated
+    locally without API calls.
 
     Attributes
     ----------
@@ -129,9 +129,9 @@ class ContentEmbedding(BaseModel):
         help_text='Optimized text for embedding generation'
     )
 
-    # Embedding vector (768 dimensions for nomic-embed-text)
+    # Embedding vector (384 dimensions for all-MiniLM-L6-v2)
     embedding = VectorField(
-        dimensions=768,
+        dimensions=384,
         null=True,
         blank=True,
         verbose_name='Vetor de Embedding'
@@ -166,7 +166,7 @@ class ContentEmbedding(BaseModel):
     )
     embedding_model = models.CharField(
         max_length=100,
-        default='nomic-embed-text',
+        default='all-MiniLM-L6-v2',
         verbose_name='Modelo de Embedding'
     )
 
