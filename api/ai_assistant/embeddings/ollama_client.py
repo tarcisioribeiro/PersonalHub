@@ -67,7 +67,7 @@ class OllamaClient:
     ):
         ollama_config = getattr(settings, 'OLLAMA_CONFIG', {})
 
-        self.base_url = (base_url or ollama_config.get('URL', 'http://localhost:11434')).rstrip('/')
+        self.base_url = (base_url or ollama_config.get('URL', 'http://localhost:11435')).rstrip('/')
         self.timeout = timeout or ollama_config.get('TIMEOUT', 120)
         self.embed_model = embed_model or ollama_config.get('EMBED_MODEL', 'nomic-embed-text')
         self.llm_model = llm_model or ollama_config.get('LLM_MODEL', 'mistral:7b')

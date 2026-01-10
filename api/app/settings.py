@@ -189,7 +189,7 @@ CACHES = {
 
 # Ollama Configuration (local LLM and embeddings)
 OLLAMA_CONFIG = {
-    'URL': os.getenv('OLLAMA_URL', 'http://localhost:11434'),
+    'URL': os.getenv('OLLAMA_URL', 'http://localhost:11435'),
     'EMBED_MODEL': os.getenv('OLLAMA_EMBED_MODEL', 'nomic-embed-text'),
     'LLM_MODEL': os.getenv('OLLAMA_LLM_MODEL', 'mistral:7b'),
     'TIMEOUT': 120,  # seconds
