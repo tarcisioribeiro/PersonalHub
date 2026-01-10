@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,7 +18,7 @@ import type { Account } from '@/types';
 
 interface AccountFormProps {
   account?: Account;
-  members: Array<{ id: number; name: string }>;
+  members?: Array<{ id: number; name: string }>;
   onSubmit: (data: AccountFormData) => void;
   onCancel: () => void;
   isLoading?: boolean;
@@ -26,14 +26,10 @@ interface AccountFormProps {
 
 export const AccountForm: React.FC<AccountFormProps> = ({
   account,
-  members,
   onSubmit,
   onCancel,
   isLoading = false,
 }) => {
-  const [currentUserMemberId, setCurrentUserMemberId] = useState<number | null>(null);
-  const [isLoadingMember, setIsLoadingMember] = useState(true);
-
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<AccountFormData>({
     resolver: zodResolver(accountSchema),
     defaultValues: account
@@ -55,31 +51,22 @@ export const AccountForm: React.FC<AccountFormProps> = ({
         },
   });
 
-  // Buscar o membro do usuário logado ao criar nova conta
+  // Buscar o membro do usuário logado automaticamente
   useEffect(() => {
     const loadCurrentUserMember = async () => {
-      if (!account) { // Apenas ao criar nova conta
-        try {
-          setIsLoadingMember(true);
-          const member = await membersService.getCurrentUserMember();
-          setCurrentUserMemberId(member.id);
-          setValue('owner', member.id);
-        } catch (error) {
-          console.error('Erro ao carregar membro do usuário:', error);
-        } finally {
-          setIsLoadingMember(false);
-        }
-      } else {
-        setIsLoadingMember(false);
+      try {
+        const member = await membersService.getCurrentUserMember();
+        setValue('owner', member.id);
+      } catch (error) {
+        console.error('Erro ao carregar membro do usuário:', error);
       }
     };
 
     loadCurrentUserMember();
-  }, [account, setValue]);
+  }, [setValue]);
 
   const accountType = watch('account_type') || 'CC';
   const institution = watch('institution') || 'NUB';
-  const owner = watch('owner');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -169,38 +156,6 @@ export const AccountForm: React.FC<AccountFormProps> = ({
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="owner">Proprietário *</Label>
-          {!account ? (
-            // Ao criar nova conta: campo somente leitura com o membro do usuário
-            <Input
-              id="owner"
-              value={isLoadingMember ? 'Carregando...' : members.find(m => m.id === currentUserMemberId)?.name || 'Carregando...'}
-              disabled
-              className="bg-muted"
-            />
-          ) : (
-            // Ao editar conta: permite alterar o proprietário
-            <Select
-              value={owner?.toString() || ''}
-              onValueChange={(value) => setValue('owner', parseInt(value, 10))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o proprietário" />
-              </SelectTrigger>
-              <SelectContent>
-                {members.map((member) => (
-                  <SelectItem key={member.id} value={member.id.toString()}>
-                    {member.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-          {errors.owner && (
-            <p className="text-sm text-destructive">{errors.owner.message}</p>
-          )}
-        </div>
       </div>
 
       <div className="flex justify-end gap-2 pt-4">

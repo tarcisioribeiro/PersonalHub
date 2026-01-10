@@ -14,7 +14,6 @@ import { formatLocalDate } from '@/lib/utils';
 interface ExpenseFormProps {
   expense?: Expense;
   accounts: Account[];
-  members?: Member[];
   loans?: Loan[];
   onSubmit: (data: ExpenseFormData) => void;
   onCancel: () => void;
@@ -160,15 +159,6 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, accounts, loa
               {accounts.map((a) => <SelectItem key={a.id} value={a.id.toString()}>{a.account_name}</SelectItem>)}
             </SelectContent>
           </Select>
-        </div>
-        <div className="space-y-2">
-          <Label>Membro Responsável</Label>
-          <Input
-            value={currentUserMember?.name || 'Carregando...'}
-            disabled
-            className="bg-muted"
-          />
-          <p className="text-xs text-muted-foreground">O membro é automaticamente associado ao usuário logado</p>
         </div>
         <div className="space-y-2">
           <Label>Empréstimo Relacionado (Opcional)</Label>

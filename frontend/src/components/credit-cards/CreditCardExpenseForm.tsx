@@ -9,14 +9,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
 import { TRANSLATIONS } from '@/config/constants';
-import type { CreditCardExpense, CreditCardExpenseFormData, CreditCard, CreditCardBill, Member } from '@/types';
+import type { CreditCardExpense, CreditCardExpenseFormData, CreditCard, CreditCardBill } from '@/types';
 
 import { formatLocalDate } from '@/lib/utils';
 interface CreditCardExpenseFormProps {
   expense?: CreditCardExpense;
   creditCards: CreditCard[];
   bills?: CreditCardBill[];
-  members?: Member[];
   onSubmit: (data: CreditCardExpenseFormData) => void;
   onCancel: () => void;
   isLoading?: boolean;
@@ -26,7 +25,6 @@ export const CreditCardExpenseForm: React.FC<CreditCardExpenseFormProps> = ({
   expense,
   creditCards,
   bills = [],
-  members = [],
   onSubmit,
   onCancel,
   isLoading = false
@@ -272,25 +270,6 @@ export const CreditCardExpenseForm: React.FC<CreditCardExpenseFormProps> = ({
           </div>
         )}
 
-        {members.length > 0 && (
-          <div className="space-y-2">
-            <Label>Membro Responsável</Label>
-            <Select
-              value={watch('member')?.toString() || 'none'}
-              onValueChange={(v) => setValue('member', v === 'none' ? null : parseInt(v))}
-            >
-              <SelectTrigger><SelectValue placeholder="Selecione (opcional)" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Nenhum</SelectItem>
-                {members.map((m) => (
-                  <SelectItem key={m.id} value={m.id.toString()}>
-                    {m.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
 
         <div className="space-y-2 md:col-span-2">
           <Label htmlFor="notes">Observações</Label>

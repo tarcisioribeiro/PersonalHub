@@ -8,21 +8,19 @@ import { CreditCardExpenseForm } from '@/components/credit-cards/CreditCardExpen
 import { creditCardExpensesService } from '@/services/credit-card-expenses-service';
 import { creditCardsService } from '@/services/credit-cards-service';
 import { creditCardBillsService } from '@/services/credit-card-bills-service';
-import { membersService } from '@/services/members-service';
 import { useToast } from '@/hooks/use-toast';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
 import { translate, TRANSLATIONS } from '@/config/constants';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable, type Column } from '@/components/common/DataTable';
-import type { CreditCardExpense, CreditCardExpenseFormData, CreditCard, CreditCardBill, Member } from '@/types';
+import type { CreditCardExpense, CreditCardExpenseFormData, CreditCard, CreditCardBill } from '@/types';
 
 export default function CreditCardExpenses() {
   const [expenses, setExpenses] = useState<CreditCardExpense[]>([]);
   const [filteredExpenses, setFilteredExpenses] = useState<CreditCardExpense[]>([]);
   const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
   const [bills, setBills] = useState<CreditCardBill[]>([]);
-  const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<CreditCardExpense | undefined>();
@@ -44,17 +42,15 @@ export default function CreditCardExpenses() {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const [expensesData, cardsData, billsData, membersData] = await Promise.all([
+      const [expensesData, cardsData, billsData] = await Promise.all([
         creditCardExpensesService.getAll(),
         creditCardsService.getAll(),
         creditCardBillsService.getAll(),
-        membersService.getAll(),
       ]);
       setExpenses(expensesData);
       setFilteredExpenses(expensesData);
       setCreditCards(cardsData);
       setBills(billsData);
-      setMembers(membersData);
     } catch (error: any) {
       toast({ title: 'Erro ao carregar dados', description: error.message, variant: 'destructive' });
     } finally {
@@ -284,7 +280,6 @@ export default function CreditCardExpenses() {
             expense={selectedExpense}
             creditCards={creditCards}
             bills={bills}
-            members={members}
             onSubmit={handleSubmit}
             onCancel={() => setIsDialogOpen(false)}
             isLoading={isSubmitting}

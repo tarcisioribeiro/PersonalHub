@@ -11,18 +11,16 @@ import {
 } from '@/components/ui/dialog';
 import { AccountForm } from '@/components/accounts/AccountForm';
 import { accountsService } from '@/services/accounts-service';
-import { membersService } from '@/services/members-service';
 import { useToast } from '@/hooks/use-toast';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
 import { translate } from '@/config/constants';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable, type Column } from '@/components/common/DataTable';
-import type { Account, AccountFormData, Member } from '@/types';
+import type { Account, AccountFormData } from '@/types';
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<Account | undefined>();
@@ -37,12 +35,8 @@ export default function Accounts() {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const [accountsData, membersData] = await Promise.all([
-        accountsService.getAll(),
-        membersService.getAll(),
-      ]);
+      const accountsData = await accountsService.getAll();
       setAccounts(accountsData);
-      setMembers(membersData);
     } catch (error: any) {
       toast({
         title: 'Erro ao carregar dados',
@@ -216,7 +210,7 @@ export default function Accounts() {
               {selectedAccount ? 'Atualize as informações da conta bancária' : 'Adicione uma nova conta bancária ao sistema'}
             </DialogDescription>
           </DialogHeader>
-          <AccountForm account={selectedAccount} members={members} onSubmit={handleSubmit} onCancel={() => setIsDialogOpen(false)} isLoading={isSubmitting} />
+          <AccountForm account={selectedAccount} onSubmit={handleSubmit} onCancel={() => setIsDialogOpen(false)} isLoading={isSubmitting} />
         </DialogContent>
       </Dialog>
     </div>

@@ -13,7 +13,6 @@ import { formatLocalDate } from '@/lib/utils';
 interface RevenueFormProps {
   revenue?: Revenue;
   accounts: Account[];
-  members?: Member[];
   loans?: Loan[];
   onSubmit: (data: RevenueFormData) => void;
   onCancel: () => void;
@@ -122,15 +121,6 @@ export const RevenueForm: React.FC<RevenueFormProps> = ({ revenue, accounts, loa
         <div className="space-y-2">
           <Label>Fonte</Label>
           <Input {...register('source')} placeholder="Ex: Empresa XYZ" disabled={isLoading} />
-        </div>
-        <div className="space-y-2">
-          <Label>Membro Responsável</Label>
-          <Input
-            value={currentUserMember?.name || 'Carregando...'}
-            disabled
-            className="bg-muted"
-          />
-          <p className="text-xs text-muted-foreground">O membro é automaticamente associado ao usuário logado</p>
         </div>
         <div className="space-y-2">
           <Label>Empréstimo Relacionado (Opcional)</Label>
