@@ -1,5 +1,14 @@
 import * as React from 'react';
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
+import { cva, type VariantProps } from 'class-variance-authority';
+import {
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  Info,
+  type LucideIcon
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 
@@ -9,13 +18,35 @@ const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
 
 const AlertDialogPortal = AlertDialogPrimitive.Portal;
 
+const alertDialogOverlayVariants = cva(
+  'fixed inset-0 z-50 transition-all duration-200',
+  {
+    variants: {
+      blur: {
+        none: 'bg-black/80',
+        sm: 'bg-black/60 backdrop-blur-sm',
+        md: 'bg-black/50 backdrop-blur-md',
+        lg: 'bg-black/40 backdrop-blur-lg',
+      },
+    },
+    defaultVariants: {
+      blur: 'md',
+    },
+  }
+);
+
+interface AlertDialogOverlayProps
+  extends React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>,
+    VariantProps<typeof alertDialogOverlayVariants> {}
+
 const AlertDialogOverlay = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
+  AlertDialogOverlayProps
+>(({ className, blur, ...props }, ref) => (
   <AlertDialogPrimitive.Overlay
     className={cn(
-      'fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+      alertDialogOverlayVariants({ blur }),
+      'data-[state=open]:animate-dialog-overlay-show data-[state=closed]:animate-dialog-overlay-hide',
       className
     )}
     {...props}
@@ -24,16 +55,48 @@ const AlertDialogOverlay = React.forwardRef<
 ));
 AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName;
 
+const alertDialogContentVariants = cva(
+  'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-2xl sm:rounded-xl focus:outline-none',
+  {
+    variants: {
+      animation: {
+        default: 'data-[state=open]:animate-dialog-content-show data-[state=closed]:animate-dialog-content-hide',
+        slideUp: 'data-[state=open]:animate-slide-up-fade data-[state=closed]:animate-dialog-content-hide',
+        slideDown: 'data-[state=open]:animate-slide-down-fade data-[state=closed]:animate-dialog-content-hide',
+        bounce: 'data-[state=open]:animate-bounce-in data-[state=closed]:animate-dialog-content-hide',
+        shake: 'data-[state=open]:animate-shake data-[state=closed]:animate-dialog-content-hide',
+      },
+      variant: {
+        default: '',
+        success: 'border-success/50',
+        warning: 'border-warning/50',
+        destructive: 'border-destructive/50',
+        info: 'border-info/50',
+      },
+    },
+    defaultVariants: {
+      animation: 'default',
+      variant: 'default',
+    },
+  }
+);
+
+interface AlertDialogContentProps
+  extends React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>,
+    VariantProps<typeof alertDialogContentVariants> {
+  overlayBlur?: 'none' | 'sm' | 'md' | 'lg';
+}
+
 const AlertDialogContent = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
->(({ className, ...props }, ref) => (
+  AlertDialogContentProps
+>(({ className, animation, variant, overlayBlur, ...props }, ref) => (
   <AlertDialogPortal>
-    <AlertDialogOverlay />
+    <AlertDialogOverlay blur={overlayBlur} />
     <AlertDialogPrimitive.Content
       ref={ref}
       className={cn(
-        'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg',
+        alertDialogContentVariants({ animation, variant }),
         className
       )}
       {...props}
@@ -42,18 +105,72 @@ const AlertDialogContent = React.forwardRef<
 ));
 AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName;
 
+interface AlertDialogHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+  icon?: LucideIcon | React.ReactNode;
+  variant?: 'default' | 'success' | 'warning' | 'destructive' | 'info';
+  showIcon?: boolean;
+}
+
+const variantIcons: Record<string, LucideIcon> = {
+  success: CheckCircle2,
+  warning: AlertTriangle,
+  destructive: XCircle,
+  info: Info,
+  default: AlertCircle,
+};
+
+const variantIconColors: Record<string, string> = {
+  success: 'text-success',
+  warning: 'text-warning',
+  destructive: 'text-destructive',
+  info: 'text-info',
+  default: 'text-muted-foreground',
+};
+
 const AlertDialogHeader = ({
   className,
+  icon,
+  variant = 'default',
+  showIcon = true,
+  children,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      'flex flex-col space-y-2 text-center sm:text-left',
-      className
-    )}
-    {...props}
-  />
-);
+}: AlertDialogHeaderProps) => {
+  const IconComponent = icon
+    ? typeof icon === 'function'
+      ? icon
+      : null
+    : variantIcons[variant];
+
+  return (
+    <div
+      className={cn(
+        'flex flex-col space-y-3 text-center sm:text-left',
+        className
+      )}
+      {...props}
+    >
+      {showIcon && (
+        <div className="flex justify-center sm:justify-start">
+          {typeof icon === 'object' && icon !== null ? (
+            icon
+          ) : IconComponent ? (
+            <div className={cn(
+              'rounded-full p-3 w-12 h-12 flex items-center justify-center',
+              variant === 'success' && 'bg-success/10',
+              variant === 'warning' && 'bg-warning/10',
+              variant === 'destructive' && 'bg-destructive/10',
+              variant === 'info' && 'bg-info/10',
+              variant === 'default' && 'bg-muted'
+            )}>
+              <IconComponent className={cn('w-6 h-6', variantIconColors[variant])} />
+            </div>
+          ) : null}
+        </div>
+      )}
+      {children}
+    </div>
+  );
+};
 AlertDialogHeader.displayName = 'AlertDialogHeader';
 
 const AlertDialogFooter = ({
@@ -135,4 +252,10 @@ export {
   AlertDialogDescription,
   AlertDialogAction,
   AlertDialogCancel,
+};
+
+export type {
+  AlertDialogContentProps,
+  AlertDialogHeaderProps,
+  AlertDialogOverlayProps,
 };

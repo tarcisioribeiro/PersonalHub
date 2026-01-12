@@ -17,6 +17,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import { useAlertDialog } from '@/hooks/use-alert-dialog';
 import { PageHeader } from '@/components/common/PageHeader';
 import { VisualizationRenderer } from '@/components/ai/VisualizationRenderer';
 import { MarkdownRenderer } from '@/components/ai/MarkdownRenderer';
@@ -28,6 +29,7 @@ import { getModuleBadgeColor, getModuleLabel, getEntityLabel } from '@/lib/helpe
 export default function AIAssistant() {
   const [input, setInput] = useState('');
   const { toast } = useToast();
+  const { showConfirm } = useAlertDialog();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -156,8 +158,17 @@ export default function AIAssistant() {
     }
   };
 
-  const handleClearHistory = () => {
-    if (confirm('Limpar todo o histórico da conversa?')) {
+  const handleClearHistory = async () => {
+    const confirmed = await showConfirm({
+      title: 'Limpar todo o histórico da conversa?',
+      description: 'Esta ação não pode ser desfeita. Todo o histórico de conversas será permanentemente removido.',
+      confirmText: 'Limpar',
+      cancelText: 'Cancelar',
+      variant: 'destructive',
+      animation: 'shake',
+    });
+
+    if (confirmed) {
       clearMessages();
       toast({
         title: 'Histórico limpo',

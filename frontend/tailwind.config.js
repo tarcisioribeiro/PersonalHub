@@ -72,6 +72,90 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      keyframes: {
+        'dialog-overlay-show': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        'dialog-overlay-hide': {
+          from: { opacity: '1' },
+          to: { opacity: '0' },
+        },
+        'dialog-content-show': {
+          from: {
+            opacity: '0',
+            transform: 'translate(-50%, -48%) scale(0.96)',
+          },
+          to: {
+            opacity: '1',
+            transform: 'translate(-50%, -50%) scale(1)',
+          },
+        },
+        'dialog-content-hide': {
+          from: {
+            opacity: '1',
+            transform: 'translate(-50%, -50%) scale(1)',
+          },
+          to: {
+            opacity: '0',
+            transform: 'translate(-50%, -48%) scale(0.96)',
+          },
+        },
+        'slide-up-fade': {
+          from: {
+            opacity: '0',
+            transform: 'translate(-50%, -45%) scale(0.95)',
+          },
+          to: {
+            opacity: '1',
+            transform: 'translate(-50%, -50%) scale(1)',
+          },
+        },
+        'slide-down-fade': {
+          from: {
+            opacity: '0',
+            transform: 'translate(-50%, -55%) scale(0.95)',
+          },
+          to: {
+            opacity: '1',
+            transform: 'translate(-50%, -50%) scale(1)',
+          },
+        },
+        'bounce-in': {
+          '0%': {
+            opacity: '0',
+            transform: 'translate(-50%, -50%) scale(0.3)',
+          },
+          '50%': {
+            transform: 'translate(-50%, -50%) scale(1.05)',
+          },
+          '70%': {
+            transform: 'translate(-50%, -50%) scale(0.9)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translate(-50%, -50%) scale(1)',
+          },
+        },
+        'shake': {
+          '0%, 100%': { transform: 'translate(-50%, -50%) translateX(0)' },
+          '10%, 30%, 50%, 70%, 90%': { transform: 'translate(-50%, -50%) translateX(-4px)' },
+          '20%, 40%, 60%, 80%': { transform: 'translate(-50%, -50%) translateX(4px)' },
+        },
+      },
+      animation: {
+        'dialog-overlay-show': 'dialog-overlay-show 150ms cubic-bezier(0.16, 1, 0.3, 1)',
+        'dialog-overlay-hide': 'dialog-overlay-hide 150ms cubic-bezier(0.16, 1, 0.3, 1)',
+        'dialog-content-show': 'dialog-content-show 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+        'dialog-content-hide': 'dialog-content-hide 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+        'slide-up-fade': 'slide-up-fade 300ms cubic-bezier(0.16, 1, 0.3, 1)',
+        'slide-down-fade': 'slide-down-fade 300ms cubic-bezier(0.16, 1, 0.3, 1)',
+        'bounce-in': 'bounce-in 400ms cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+        'shake': 'shake 400ms cubic-bezier(0.36, 0.07, 0.19, 0.97)',
+      },
+      backdropBlur: {
+        xs: '2px',
+      },
     },
   },
   plugins: [require('@tailwindcss/forms')],
