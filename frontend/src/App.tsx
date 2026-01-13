@@ -33,7 +33,6 @@ const Passwords = lazy(() => import('./pages/Passwords'));
 const StoredCards = lazy(() => import('./pages/StoredCards'));
 const StoredAccounts = lazy(() => import('./pages/StoredAccounts'));
 const Archives = lazy(() => import('./pages/Archives'));
-const ActivityLogs = lazy(() => import('./pages/ActivityLogs'));
 
 // Library Module
 const LibraryDashboard = lazy(() => import('./pages/LibraryDashboard'));
@@ -108,7 +107,6 @@ function AnimatedRoutes() {
           <Route path="/security/stored-cards" element={<Suspense fallback={<LoadingFallback />}><StoredCards /></Suspense>} />
           <Route path="/security/stored-accounts" element={<Suspense fallback={<LoadingFallback />}><StoredAccounts /></Suspense>} />
           <Route path="/security/archives" element={<Suspense fallback={<LoadingFallback />}><Archives /></Suspense>} />
-          <Route path="/security/activity-logs" element={<Suspense fallback={<LoadingFallback />}><ActivityLogs /></Suspense>} />
 
           {/* Library Module routes */}
           <Route path="/library/dashboard" element={<Suspense fallback={<LoadingFallback />}><LibraryDashboard /></Suspense>} />

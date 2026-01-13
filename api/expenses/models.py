@@ -166,6 +166,8 @@ class FixedExpense(BaseModel):
     """
     Template para despesas fixas mensais recorrentes.
     Exemplos: aluguel, condomínio, assinaturas, seguros.
+
+    Pode ser vinculado a uma conta bancária OU a um cartão de crédito (mutuamente exclusivo).
     """
     description = models.CharField(
         max_length=200,
@@ -190,9 +192,19 @@ class FixedExpense(BaseModel):
     account = models.ForeignKey(
         Account,
         on_delete=models.PROTECT,
-        null=False,
-        blank=False,
-        verbose_name="Conta"
+        null=True,
+        blank=True,
+        verbose_name="Conta",
+        help_text="Conta bancária (se não for despesa de cartão)"
+    )
+    credit_card = models.ForeignKey(
+        'credit_cards.CreditCard',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        verbose_name="Cartão de Crédito",
+        help_text="Cartão de crédito (se não for despesa de conta)",
+        related_name='fixed_expenses'
     )
     due_day = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(31)],
@@ -251,10 +263,34 @@ class FixedExpense(BaseModel):
         indexes = [
             models.Index(fields=['account', 'is_active']),
             models.Index(fields=['due_day', 'is_active']),
+            models.Index(fields=['credit_card', 'is_active']),
         ]
 
+    def clean(self):
+        """Valida que account e credit_card são mutuamente exclusivos"""
+        from django.core.exceptions import ValidationError
+
+        # Verifica se ambos estão preenchidos ou ambos estão vazios
+        if self.account and self.credit_card:
+            raise ValidationError({
+                'account': 'Não é possível selecionar tanto conta quanto cartão de crédito. Escolha apenas um.',
+                'credit_card': 'Não é possível selecionar tanto conta quanto cartão de crédito. Escolha apenas um.'
+            })
+
+        if not self.account and not self.credit_card:
+            raise ValidationError({
+                'account': 'Selecione uma conta bancária ou um cartão de crédito.',
+                'credit_card': 'Selecione uma conta bancária ou um cartão de crédito.'
+            })
+
+    def save(self, *args, **kwargs):
+        """Override do save para executar validações"""
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.description} - Dia {self.due_day}"
+        payment_type = "Cartão" if self.credit_card else "Conta"
+        return f"{self.description} - Dia {self.due_day} ({payment_type})"
 
 
 class FixedExpenseGenerationLog(BaseModel):

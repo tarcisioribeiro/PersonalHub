@@ -142,6 +142,23 @@ class CreditCardBillsSerializer(serializers.ModelSerializer):
                     return digits_only[-4:]
         return "****"
 
+    def create(self, validated_data):
+        """
+        Override do create para inicializar valores padrão.
+        Ao criar uma fatura:
+        - total_amount = 0
+        - minimum_payment = 0
+        - paid_amount = 0
+        - status = 'open'
+        - closed = False
+        """
+        validated_data['total_amount'] = 0
+        validated_data['minimum_payment'] = 0
+        validated_data['paid_amount'] = 0
+        validated_data['status'] = 'open'
+        validated_data['closed'] = False
+        return super().create(validated_data)
+
 
 class CreditCardExpensesSerializer(serializers.ModelSerializer):
     class Meta:

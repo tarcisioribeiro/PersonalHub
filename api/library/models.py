@@ -21,7 +21,8 @@ NATIONALITY_CHOICES = (
     ('FRA', 'Francesa'),
     ('ING', 'Inglesa'),
     ('CUB', 'Cubana'),
-    ('MEX', 'Mexicana')
+    ('MEX', 'Mexicana'),
+    ('ESP', 'Espanhola')
 )
 
 COUNTRIES = (

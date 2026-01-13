@@ -860,6 +860,7 @@ export const NATIONALITIES = [
   { value: 'ING', label: 'Inglesa' },
   { value: 'CUB', label: 'Cubana' },
   { value: 'MEX', label: 'Mexicana' },
+  { value: 'ESP', label: 'Espanhola' },
 ];
 
 export const COUNTRIES = [
@@ -1256,8 +1257,10 @@ export interface FixedExpense {
   description: string;
   default_value: string;
   category: string;
-  account: number;
+  account?: number;
   account_name?: string;
+  credit_card?: number;
+  credit_card_name?: string;
   due_day: number;
   merchant?: string;
   payment_method?: string;
@@ -1276,7 +1279,8 @@ export interface FixedExpenseFormData {
   description: string;
   default_value: number;
   category: string;
-  account: number;
+  account?: number;
+  credit_card?: number;
   due_day: number;
   merchant?: string;
   payment_method?: string;

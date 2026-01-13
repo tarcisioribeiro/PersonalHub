@@ -20,8 +20,9 @@ class ExpenseSerializer(serializers.ModelSerializer):
 
 class FixedExpenseSerializer(serializers.ModelSerializer):
     """Serializer para leitura de despesas fixas (templates)"""
-    account_name = serializers.CharField(source='account.account_name', read_only=True)
+    account_name = serializers.CharField(source='account.account_name', read_only=True, allow_null=True)
     member_name = serializers.CharField(source='member.member_name', read_only=True, allow_null=True)
+    credit_card_name = serializers.CharField(source='credit_card.name', read_only=True, allow_null=True)
     total_generated = serializers.IntegerField(read_only=True, required=False)
 
     class Meta:

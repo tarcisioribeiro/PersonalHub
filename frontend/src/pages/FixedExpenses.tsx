@@ -16,15 +16,17 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable, type Column } from '@/components/common/DataTable';
 import { fixedExpensesService } from '@/services/fixed-expenses-service';
 import { accountsService } from '@/services/accounts-service';
+import { creditCardsService } from '@/services/credit-cards-service';
 import { useToast } from '@/hooks/use-toast';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
 import { formatCurrency } from '@/lib/formatters';
 import { TRANSLATIONS } from '@/config/constants';
-import type { FixedExpense, FixedExpenseFormData, Account } from '@/types';
+import type { FixedExpense, FixedExpenseFormData, Account, CreditCard } from '@/types';
 
 export default function FixedExpenses() {
   const [fixedExpenses, setFixedExpenses] = useState<FixedExpense[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLaunchDialogOpen, setIsLaunchDialogOpen] = useState(false);
@@ -40,12 +42,14 @@ export default function FixedExpenses() {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const [expensesData, accountsData] = await Promise.all([
+      const [expensesData, accountsData, cardsData] = await Promise.all([
         fixedExpensesService.getAll(),
         accountsService.getAll(),
+        creditCardsService.getAll(),
       ]);
       setFixedExpenses(expensesData);
       setAccounts(accountsData);
+      setCreditCards(cardsData);
     } catch (error: any) {
       toast({
         title: 'Erro ao carregar dados',
@@ -250,6 +254,7 @@ export default function FixedExpenses() {
           <FixedExpenseForm
             fixedExpense={selectedExpense}
             accounts={accounts}
+            creditCards={creditCards}
             onSubmit={handleSubmit}
             onCancel={() => setIsDialogOpen(false)}
             isLoading={isSubmitting}

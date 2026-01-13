@@ -19,6 +19,7 @@ from expenses.serializers import (
 )
 from expenses.filters import ExpenseFilter
 from app.permissions import GlobalDefaultPermission
+from credit_cards.models import CreditCardBill, CreditCardExpense
 
 
 class ExpenseCreateListView(generics.ListCreateAPIView):
@@ -90,7 +91,7 @@ class FixedExpenseListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         return FixedExpense.objects.filter(
             is_deleted=False
-        ).select_related('account', 'member').annotate(
+        ).select_related('account', 'member', 'credit_card').annotate(
             total_generated=Count('generated_expenses')
         ).order_by('due_day', 'description')
 
@@ -115,7 +116,7 @@ class FixedExpenseDetailView(generics.RetrieveUpdateDestroyAPIView):
     DELETE: Remove um template (soft delete)
     """
     permission_classes = (IsAuthenticated, GlobalDefaultPermission,)
-    queryset = FixedExpense.objects.filter(is_deleted=False).select_related('account', 'member')
+    queryset = FixedExpense.objects.filter(is_deleted=False).select_related('account', 'member', 'credit_card')
 
     def get_serializer_class(self):
         if self.request.method in ['PUT', 'PATCH']:
@@ -140,6 +141,94 @@ class BulkGenerateFixedExpensesView(APIView):
     """
     permission_classes = (IsAuthenticated, GlobalDefaultPermission,)
     queryset = FixedExpense.objects.none()  # Required for GlobalDefaultPermission
+
+    def _get_or_create_bill(self, credit_card, year, month_num, expense_date, user):
+        """
+        Busca ou cria uma fatura aberta para o cartão no mês/ano especificado.
+
+        Args:
+            credit_card: Instância do CreditCard
+            year: Ano (string)
+            month_num: Mês (string, ex: '01', '02', ...)
+            expense_date: Data da despesa
+            user: Usuário que está criando
+
+        Returns:
+            tuple: (bill, created) onde created é True se foi criada
+        """
+        # Mapear mês numérico para código do mês (MONTHS)
+        month_map = {
+            '01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr',
+            '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug',
+            '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'
+        }
+        month_code = month_map[month_num]
+
+        # Buscar fatura existente aberta
+        bill = CreditCardBill.objects.filter(
+            credit_card=credit_card,
+            year=year,
+            month=month_code,
+            status='open',
+            is_deleted=False
+        ).first()
+
+        if bill:
+            return (bill, False)
+
+        # Criar nova fatura
+        # Calcular datas de início e fim da fatura baseado no closing_day do cartão
+        closing_day = credit_card.closing_day or 1
+        due_day = credit_card.due_day or 10
+
+        # Data de início: primeiro dia do mês
+        invoice_beginning_date = datetime(int(year), int(month_num), 1).date()
+
+        # Data de fim: closing_day ou último dia do mês
+        last_day = monthrange(int(year), int(month_num))[1]
+        invoice_ending_date = datetime(
+            int(year),
+            int(month_num),
+            min(closing_day, last_day)
+        ).date()
+
+        # Data de vencimento: due_day (pode ser no mês seguinte)
+        if due_day > closing_day:
+            # Vencimento no mesmo mês
+            try:
+                due_date = datetime(int(year), int(month_num), due_day).date()
+            except ValueError:
+                due_date = datetime(int(year), int(month_num), last_day).date()
+        else:
+            # Vencimento no próximo mês
+            next_month = int(month_num) + 1
+            next_year = int(year)
+            if next_month > 12:
+                next_month = 1
+                next_year += 1
+            next_last_day = monthrange(next_year, next_month)[1]
+            try:
+                due_date = datetime(next_year, next_month, due_day).date()
+            except ValueError:
+                due_date = datetime(next_year, next_month, next_last_day).date()
+
+        bill = CreditCardBill.objects.create(
+            credit_card=credit_card,
+            year=year,
+            month=month_code,
+            invoice_beginning_date=invoice_beginning_date,
+            invoice_ending_date=invoice_ending_date,
+            due_date=due_date,
+            total_amount=0,
+            minimum_payment=0,
+            paid_amount=0,
+            status='open',
+            closed=False,
+            created_by=user,
+            updated_by=user
+        )
+
+        return (bill, True)
 
     def post(self, request):
         serializer = BulkGenerateRequestSerializer(data=request.data)
@@ -175,24 +264,57 @@ class BulkGenerateFixedExpensesView(APIView):
                     last_day = monthrange(int(year), int(month_num))[1]
                     expense_date = datetime(int(year), int(month_num), min(fixed_exp.due_day, last_day)).date()
 
-                # Criar despesa
-                expense = Expense.objects.create(
-                    description=fixed_exp.description,
-                    value=item['value'],
-                    date=expense_date,
-                    horary=timezone.now().time(),
-                    category=fixed_exp.category,
-                    account=fixed_exp.account,
-                    payed=False,
-                    merchant=fixed_exp.merchant,
-                    payment_method=fixed_exp.payment_method,
-                    notes=fixed_exp.notes,
-                    member=fixed_exp.member,
-                    fixed_expense_template=fixed_exp,
-                    created_by=request.user,
-                    updated_by=request.user
-                )
-                created_expenses.append(expense)
+                # Verificar se é despesa de cartão ou de conta
+                if fixed_exp.credit_card:
+                    # Despesa de cartão de crédito
+                    # Buscar ou criar fatura aberta para este mês/cartão
+                    bill, created = self._get_or_create_bill(
+                        fixed_exp.credit_card,
+                        year,
+                        month_num,
+                        expense_date,
+                        request.user
+                    )
+
+                    # Criar despesa de cartão
+                    card_expense = CreditCardExpense.objects.create(
+                        description=fixed_exp.description,
+                        value=item['value'],
+                        date=expense_date,
+                        horary=timezone.now().time(),
+                        category=fixed_exp.category,
+                        card=fixed_exp.credit_card,
+                        bill=bill,
+                        installment=1,
+                        total_installments=1,
+                        payed=False,
+                        merchant=fixed_exp.merchant,
+                        notes=fixed_exp.notes,
+                        member=fixed_exp.member,
+                        created_by=request.user,
+                        updated_by=request.user
+                    )
+                    # Nota: O signal update_bill_totals irá atualizar automaticamente
+                    # o total da fatura e o pagamento mínimo
+                else:
+                    # Despesa de conta bancária (fluxo original)
+                    expense = Expense.objects.create(
+                        description=fixed_exp.description,
+                        value=item['value'],
+                        date=expense_date,
+                        horary=timezone.now().time(),
+                        category=fixed_exp.category,
+                        account=fixed_exp.account,
+                        payed=False,
+                        merchant=fixed_exp.merchant,
+                        payment_method=fixed_exp.payment_method,
+                        notes=fixed_exp.notes,
+                        member=fixed_exp.member,
+                        fixed_expense_template=fixed_exp,
+                        created_by=request.user,
+                        updated_by=request.user
+                    )
+                    created_expenses.append(expense)
 
                 # Atualizar last_generated_month no template
                 fixed_exp.last_generated_month = month

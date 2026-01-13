@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
 import { TRANSLATIONS } from '@/config/constants';
 import type { CreditCardBill, CreditCardBillFormData, CreditCard } from '@/types';
@@ -34,13 +33,6 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
       month: 'Jan',
       invoice_beginning_date: formatLocalDate(new Date()),
       invoice_ending_date: formatLocalDate(new Date()),
-      closed: false,
-      total_amount: 0,
-      minimum_payment: 0,
-      paid_amount: 0,
-      interest_charged: 0,
-      late_fee: 0,
-      status: 'open',
     },
   });
 
@@ -167,73 +159,61 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="total_amount">Valor Total</Label>
-          <Input
-            id="total_amount"
-            type="number"
-            step="0.01"
-            {...register('total_amount', { valueAsNumber: true })}
-            placeholder="0.00"
-            disabled={isLoading}
-          />
-        </div>
+        {bill && (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="total_amount">Valor Total</Label>
+              <Input
+                id="total_amount"
+                type="number"
+                step="0.01"
+                {...register('total_amount', { valueAsNumber: true })}
+                placeholder="0.00"
+                disabled
+              />
+              <p className="text-xs text-muted-foreground">
+                Calculado automaticamente com base nas despesas
+              </p>
+            </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="minimum_payment">Pagamento Mínimo</Label>
-          <Input
-            id="minimum_payment"
-            type="number"
-            step="0.01"
-            {...register('minimum_payment', { valueAsNumber: true })}
-            placeholder="0.00"
-            disabled={isLoading}
-          />
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="minimum_payment">Pagamento Mínimo (10%)</Label>
+              <Input
+                id="minimum_payment"
+                type="number"
+                step="0.01"
+                {...register('minimum_payment', { valueAsNumber: true })}
+                placeholder="0.00"
+                disabled
+              />
+              <p className="text-xs text-muted-foreground">
+                Calculado automaticamente (10% do total)
+              </p>
+            </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="paid_amount">Valor Pago</Label>
-          <Input
-            id="paid_amount"
-            type="number"
-            step="0.01"
-            {...register('paid_amount', { valueAsNumber: true })}
-            placeholder="0.00"
-            disabled={isLoading}
-          />
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="paid_amount">Valor Pago</Label>
+              <Input
+                id="paid_amount"
+                type="number"
+                step="0.01"
+                {...register('paid_amount', { valueAsNumber: true })}
+                placeholder="0.00"
+                disabled={isLoading}
+              />
+            </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="payment_date">Data de Pagamento</Label>
-          <DatePicker
-            value={watch('payment_date')}
-            onChange={(date) => setValue('payment_date', date ? formatLocalDate(date) : '')}
-            placeholder="Selecione a data de pagamento"
-            disabled={isLoading}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Status *</Label>
-          <Select value={watch('status')} onValueChange={(v: any) => setValue('status', v)}>
-            <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-            <SelectContent>
-              {Object.entries(TRANSLATIONS.billStatus).map(([k, v]) => (
-                <SelectItem key={k} value={k}>{v}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center space-x-2 md:col-span-2 pt-2">
-          <Checkbox
-            id="closed"
-            checked={watch('closed')}
-            onCheckedChange={(checked: boolean) => setValue('closed', !!checked)}
-            disabled={isLoading}
-          />
-          <Label htmlFor="closed" className="cursor-pointer">Fatura Fechada</Label>
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="payment_date">Data de Pagamento</Label>
+              <DatePicker
+                value={watch('payment_date')}
+                onChange={(date) => setValue('payment_date', date ? formatLocalDate(date) : '')}
+                placeholder="Selecione a data de pagamento"
+                disabled={isLoading}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       <div className="flex justify-end gap-2 pt-4">

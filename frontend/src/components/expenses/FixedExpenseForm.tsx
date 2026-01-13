@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,11 +13,12 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { TRANSLATIONS } from '@/config/constants';
 import { membersService } from '@/services/members-service';
-import type { FixedExpense, FixedExpenseFormData, Account } from '@/types';
+import type { FixedExpense, FixedExpenseFormData, Account, CreditCard } from '@/types';
 
 interface Props {
   fixedExpense?: FixedExpense;
   accounts: Account[];
+  creditCards: CreditCard[];
   onSubmit: (data: FixedExpenseFormData) => void;
   onCancel: () => void;
   isLoading?: boolean;
@@ -26,17 +27,21 @@ interface Props {
 export const FixedExpenseForm = ({
   fixedExpense,
   accounts,
+  creditCards,
   onSubmit,
   onCancel,
   isLoading = false,
 }: Props) => {
+  const [paymentType, setPaymentType] = useState<'account' | 'credit_card'>('account');
+
   const { register, handleSubmit, setValue, watch } = useForm<FixedExpenseFormData>({
     defaultValues: {
       description: '',
       default_value: 0,
       due_day: 1,
       category: '',
-      account: 0,
+      account: undefined,
+      credit_card: undefined,
       is_active: true,
       allow_value_edit: true,
     },
@@ -62,17 +67,43 @@ export const FixedExpenseForm = ({
       setValue('default_value', parseFloat(fixedExpense.default_value));
       setValue('due_day', fixedExpense.due_day);
       setValue('category', fixedExpense.category);
-      setValue('account', fixedExpense.account);
       setValue('merchant', fixedExpense.merchant);
       setValue('payment_method', fixedExpense.payment_method);
       setValue('notes', fixedExpense.notes);
       setValue('member', fixedExpense.member);
       setValue('is_active', fixedExpense.is_active);
       setValue('allow_value_edit', fixedExpense.allow_value_edit);
+
+      // Detectar se é conta ou cartão
+      if (fixedExpense.credit_card) {
+        setPaymentType('credit_card');
+        setValue('credit_card', fixedExpense.credit_card);
+        setValue('account', undefined);
+      } else if (fixedExpense.account) {
+        setPaymentType('account');
+        setValue('account', fixedExpense.account);
+        setValue('credit_card', undefined);
+      }
     } else if (accounts.length > 0) {
       setValue('account', accounts[0].id);
+      setValue('credit_card', undefined);
     }
   }, [fixedExpense, accounts, setValue]);
+
+  // Atualizar valores ao mudar o tipo de pagamento
+  useEffect(() => {
+    if (paymentType === 'account') {
+      setValue('credit_card', undefined);
+      if (accounts.length > 0 && !watch('account')) {
+        setValue('account', accounts[0].id);
+      }
+    } else {
+      setValue('account', undefined);
+      if (creditCards.length > 0 && !watch('credit_card')) {
+        setValue('credit_card', creditCards[0].id);
+      }
+    }
+  }, [paymentType, accounts, creditCards, setValue, watch]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -131,25 +162,70 @@ export const FixedExpenseForm = ({
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label>Conta *</Label>
+        <div className="space-y-2 md:col-span-2">
+          <Label>Tipo de Pagamento *</Label>
           <Select
-            value={watch('account')?.toString() || ''}
-            onValueChange={(v) => setValue('account', parseInt(v))}
+            value={paymentType}
+            onValueChange={(v: 'account' | 'credit_card') => setPaymentType(v)}
             disabled={isLoading}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Selecione" />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {accounts.map((a) => (
-                <SelectItem key={a.id} value={a.id.toString()}>
-                  {a.account_name}
-                </SelectItem>
-              ))}
+              <SelectItem value="account">Conta Bancária</SelectItem>
+              <SelectItem value="credit_card">Cartão de Crédito</SelectItem>
             </SelectContent>
           </Select>
+          <p className="text-xs text-muted-foreground">
+            Escolha se a despesa será debitada de uma conta bancária ou lançada em um cartão de crédito
+          </p>
         </div>
+
+        {paymentType === 'account' ? (
+          <div className="space-y-2">
+            <Label>Conta Bancária *</Label>
+            <Select
+              value={watch('account')?.toString() || ''}
+              onValueChange={(v) => setValue('account', parseInt(v))}
+              disabled={isLoading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                {accounts.map((a) => (
+                  <SelectItem key={a.id} value={a.id.toString()}>
+                    {a.account_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <Label>Cartão de Crédito *</Label>
+            <Select
+              value={watch('credit_card')?.toString() || ''}
+              onValueChange={(v) => setValue('credit_card', parseInt(v))}
+              disabled={isLoading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                {creditCards.map((c) => (
+                  <SelectItem key={c.id} value={c.id.toString()}>
+                    {c.name} - {c.on_card_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              A despesa será lançada automaticamente na fatura aberta do mês
+            </p>
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="merchant">Estabelecimento</Label>

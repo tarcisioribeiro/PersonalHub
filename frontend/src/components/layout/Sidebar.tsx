@@ -106,7 +106,6 @@ const navModules: NavModule[] = [
       { title: 'Cartões Armazenados', href: '/security/stored-cards', icon: <CreditCard className="w-4 h-4" /> },
       { title: 'Contas Armazenadas', href: '/security/stored-accounts', icon: <Wallet className="w-4 h-4" /> },
       { title: 'Arquivos', href: '/security/archives', icon: <Archive className="w-4 h-4" /> },
-      { title: 'Logs de Atividade', href: '/security/activity-logs', icon: <ScrollText className="w-4 h-4" /> },
     ],
   },
   {
