@@ -128,6 +128,7 @@ export default function SecurityDashboard() {
               formatter={(value) => `${value} ${value === 1 ? 'item' : 'itens'}`}
               colors={COLORS}
               emptyMessage="Nenhum item cadastrado"
+              enabledTypes={['pie']}
             />
             {stats && stats.items_distribution.length > 0 && (
               <div className="mt-4 space-y-2">
@@ -165,8 +166,9 @@ export default function SecurityDashboard() {
               formatter={(value) => `${value} ${value === 1 ? 'senha' : 'senhas'}`}
               colors={COLORS}
               emptyMessage="Nenhuma senha cadastrada"
-              defaultType="bar"
+              defaultType="pie"
               layout="horizontal"
+              enabledTypes={['pie']}
             />
             {stats && stats.passwords_by_category.length > 0 && (
               <div className="mt-4 space-y-2">
@@ -206,6 +208,7 @@ export default function SecurityDashboard() {
               customColors={(entry) => strengthColors[entry.strength as PasswordStrength] || COLORS[0]}
               emptyMessage="Nenhuma senha cadastrada"
               layout="horizontal"
+              enabledTypes={['pie']}
             />
             {stats && stats.password_strength_distribution.length > 0 && (
               <div className="mt-4 space-y-2">
@@ -248,6 +251,7 @@ export default function SecurityDashboard() {
               formatter={(value) => `${value} ${value === 1 ? 'ação' : 'ações'}`}
               colors={COLORS}
               emptyMessage="Nenhuma atividade registrada"
+              enabledTypes={['pie']}
             />
             {stats && stats.activities_by_action.length > 0 && (
               <div className="mt-4 space-y-2">

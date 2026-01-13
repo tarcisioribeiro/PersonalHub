@@ -254,6 +254,7 @@ export default function Dashboard() {
               formatter={formatCurrency}
               colors={COLORS}
               emptyMessage="Nenhuma despesa cadastrada"
+              enabledTypes={['pie']}
             />
             {expensesByCategory.length > 0 && (
               <div className="mt-4 space-y-2">
@@ -285,6 +286,7 @@ export default function Dashboard() {
               formatter={formatCurrency}
               colors={COLORS}
               emptyMessage="Nenhuma receita cadastrada"
+              enabledTypes={['pie']}
             />
             {revenuesByCategory.length > 0 && (
               <div className="mt-4 space-y-2">

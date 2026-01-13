@@ -262,6 +262,7 @@ export default function LibraryDashboard() {
               formatter={(value) => `${value} ${value === 1 ? 'livro' : 'livros'}`}
               colors={COLORS}
               emptyMessage="Nenhum livro cadastrado"
+              enabledTypes={['pie']}
             />
             {stats && stats.books_by_genre.length > 0 && (
               <div className="mt-4 space-y-2">
@@ -375,6 +376,7 @@ export default function LibraryDashboard() {
               formatter={(value) => value.toString()}
               colors={COLORS}
               emptyMessage="Nenhuma leitura registrada"
+              lockChartType="line"
               dualYAxis={{
                 left: { dataKey: 'pages_read', label: 'Páginas', color: COLORS[0] },
                 right: { dataKey: 'reading_time_hours', label: 'Horas', color: COLORS[1] }
@@ -402,8 +404,9 @@ export default function LibraryDashboard() {
               formatter={(value) => `${value} ${value === 1 ? 'livro' : 'livros'}`}
               colors={COLORS}
               emptyMessage="Nenhum autor cadastrado"
-              defaultType="bar"
+              defaultType="pie"
               layout="horizontal"
+              enabledTypes={['pie']}
             />
             {stats && stats.top_authors.length > 0 && (
               <div className="mt-4 space-y-2">
@@ -447,6 +450,7 @@ export default function LibraryDashboard() {
               colors={COLORS}
               emptyMessage="Nenhum livro avaliado"
               layout="horizontal"
+              enabledTypes={['pie']}
             />
             {stats && stats.rating_distribution.length > 0 && (
               <div className="mt-4 space-y-2">
