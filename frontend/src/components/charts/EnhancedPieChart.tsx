@@ -23,10 +23,10 @@ interface EnhancedPieChartProps {
 }
 
 /**
- * Gráfico de pizza/donut aprimorado
+ * Gráfico de pizza aprimorado
  *
  * Recursos:
- * - Estilo donut moderno (com furo central)
+ * - Gráfico de pizza completo (100% preenchido)
  * - Gradientes radiais para profundidade
  * - Sombra sutil para elevação
  * - Legenda personalizada e limpa
@@ -121,7 +121,7 @@ export const EnhancedPieChart = ({
           data={data}
           cx="50%"
           cy="45%"
-          innerRadius="55%"
+          innerRadius="0%"
           outerRadius="85%"
           paddingAngle={2}
           dataKey={dataKey}

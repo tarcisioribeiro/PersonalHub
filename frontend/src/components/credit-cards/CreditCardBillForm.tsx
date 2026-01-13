@@ -33,6 +33,7 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
       month: 'Jan',
       invoice_beginning_date: formatLocalDate(new Date()),
       invoice_ending_date: formatLocalDate(new Date()),
+      closed: false,
     },
   });
 
@@ -72,6 +73,7 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
       ...data,
       due_date: data.due_date && data.due_date.trim() !== '' ? data.due_date : undefined,
       payment_date: data.payment_date && data.payment_date.trim() !== '' ? data.payment_date : undefined,
+      closed: data.closed !== undefined ? data.closed : false,
     };
 
     onSubmit(sanitizedData);
