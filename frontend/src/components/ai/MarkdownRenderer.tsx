@@ -144,7 +144,7 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
     .replace(/([^\n])\n(\d+\.\s)/g, '$1\n\n$2');
 
   return (
-    <div className={`markdown-content prose prose-sm max-w-none ${className}`}>
+    <div className={`markdown-content max-w-none ${className}`}>
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
         {processedContent}
       </ReactMarkdown>

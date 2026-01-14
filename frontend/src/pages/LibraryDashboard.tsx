@@ -499,55 +499,37 @@ export default function LibraryDashboard() {
             <p className="text-sm text-muted-foreground">Por idioma e tipo de mídia</p>
           </CardHeader>
           <CardContent>
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Seção: Por Idioma */}
               <div>
                 <h4 className="text-sm font-semibold mb-3">Por Idioma</h4>
-                {stats?.books_by_language && stats.books_by_language.length > 0 ? (
-                  <div className="space-y-2">
-                    {stats.books_by_language.map((lang, index) => (
-                      <div key={index} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                          ></div>
-                          <span>{lang.language_display}</span>
-                        </div>
-                        <span className="font-semibold">
-                          {lang.count} {lang.count === 1 ? 'livro' : 'livros'}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">Nenhum livro cadastrado</p>
-                )}
+                <ChartContainer
+                  chartId="library-language-distribution"
+                  data={stats?.books_by_language || []}
+                  dataKey="count"
+                  nameKey="language_display"
+                  formatter={(value) => `${value} ${value === 1 ? 'livro' : 'livros'}`}
+                  colors={COLORS}
+                  emptyMessage="Nenhum livro cadastrado"
+                  lockChartType="pie"
+                  height={200}
+                />
               </div>
 
               {/* Seção: Por Tipo de Mídia */}
               <div>
                 <h4 className="text-sm font-semibold mb-3">Por Tipo de Mídia</h4>
-                {stats?.books_by_media_type && stats.books_by_media_type.length > 0 ? (
-                  <div className="space-y-2">
-                    {stats.books_by_media_type.map((media, index) => (
-                      <div key={index} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: COLORS[(index + 3) % COLORS.length] }}
-                          ></div>
-                          <span>{media.media_type_display}</span>
-                        </div>
-                        <span className="font-semibold">
-                          {media.count} {media.count === 1 ? 'livro' : 'livros'}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">Nenhum livro com mídia definida</p>
-                )}
+                <ChartContainer
+                  chartId="library-media-type-distribution"
+                  data={stats?.books_by_media_type || []}
+                  dataKey="count"
+                  nameKey="media_type_display"
+                  formatter={(value) => `${value} ${value === 1 ? 'livro' : 'livros'}`}
+                  colors={COLORS.slice(3)}
+                  emptyMessage="Nenhum livro com mídia definida"
+                  lockChartType="pie"
+                  height={200}
+                />
               </div>
             </div>
           </CardContent>

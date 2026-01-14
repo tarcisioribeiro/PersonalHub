@@ -279,17 +279,14 @@ class AIStreamingQueryView(APIView):
             # 4. Stream the answer (simulate streaming from complete response)
             yield self._format_sse('message_start', {})
 
-            # Stream answer in chunks
+            # Stream answer in chunks (preserving line breaks)
             answer = response.answer
-            chunk_size = 5  # words per chunk
-            words = answer.split()
+            chunk_size = 50  # characters per chunk
 
-            for i in range(0, len(words), chunk_size):
-                chunk = ' '.join(words[i:i + chunk_size])
-                if i + chunk_size < len(words):
-                    chunk += ' '
+            for i in range(0, len(answer), chunk_size):
+                chunk = answer[i:i + chunk_size]
                 yield self._format_sse('content_chunk', {'text': chunk})
-                time.sleep(0.05)  # Small delay for smoother streaming
+                time.sleep(0.03)  # Small delay for smoother streaming
 
             # 5. Generate visualization
             response_formatter = get_response_formatter()
