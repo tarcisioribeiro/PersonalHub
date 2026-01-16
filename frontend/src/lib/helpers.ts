@@ -226,7 +226,7 @@ export const getModuleBadgeColor = (module: string): string => {
     case 'planejamento':
       return 'bg-category-health text-white';
     default:
-      return 'bg-muted text-muted-foreground';
+      return 'bg-muted';
   }
 };
 

@@ -201,7 +201,7 @@ export const LaunchExpensesDialog = ({
                     />
                     <div className="flex-1">
                       <p className="font-medium">{exp.description}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm">
                         Vencimento: dia {exp.due_day} • {exp.account_name}
                       </p>
                     </div>

@@ -145,10 +145,10 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-muted-foreground" />
+                <Building2 className="h-5 w-5" />
                 <CardTitle>Balanço de Contas</CardTitle>
               </div>
-              <p className="text-sm text-muted-foreground">Saldo atual e projeção futura por conta</p>
+              <p className="text-sm">Saldo atual e projeção futura por conta</p>
             </CardHeader>
             <CardContent>
               {accountBalances.length > 0 ? (
@@ -166,7 +166,7 @@ export default function Dashboard() {
                         <TableCell className="font-medium">
                           <div>
                             <div>{account.account_name}</div>
-                            <div className="text-xs text-muted-foreground">
+                            <div className="text-xs">
                               {translate('institutions', account.institution_name)}
                             </div>
                           </div>
@@ -188,7 +188,7 @@ export default function Dashboard() {
                               {formatCurrency(account.future_balance)}
                             </span>
                             {(account.pending_revenues > 0 || account.pending_expenses > 0) && (
-                              <div className="text-xs text-muted-foreground mt-1">
+                              <div className="text-xs mt-1">
                                 {account.pending_revenues > 0 && (
                                   <span className="text-success">+{formatCurrency(account.pending_revenues)}</span>
                                 )}
@@ -205,7 +205,7 @@ export default function Dashboard() {
                   </TableBody>
                 </Table>
               ) : (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-8">
                   Nenhuma conta cadastrada
                 </div>
               )}
@@ -262,7 +262,7 @@ export default function Dashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Despesas por Categoria (Top 5)</CardTitle>
-            <p className="text-sm text-muted-foreground">Distribuição das maiores categorias de gastos</p>
+            <p className="text-sm">Distribuição das maiores categorias de gastos</p>
           </CardHeader>
           <CardContent>
             <ChartContainer
@@ -294,7 +294,7 @@ export default function Dashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Receitas por Categoria (Top 5)</CardTitle>
-            <p className="text-sm text-muted-foreground">Distribuição das fontes de receita</p>
+            <p className="text-sm">Distribuição das fontes de receita</p>
           </CardHeader>
           <CardContent>
             <ChartContainer

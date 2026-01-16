@@ -262,24 +262,24 @@ export default function Books() {
                 )}
 
                 {book.synopsis && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">
+                  <p className="text-sm line-clamp-2">
                     {book.synopsis}
                   </p>
                 )}
 
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm">
                   {book.publisher_name}
                 </div>
 
                 <div className="flex items-center gap-2 text-sm">
-                  <BookOpen className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">
+                  <BookOpen className="h-4 w-4" />
+                  <span>
                     {book.pages} páginas
                   </span>
                   {book.media_type_display && (
                     <>
-                      <span className="text-muted-foreground">•</span>
-                      <span className="text-muted-foreground">
+                      <span>•</span>
+                      <span>
                         {book.media_type_display}
                       </span>
                     </>
@@ -289,7 +289,7 @@ export default function Books() {
                 {book.reading_progress > 0 && (
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground flex items-center gap-1">
+                      <span className="flex items-center gap-1">
                         <TrendingUp className="h-3 w-3" />
                         Progresso
                       </span>
@@ -298,7 +298,7 @@ export default function Books() {
                       </span>
                     </div>
                     <Progress value={book.reading_progress} className="h-2" />
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs">
                       {book.total_pages_read} de {book.pages} páginas lidas
                     </p>
                   </div>
@@ -310,7 +310,7 @@ export default function Books() {
                   </Badge>
                 )}
 
-                <div className="text-xs text-muted-foreground pt-2">
+                <div className="text-xs pt-2">
                   {book.publish_date
                     ? `Publicado em ${formatDate(book.publish_date, 'dd/MM/yyyy')}`
                     : `Adicionado em ${formatDate(book.created_at, 'dd/MM/yyyy')}`}
@@ -323,8 +323,8 @@ export default function Books() {
 
       {filteredBooks.length === 0 && (
         <div className="text-center py-12">
-          <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">Nenhum livro encontrado.</p>
+          <BookOpen className="h-12 w-12 mx-auto mb-4" />
+          <p>Nenhum livro encontrado.</p>
         </div>
       )}
 

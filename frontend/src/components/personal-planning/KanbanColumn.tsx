@@ -56,7 +56,7 @@ export function KanbanColumn({ status, title, cards }: KanbanColumnProps) {
         >
           <div className="space-y-3">
             {cards.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-8">
                 <p className="text-sm">Nenhuma tarefa</p>
               </div>
             ) : (

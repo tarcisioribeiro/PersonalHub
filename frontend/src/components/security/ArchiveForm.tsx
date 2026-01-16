@@ -211,7 +211,7 @@ export function ArchiveForm({
             {errors.text_content && (
               <p className="text-sm text-destructive mt-1">{errors.text_content.message}</p>
             )}
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs mt-1">
               O texto será criptografado antes de ser armazenado
             </p>
           </div>
@@ -230,7 +230,7 @@ export function ArchiveForm({
                 Deixe vazio para manter o arquivo atual. Upload de novo arquivo substituirá o existente.
               </p>
             ) : (
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs mt-1">
                 O arquivo será criptografado antes de ser armazenado. Tipos suportados: PDF, Word, Excel, PowerPoint, JSON, XML, CSV, imagens, compactados, etc.
               </p>
             )}
@@ -247,7 +247,7 @@ export function ArchiveForm({
           {errors.tags && (
             <p className="text-sm text-destructive mt-1">{errors.tags.message}</p>
           )}
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-xs mt-1">
             Separe as tags com vírgulas
           </p>
         </div>

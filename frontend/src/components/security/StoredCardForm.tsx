@@ -39,7 +39,7 @@ const YEARS = Array.from({ length: 20 }, (_, i) => ({
 interface StoredCardFormProps {
   card?: StoredCreditCard;
   creditCards?: CreditCard[];
-  members: Member[];
+  currentMember: Member | null;
   onSubmit: (data: StoredCreditCardFormData) => void;
   onCancel: () => void;
   isLoading?: boolean;
@@ -48,7 +48,7 @@ interface StoredCardFormProps {
 export function StoredCardForm({
   card,
   creditCards = [],
-  members,
+  currentMember,
   onSubmit,
   onCancel,
   isLoading = false,
@@ -83,7 +83,7 @@ export function StoredCardForm({
           expiration_year: currentYear,
           flag: 'VSA',
           notes: '',
-          owner: members[0]?.id || 0,
+          owner: currentMember?.id || 0,
           finance_card: undefined,
         },
   });
@@ -127,7 +127,7 @@ export function StoredCardForm({
             <p className="text-sm text-destructive mt-1">{errors.card_number.message}</p>
           )}
           {!card && (
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs mt-1">
               16 dígitos sem espaços ou hífens
             </p>
           )}
@@ -246,28 +246,6 @@ export function StoredCardForm({
           )}
         </div>
 
-        <div className="col-span-2">
-          <Label htmlFor="owner">Proprietário *</Label>
-          <Select
-            value={watch('owner')?.toString()}
-            onValueChange={(value) => setValue('owner', parseInt(value))}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {members.map((member) => (
-                <SelectItem key={member.id} value={member.id.toString()}>
-                  {member.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.owner && (
-            <p className="text-sm text-destructive mt-1">{errors.owner.message}</p>
-          )}
-        </div>
-
         {creditCards.length > 0 && (
           <div className="col-span-2">
             <Label htmlFor="finance_card">Cartão Financeiro Vinculado (Opcional)</Label>
@@ -289,7 +267,7 @@ export function StoredCardForm({
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs mt-1">
               Vincule este cartão armazenado a um cartão do módulo financeiro
             </p>
           </div>

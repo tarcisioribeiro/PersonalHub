@@ -264,7 +264,7 @@ export default function Loans() {
 
       {filteredLoans.length === 0 ? (
         <div className="text-center py-12 border rounded-lg bg-muted/30">
-          <p className="text-muted-foreground">Nenhum empréstimo encontrado.</p>
+          <p>Nenhum empréstimo encontrado.</p>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -273,7 +273,7 @@ export default function Loans() {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <h3 className="font-semibold">{loan.description}</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm">
                     {translate('expenseCategories', loan.category)}
                   </p>
                 </div>
@@ -282,34 +282,34 @@ export default function Loans() {
 
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Valor Total:</span>
+                  <span>Valor Total:</span>
                   <span className="font-medium">{formatCurrency(loan.value)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Valor Pago:</span>
+                  <span>Valor Pago:</span>
                   <span className="font-medium">{formatCurrency(loan.payed_value)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Saldo:</span>
+                  <span>Saldo:</span>
                   <span className="font-medium text-destructive">
                     {formatCurrency(parseFloat(loan.value) - parseFloat(loan.payed_value))}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Beneficiado:</span>
+                  <span>Beneficiado:</span>
                   <span className="font-medium">{loan.benefited_name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Credor:</span>
+                  <span>Credor:</span>
                   <span className="font-medium">{loan.creditor_name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Parcelas:</span>
+                  <span>Parcelas:</span>
                   <span className="font-medium">{loan.installments}x</span>
                 </div>
                 {loan.due_date && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Vencimento:</span>
+                    <span>Vencimento:</span>
                     <span className="font-medium">
                       {formatDate(loan.due_date, 'dd/MM/yyyy')}
                     </span>

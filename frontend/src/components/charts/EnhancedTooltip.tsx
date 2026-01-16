@@ -25,7 +25,7 @@ export const EnhancedTooltip = ({
     >
       {/* Label/Título */}
       {label && (
-        <p className="text-xs font-medium text-muted-foreground mb-2 pb-2 border-b border-border/50">
+        <p className="text-xs font-medium mb-2 pb-2 border-b border-border/50">
           {label}
         </p>
       )}

@@ -277,9 +277,9 @@ export default function Archives() {
       {filteredArchives.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <ArchiveIcon className="w-12 h-12 text-muted-foreground mb-4" />
+            <ArchiveIcon className="w-12 h-12 mb-4" />
             <p className="text-lg font-medium mb-2">Nenhum arquivo encontrado</p>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm mb-4">
               {searchTerm
                 ? 'Tente ajustar sua pesquisa'
                 : 'Comece adicionando seu primeiro arquivo confidencial'}
@@ -295,9 +295,9 @@ export default function Archives() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       {arc.archive_type === 'text' ? (
-                        <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                        <FileText className="w-4 h-4 flex-shrink-0" />
                       ) : (
-                        <File className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                        <File className="w-4 h-4 flex-shrink-0" />
                       )}
                       <CardTitle className="text-base truncate">{arc.title}</CardTitle>
                     </div>
@@ -336,15 +336,15 @@ export default function Archives() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     <span>{formatDate(arc.created_at, 'dd/MM/yyyy')}</span>
                   </div>
-                  <span className="text-muted-foreground">{formatFileSize(arc.file_size)}</span>
+                  <span>{formatFileSize(arc.file_size)}</span>
                 </div>
                 {arc.tags && (
                   <div className="flex items-center gap-2">
-                    <Tag className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <Tag className="w-4 h-4 flex-shrink-0" />
                     <div className="flex flex-wrap gap-1">
                       {arc.tags.split(',').slice(0, 3).map((tag, idx) => (
                         <Badge key={idx} variant="secondary" className="text-xs">

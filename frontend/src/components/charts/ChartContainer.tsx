@@ -88,7 +88,7 @@ export const ChartContainer = ({
   if (!data || data.length === 0) {
     return (
       <div
-        className="flex flex-col items-center justify-center text-muted-foreground"
+        className="flex flex-col items-center justify-center"
         style={{ height }}
       >
         <div className="h-12 w-12 mb-3 opacity-40 flex items-center justify-center">
@@ -115,7 +115,7 @@ export const ChartContainer = ({
           >
             <RefreshCw
               className={cn(
-                'h-4 w-4 text-muted-foreground transition-transform',
+                'h-4 w-4 transition-transform',
                 isAnimating && 'animate-spin'
               )}
             />
@@ -124,7 +124,7 @@ export const ChartContainer = ({
           {/* Tooltip no hover */}
           <div
             className="absolute top-full right-0 mt-1 opacity-0 group-hover:opacity-100
-                       text-xs text-muted-foreground bg-popover/95 backdrop-blur-sm
+                       text-xs bg-popover/95 backdrop-blur-sm
                        border border-border rounded-md px-2 py-1 shadow-md transition-opacity
                        whitespace-nowrap pointer-events-none z-20"
           >

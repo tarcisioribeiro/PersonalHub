@@ -201,7 +201,7 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="total_amount">Valor Total</Label>
-                {isCalculating && <span className="text-xs text-muted-foreground">Calculando...</span>}
+                {isCalculating && <span className="text-xs">Calculando...</span>}
               </div>
               <Input
                 id="total_amount"
@@ -212,7 +212,7 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
                 disabled
                 className="font-semibold"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs">
                 Soma de todas as despesas associadas à fatura
               </p>
             </div>
@@ -228,7 +228,7 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
                 disabled
                 className="font-semibold text-amber-600"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs">
                 10% do valor total
               </p>
             </div>
@@ -244,7 +244,7 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
                 disabled
                 className="font-semibold text-success"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs">
                 Soma das despesas marcadas como pagas
               </p>
             </div>

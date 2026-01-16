@@ -177,7 +177,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, accounts, loa
               ))}
             </SelectContent>
           </Select>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs">
             Vincule esta despesa a um empréstimo que você está pagando
           </p>
         </div>

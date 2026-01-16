@@ -166,9 +166,9 @@ export default function Readings() {
       {filteredReadings.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <BookMarked className="w-12 h-12 text-muted-foreground mb-4" />
+            <BookMarked className="w-12 h-12 mb-4" />
             <p className="text-lg font-medium mb-2">Nenhuma leitura encontrada</p>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm mb-4">
               {searchTerm
                 ? 'Tente ajustar sua pesquisa'
                 : 'Comece registrando sua primeira leitura'}
@@ -183,10 +183,10 @@ export default function Readings() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <BookOpen className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                      <BookOpen className="w-4 h-4 flex-shrink-0" />
                       <CardTitle className="text-base truncate">{reading.book_title}</CardTitle>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         {formatDate(reading.reading_date, 'dd/MM/yyyy')}
@@ -218,7 +218,7 @@ export default function Readings() {
               </CardHeader>
               {reading.notes && (
                 <CardContent className="pt-0">
-                  <p className="text-sm text-muted-foreground line-clamp-3">
+                  <p className="text-sm line-clamp-3">
                     {reading.notes}
                   </p>
                 </CardContent>

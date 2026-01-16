@@ -26,7 +26,7 @@ export const FixedExpenseStats = () => {
   };
 
   if (isLoading || !stats) {
-    return <div className="text-muted-foreground">Carregando estatísticas...</div>;
+    return <div>Carregando estatísticas...</div>;
   }
 
   return (

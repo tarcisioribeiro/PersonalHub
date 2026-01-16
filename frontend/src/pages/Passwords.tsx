@@ -40,7 +40,7 @@ import { PageContainer } from '@/components/common/PageContainer';
 
 export default function Passwords() {
   const [passwords, setPasswords] = useState<Password[]>([]);
-  const [members, setMembers] = useState<Member[]>([]);
+  const [currentUserMember, setCurrentUserMember] = useState<Member | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedPassword, setSelectedPassword] = useState<Password | undefined>();
@@ -69,12 +69,12 @@ export default function Passwords() {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const [passwordsData, membersData] = await Promise.all([
+      const [passwordsData, memberData] = await Promise.all([
         passwordsService.getAll(),
-        membersService.getAll(),
+        membersService.getCurrentUserMember(),
       ]);
       setPasswords(passwordsData);
-      setMembers(membersData);
+      setCurrentUserMember(memberData);
     } catch (error: any) {
       toast({
         title: 'Erro ao carregar dados',
@@ -87,10 +87,10 @@ export default function Passwords() {
   };
 
   const handleCreate = () => {
-    if (members.length === 0) {
+    if (!currentUserMember) {
       toast({
         title: 'Ação não permitida',
-        description: 'É necessário ter pelo menos um membro cadastrado antes de criar uma senha.',
+        description: 'Não foi possível identificar o membro do usuário atual.',
         variant: 'destructive',
       });
       return;
@@ -103,7 +103,7 @@ export default function Passwords() {
       password: '',
       category: 'other',
       notes: '',
-      owner: members[0]?.id || 0,
+      owner: currentUserMember.id,
     });
     setIsDialogOpen(true);
   };
@@ -283,7 +283,7 @@ export default function Passwords() {
             <CardContent>
               <div className="space-y-3">
                 {password.site && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-sm">
                     <ExternalLink className="h-3 w-3" />
                     <a
                       href={password.site}
@@ -349,7 +349,7 @@ export default function Passwords() {
                   </Button>
                 </div>
 
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs">
                   Atualizado em {formatDate(password.updated_at, 'dd/MM/yyyy HH:mm')}
                 </div>
               </div>
@@ -360,7 +360,7 @@ export default function Passwords() {
 
       {filteredPasswords.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">Nenhuma senha encontrada.</p>
+          <p>Nenhuma senha encontrada.</p>
         </div>
       )}
 
@@ -449,27 +449,6 @@ export default function Passwords() {
                 placeholder="Notas adicionais..."
                 rows={3}
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="owner">Proprietário *</Label>
-              <Select
-                value={formData.owner.toString()}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, owner: parseInt(value) })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {members.map((member) => (
-                    <SelectItem key={member.id} value={member.id.toString()}>
-                      {member.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="flex gap-2 justify-end">

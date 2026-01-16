@@ -24,10 +24,19 @@ const ACCOUNT_TYPES = [
   { value: 'OTHER', label: 'Outro' },
 ];
 
+// Mapeamento de instituições do módulo financeiro (backend)
+const INSTITUTIONS = [
+  { value: 'NUB', label: 'Nubank' },
+  { value: 'SIC', label: 'Sicoob' },
+  { value: 'MPG', label: 'Mercado Pago' },
+  { value: 'IFB', label: 'Ifood Benefícios' },
+  { value: 'CEF', label: 'Caixa Econômica Federal' },
+];
+
 interface StoredAccountFormProps {
   account?: StoredBankAccount;
   financeAccounts?: Account[];
-  members: Member[];
+  currentMember: Member | null;
   onSubmit: (data: StoredBankAccountFormData) => void;
   onCancel: () => void;
   isLoading?: boolean;
@@ -36,7 +45,7 @@ interface StoredAccountFormProps {
 export function StoredAccountForm({
   account,
   financeAccounts = [],
-  members,
+  currentMember,
   onSubmit,
   onCancel,
   isLoading = false,
@@ -74,7 +83,7 @@ export function StoredAccountForm({
           password: '',
           digital_password: '',
           notes: '',
-          owner: members[0]?.id || 0,
+          owner: currentMember?.id || 0,
           finance_account: undefined,
         },
   });
@@ -96,11 +105,21 @@ export function StoredAccountForm({
 
         <div>
           <Label htmlFor="institution_name">Instituição *</Label>
-          <Input
-            id="institution_name"
-            {...register('institution_name')}
-            placeholder="Nome do banco"
-          />
+          <Select
+            value={watch('institution_name') || ''}
+            onValueChange={(value) => setValue('institution_name', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione uma instituição" />
+            </SelectTrigger>
+            <SelectContent>
+              {INSTITUTIONS.map((inst) => (
+                <SelectItem key={inst.value} value={inst.value}>
+                  {inst.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {errors.institution_name && (
             <p className="text-sm text-destructive mt-1">
               {errors.institution_name.message}
@@ -219,28 +238,6 @@ export function StoredAccountForm({
           )}
         </div>
 
-        <div className="col-span-2">
-          <Label htmlFor="owner">Proprietário *</Label>
-          <Select
-            value={watch('owner')?.toString()}
-            onValueChange={(value) => setValue('owner', parseInt(value))}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {members.map((member) => (
-                <SelectItem key={member.id} value={member.id.toString()}>
-                  {member.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.owner && (
-            <p className="text-sm text-destructive mt-1">{errors.owner.message}</p>
-          )}
-        </div>
-
         {financeAccounts.length > 0 && (
           <div className="col-span-2">
             <Label htmlFor="finance_account">Conta Financeira Vinculada (Opcional)</Label>
@@ -262,7 +259,7 @@ export function StoredAccountForm({
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs mt-1">
               Vincule esta conta armazenada a uma conta do módulo financeiro
             </p>
           </div>

@@ -56,7 +56,7 @@ export function KanbanCard({ card }: KanbanCardProps) {
     >
       <div className="flex items-start gap-3">
         {/* Drag Handle */}
-        <div className="mt-1 text-muted-foreground hover:text-foreground">
+        <div className="mt-1 hover:text-foreground">
           <GripVertical className="h-5 w-5" />
         </div>
 
@@ -68,13 +68,13 @@ export function KanbanCard({ card }: KanbanCardProps) {
               <h4 className="font-semibold text-sm leading-tight">
                 {card.task_name}
                 {card.total_instances > 1 && (
-                  <span className="ml-2 text-xs font-normal text-muted-foreground">
+                  <span className="ml-2 text-xs font-normal">
                     ({card.index + 1}º {card.unit})
                   </span>
                 )}
               </h4>
               {card.scheduled_time && (
-                <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1 mt-1 text-xs">
                   <Clock className="h-3 w-3" />
                   <span>{card.scheduled_time}</span>
                 </div>
@@ -87,7 +87,7 @@ export function KanbanCard({ card }: KanbanCardProps) {
 
           {/* Task Description */}
           {card.description && (
-            <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
+            <p className="text-xs leading-relaxed whitespace-pre-wrap">
               {card.description}
             </p>
           )}
@@ -95,7 +95,7 @@ export function KanbanCard({ card }: KanbanCardProps) {
           {/* Daily Notes */}
           {card.notes && (
             <div className="p-2.5 bg-warning/20 border border-warning rounded-md">
-              <p className="text-xs font-medium text-muted-foreground mb-1">Notas:</p>
+              <p className="text-xs font-medium mb-1">Notas:</p>
               <p className="text-xs leading-relaxed text-foreground whitespace-pre-wrap">
                 {card.notes}
               </p>

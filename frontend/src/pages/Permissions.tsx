@@ -166,7 +166,7 @@ export default function Permissions() {
           <Shield className="w-8 h-8" />
           Gerenciamento de Permissões
         </h1>
-        <p className="text-muted-foreground mt-2">
+        <p className="mt-2">
           Controle o acesso dos membros aos diferentes módulos do PersonalHub
         </p>
       </div>
@@ -196,7 +196,7 @@ export default function Permissions() {
                     </div>
                     <div className="flex-1 text-left">
                       <div className="font-medium">{member.name}</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs">
                         {[member.is_creditor && 'Credor', member.is_benefited && 'Beneficiário'].filter(Boolean).join(', ')}
                       </div>
                     </div>
@@ -204,7 +204,7 @@ export default function Permissions() {
                 </Button>
               ))}
               {members.length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-4">
+                <p className="text-sm text-center py-4">
                   Nenhum membro cadastrado
                 </p>
               )}
@@ -290,7 +290,7 @@ export default function Permissions() {
                 </div>
               )
             ) : (
-              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+              <div className="flex flex-col items-center justify-center py-12">
                 <Shield className="w-16 h-16 mb-4 opacity-20" />
                 <p className="text-lg">Selecione um membro para começar</p>
               </div>
@@ -310,21 +310,21 @@ export default function Permissions() {
               <div className="w-2 h-2 rounded-full bg-success mt-1.5" />
               <div>
                 <p className="font-medium">Permissões Ativas</p>
-                <p className="text-muted-foreground">Permissões marcadas estão ativas para o membro</p>
+                <p>Permissões marcadas estão ativas para o membro</p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <div className="w-2 h-2 rounded-full bg-muted-foreground mt-1.5" />
               <div>
                 <p className="font-medium">Permissões Inativas</p>
-                <p className="text-muted-foreground">Permissões desmarcadas não estão disponíveis</p>
+                <p>Permissões desmarcadas não estão disponíveis</p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <div className="w-2 h-2 rounded-full bg-info mt-1.5" />
               <div>
                 <p className="font-medium">Granularidade</p>
-                <p className="text-muted-foreground">Controle fino de visualização e adição</p>
+                <p>Controle fino de visualização e adição</p>
               </div>
             </div>
           </div>

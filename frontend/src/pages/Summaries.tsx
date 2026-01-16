@@ -264,9 +264,9 @@ export default function Summaries() {
       {filteredSummaries.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <FileText className="w-12 h-12 text-muted-foreground mb-4" />
+            <FileText className="w-12 h-12 mb-4" />
             <p className="text-lg font-medium mb-2">Nenhum resumo encontrado</p>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm mb-4">
               {searchTerm
                 ? 'Tente ajustar sua pesquisa'
                 : 'Comece adicionando seu primeiro resumo'}
@@ -281,7 +281,7 @@ export default function Summaries() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <BookOpen className="w-5 h-5 text-muted-foreground" />
+                      <BookOpen className="w-5 h-5" />
                       <CardTitle className="text-xl">{summary.book_title}</CardTitle>
                     </div>
                     <div className="flex items-center gap-2">
@@ -297,7 +297,7 @@ export default function Summaries() {
                         </Badge>
                       )}
                       {summary.vectorization_date && (
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs">
                           em {new Date(summary.vectorization_date).toLocaleDateString('pt-BR')}
                         </span>
                       )}
@@ -322,7 +322,7 @@ export default function Summaries() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-6">
+                <p className="text-sm whitespace-pre-wrap line-clamp-6">
                   {summary.text}
                 </p>
               </CardContent>

@@ -81,7 +81,7 @@ export const Header = () => {
           <h2 className="text-lg font-semibold">
             Bem-vindo, {currentMember ? currentMember.name.split(' ')[0] : user?.username || 'Usuário'}!
           </h2>
-          <p className="text-sm text-muted-foreground hidden sm:block">
+          <p className="text-sm hidden sm:block">
             Gerencie suas finanças de forma inteligente
           </p>
         </div>

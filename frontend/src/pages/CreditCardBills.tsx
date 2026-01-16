@@ -149,7 +149,7 @@ export default function CreditCardBills() {
       label: 'Cartão',
       render: (bill) => (
         <div className="flex items-center gap-2">
-          <CreditCardIcon className="w-4 h-4 text-muted-foreground" />
+          <CreditCardIcon className="w-4 h-4" />
           <span className="font-medium">{getCardName(bill)}</span>
         </div>
       ),
@@ -210,7 +210,7 @@ export default function CreditCardBills() {
       key: 'due_date',
       label: 'Vencimento',
       render: (bill) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm">
           {bill.due_date ? formatDate(bill.due_date) : 'N/A'}
         </span>
       ),
@@ -232,7 +232,7 @@ export default function CreditCardBills() {
 
       <div className="bg-card border rounded-xl p-4 space-y-4">
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-muted-foreground" />
+          <Filter className="w-4 h-4" />
           <span className="font-semibold">Filtros</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -285,7 +285,7 @@ export default function CreditCardBills() {
           </Select>
         </div>
         <div className="flex justify-between items-center pt-2 border-t">
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm">
             {filteredBills.length} fatura(s) encontrada(s)
           </span>
         </div>

@@ -153,12 +153,12 @@ export default function RoutineTasks() {
         <div className="text-sm">
           <div>{task.periodicity_display}</div>
           {task.weekday_display && (
-            <div className="text-muted-foreground text-xs">
+            <div className="text-xs">
               {task.weekday_display}
             </div>
           )}
           {task.day_of_month && (
-            <div className="text-muted-foreground text-xs">
+            <div className="text-xs">
               Dia {task.day_of_month}
             </div>
           )}

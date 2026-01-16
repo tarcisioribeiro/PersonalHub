@@ -49,7 +49,7 @@ export default function DailyReflections() {
 
       {reflections.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-muted-foreground mb-4">
+          <p className="mb-4">
             Nenhuma reflexão registrada
           </p>
           <Button>
@@ -64,12 +64,12 @@ export default function DailyReflections() {
               <div className="flex justify-between items-start mb-2">
                 <span className="font-semibold">{reflection.date}</span>
                 {reflection.mood && (
-                  <span className="text-sm text-muted-foreground capitalize">
+                  <span className="text-sm capitalize">
                     {reflection.mood}
                   </span>
                 )}
               </div>
-              <p className="text-muted-foreground">{reflection.reflection}</p>
+              <p>{reflection.reflection}</p>
             </div>
           ))}
         </div>

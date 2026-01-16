@@ -38,7 +38,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
       }`}
     >
       <Loader2 className={`${iconSizes[size]} animate-spin text-primary`} />
-      {message && <p className="text-sm text-muted-foreground">{message}</p>}
+      {message && <p className="text-sm">{message}</p>}
     </div>
   );
 };

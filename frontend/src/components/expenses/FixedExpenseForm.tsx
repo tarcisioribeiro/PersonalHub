@@ -177,7 +177,7 @@ export const FixedExpenseForm = ({
               <SelectItem value="credit_card">Cartão de Crédito</SelectItem>
             </SelectContent>
           </Select>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs">
             Escolha se a despesa será debitada de uma conta bancária ou lançada em um cartão de crédito
           </p>
         </div>
@@ -221,7 +221,7 @@ export const FixedExpenseForm = ({
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs">
               A despesa será lançada automaticamente na fatura aberta do mês
             </p>
           </div>
@@ -277,7 +277,7 @@ export const FixedExpenseForm = ({
             />
             Despesa Ativa
           </Label>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs">
             Desative para não incluir nas próximas gerações
           </p>
         </div>
@@ -292,7 +292,7 @@ export const FixedExpenseForm = ({
             />
             Permitir Editar Valor
           </Label>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs">
             Permite ajustar o valor ao lançar (ex: conta de luz)
           </p>
         </div>

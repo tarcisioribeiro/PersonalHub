@@ -150,9 +150,9 @@ export default function Authors() {
       {filteredAuthors.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <User className="w-12 h-12 text-muted-foreground mb-4" />
+            <User className="w-12 h-12 mb-4" />
             <p className="text-lg font-medium mb-2">Nenhum autor encontrado</p>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm mb-4">
               {searchTerm
                 ? 'Tente ajustar sua pesquisa'
                 : 'Comece adicionando seu primeiro autor'}
@@ -191,7 +191,7 @@ export default function Authors() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {(author.birth_year || author.death_year) && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-sm">
                     <Calendar className="w-4 h-4" />
                     <span>
                       {author.birth_year && (
@@ -209,13 +209,13 @@ export default function Authors() {
                   </div>
                 )}
                 {author.biography && (
-                  <p className="text-sm text-muted-foreground line-clamp-3">
+                  <p className="text-sm line-clamp-3">
                     {author.biography}
                   </p>
                 )}
                 <div className="flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
+                  <BookOpen className="w-4 h-4" />
+                  <span className="text-sm">
                     {author.books_count} {author.books_count === 1 ? 'livro' : 'livros'}
                   </span>
                 </div>

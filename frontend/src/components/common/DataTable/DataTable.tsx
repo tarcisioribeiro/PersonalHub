@@ -91,7 +91,7 @@ export function DataTable<T>({
     }
     return (
       <div className="bg-card border rounded-xl p-12 text-center">
-        <p className="text-muted-foreground">Nenhum registro encontrado.</p>
+        <p>Nenhum registro encontrado.</p>
       </div>
     );
   }
@@ -162,7 +162,7 @@ export function DataTable<T>({
       {/* Pagination (placeholder para futura implementação) */}
       {pagination && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm">
             Mostrando {Math.min(pagination.pageSize, pagination.total)} de {pagination.total}{' '}
             registros
           </p>

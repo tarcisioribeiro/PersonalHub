@@ -161,7 +161,7 @@ export default function Accounts() {
       key: 'created_at',
       label: 'Criada em',
       render: (account) => (
-        <span className="text-sm text-muted-foreground">{formatDate(account.created_at)}</span>
+        <span className="text-sm">{formatDate(account.created_at)}</span>
       ),
     },
   ];

@@ -79,11 +79,11 @@ export default function SecurityDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Senhas</CardTitle>
-            <Key className="h-4 w-4 text-muted-foreground" />
+            <Key className="h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.total_passwords || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs mt-1">
               {stats?.total_passwords === 1 ? 'senha cadastrada' : 'senhas cadastradas'}
             </p>
           </CardContent>
@@ -92,11 +92,11 @@ export default function SecurityDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Cartões Armazenados</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
+            <CreditCard className="h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.total_stored_cards || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs mt-1">
               {stats?.total_stored_cards === 1 ? 'cartão armazenado' : 'cartões armazenados'}
             </p>
           </CardContent>
@@ -105,11 +105,11 @@ export default function SecurityDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Contas Bancárias</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
+            <Wallet className="h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.total_stored_accounts || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs mt-1">
               {stats?.total_stored_accounts === 1 ? 'conta armazenada' : 'contas armazenadas'}
             </p>
           </CardContent>
@@ -118,11 +118,11 @@ export default function SecurityDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Arquivos</CardTitle>
-            <Archive className="h-4 w-4 text-muted-foreground" />
+            <Archive className="h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.total_archives || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs mt-1">
               {stats?.total_archives === 1 ? 'arquivo armazenado' : 'arquivos armazenados'}
             </p>
           </CardContent>
@@ -134,7 +134,7 @@ export default function SecurityDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Distribuição de Itens</CardTitle>
-            <p className="text-sm text-muted-foreground">Tipos de itens armazenados</p>
+            <p className="text-sm">Tipos de itens armazenados</p>
           </CardHeader>
           <CardContent>
             <ChartContainer
@@ -172,7 +172,7 @@ export default function SecurityDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Senhas por Categoria (Top 5)</CardTitle>
-            <p className="text-sm text-muted-foreground">Distribuição de senhas por categoria</p>
+            <p className="text-sm">Distribuição de senhas por categoria</p>
           </CardHeader>
           <CardContent>
             <ChartContainer
@@ -212,7 +212,7 @@ export default function SecurityDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Análise de Segurança das Senhas</CardTitle>
-            <p className="text-sm text-muted-foreground">Distribuição por nível de segurança</p>
+            <p className="text-sm">Distribuição por nível de segurança</p>
           </CardHeader>
           <CardContent>
             <ChartContainer

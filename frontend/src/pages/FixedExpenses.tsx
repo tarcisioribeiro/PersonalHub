@@ -169,7 +169,7 @@ export default function FixedExpenses() {
       label: 'Geradas',
       align: 'center',
       render: (item) => (
-        <span className="text-sm text-muted-foreground">{item.total_generated}x</span>
+        <span className="text-sm">{item.total_generated}x</span>
       ),
     },
   ];
@@ -198,7 +198,7 @@ export default function FixedExpenses() {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-semibold text-lg">Lançar Despesas do Mês</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm">
               Gere todas as despesas fixas para o mês selecionado
             </p>
           </div>

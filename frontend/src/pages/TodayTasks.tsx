@@ -69,7 +69,7 @@ export default function TodayTasks() {
 
       {tasks.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">
+          <p>
             Nenhuma tarefa programada para hoje
           </p>
         </div>
@@ -90,12 +90,12 @@ export default function TodayTasks() {
                   </Badge>
                 </div>
                 {task.time_display && (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm">
                     Horário: {task.time_display}
                   </p>
                 )}
                 {task.notes && (
-                  <p className="text-sm text-muted-foreground">{task.notes}</p>
+                  <p className="text-sm">{task.notes}</p>
                 )}
               </div>
             </div>

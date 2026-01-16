@@ -435,7 +435,7 @@ export default function DailyChecklist() {
         <div className="text-lg font-semibold">
           {completedTasks} de {cards.length} itens concluídos
           {summary.completion_rate > 0 && (
-            <span className="text-sm text-muted-foreground ml-2">
+            <span className="text-sm ml-2">
               ({summary.completion_rate.toFixed(0)}%)
             </span>
           )}
@@ -445,7 +445,7 @@ export default function DailyChecklist() {
       {cards.length === 0 ? (
         <Card>
           <CardContent className="py-12">
-            <div className="text-center text-muted-foreground">
+            <div className="text-center">
               <CheckCircle2 className="h-12 w-12 mx-auto mb-2 opacity-50" />
               <p>Nenhuma tarefa programada para este dia.</p>
               <p className="text-sm">

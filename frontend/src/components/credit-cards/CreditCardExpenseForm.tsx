@@ -246,12 +246,12 @@ export const CreditCardExpenseForm: React.FC<CreditCardExpenseFormProps> = ({
                   <SelectItem key={c.id} value={c.id.toString()}>
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{c.name}</span>
-                      <span className="text-muted-foreground text-sm">
+                      <span className="text-sm">
                         {hasNumber ? `**** ${last4}` : 'Não cadastrado'}
                       </span>
                       <Badge variant="secondary" className="text-xs">{brandName}</Badge>
                       {accountName && (
-                        <span className="text-xs text-muted-foreground">• {accountName}</span>
+                        <span className="text-xs">• {accountName}</span>
                       )}
                     </div>
                   </SelectItem>
@@ -270,7 +270,7 @@ export const CreditCardExpenseForm: React.FC<CreditCardExpenseFormProps> = ({
             {...register('total_installments', { required: true, valueAsNumber: true })}
             disabled={isLoading}
           />
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs">
             {watchedTotalInstallments > 1
               ? `Serão criadas ${watchedTotalInstallments} parcelas de ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(installmentValue)} cada`
               : 'Pagamento à vista'}

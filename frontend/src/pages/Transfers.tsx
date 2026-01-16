@@ -135,7 +135,7 @@ export default function Transfers() {
       key: 'date',
       label: 'Data',
       render: (transfer) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm">
           {formatDate(transfer.date)} às {transfer.horary}
         </span>
       ),

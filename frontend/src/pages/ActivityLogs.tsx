@@ -76,7 +76,7 @@ export default function ActivityLogs() {
                   <Badge variant="secondary">{log.action_display}</Badge>
                 </TableCell>
                 <TableCell>{log.description}</TableCell>
-                <TableCell className="text-muted-foreground">
+                <TableCell>
                   {log.ip_address || '-'}
                 </TableCell>
               </TableRow>
@@ -87,7 +87,7 @@ export default function ActivityLogs() {
 
       {logs.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">Nenhum log encontrado.</p>
+          <p>Nenhum log encontrado.</p>
         </div>
       )}
     </div>

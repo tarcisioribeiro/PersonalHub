@@ -93,10 +93,10 @@ export default function Members() {
       />
 
       {members.length === 0 ? (
-        <div className="bg-card border rounded-xl p-12 text-center"><p className="text-muted-foreground">Nenhum membro cadastrado.</p></div>
+        <div className="bg-card border rounded-xl p-12 text-center"><p>Nenhum membro cadastrado.</p></div>
       ) : members.length === 0 ? (
         <div className="bg-card border rounded-xl p-12 text-center">
-          <p className="text-muted-foreground">Nenhum membro cadastrado.</p>
+          <p>Nenhum membro cadastrado.</p>
         </div>
       ) : (
         <div className="bg-card border rounded-xl overflow-hidden">
@@ -124,7 +124,7 @@ export default function Members() {
                         {member.is_benefited && <Badge variant="outline">Beneficiário</Badge>}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{format(new Date(member.created_at), 'dd/MM/yyyy')}</td>
+                    <td className="px-6 py-4 text-sm">{format(new Date(member.created_at), 'dd/MM/yyyy')}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
                         <Button variant="ghost" size="icon" onClick={() => { setSelectedMember(member); setIsDialogOpen(true); }}>

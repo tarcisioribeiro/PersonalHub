@@ -139,7 +139,7 @@ export default function CreditCards() {
       />
 
       <div className="bg-card border rounded-xl p-4 flex justify-between items-center">
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm">
           {creditCards.length} cartão(ões) cadastrado(s)
         </span>
         <span className="text-lg font-bold">Limite Total: {formatCurrency(totalLimit)}</span>
@@ -148,9 +148,9 @@ export default function CreditCards() {
       {creditCards.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <CreditCardIcon className="w-12 h-12 text-muted-foreground mb-4" />
+            <CreditCardIcon className="w-12 h-12 mb-4" />
             <p className="text-lg font-medium mb-2">Nenhum cartão cadastrado</p>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm mb-4">
               Comece adicionando seu primeiro cartão de crédito
             </p>
           </CardContent>
@@ -169,10 +169,10 @@ export default function CreditCards() {
                         <Badge variant="secondary">{translate('cardBrands', card.flag)}</Badge>
                       </div>
                       {cardNumber && (
-                        <p className="font-mono text-sm text-muted-foreground">{cardNumber}</p>
+                        <p className="font-mono text-sm">{cardNumber}</p>
                       )}
                       {card.on_card_name && (
-                        <p className="text-sm text-muted-foreground">{card.on_card_name}</p>
+                        <p className="text-sm">{card.on_card_name}</p>
                       )}
                     </div>
                     <div className="flex gap-1">
@@ -187,14 +187,14 @@ export default function CreditCards() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-sm">
                       <Wallet className="w-4 h-4" />
                       <span>Limite</span>
                     </div>
                     <span className="font-semibold">{formatCurrency(card.credit_limit)}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-sm">
                       <Calendar className="w-4 h-4" />
                       <span>Vencimento</span>
                     </div>
@@ -202,7 +202,7 @@ export default function CreditCards() {
                   </div>
                   {card.associated_account_name && (
                     <div className="pt-2 border-t">
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs">
                         Conta: {card.associated_account_name}
                       </p>
                     </div>

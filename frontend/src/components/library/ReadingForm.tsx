@@ -125,7 +125,7 @@ export function ReadingForm({
             </p>
           )}
           {selectedBook > 0 && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs">
               Máximo: {getBookMaxPages(selectedBook)} páginas
             </p>
           )}

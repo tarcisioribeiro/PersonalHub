@@ -251,7 +251,7 @@ export function RoutineTaskForm({
         {/* Conditional: Weekdays (only for weekdays tasks) */}
         {periodicity === 'weekdays' && (
           <div className="col-span-2">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm">
               Esta tarefa aparecerá de Segunda a Sexta-feira.
             </p>
           </div>
@@ -411,7 +411,7 @@ export function RoutineTaskForm({
         {/* Seção de Agendamento de Horários */}
         <div className="col-span-2 space-y-4 border rounded-lg p-4 bg-muted/50">
           <h4 className="font-medium text-sm">Agendamento de Horários</h4>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs">
             Configure horários específicos para cada ocorrência da tarefa no dia.
           </p>
 
@@ -424,7 +424,7 @@ export function RoutineTaskForm({
                 value={watch('default_time') || ''}
                 onChange={(e) => setValue('default_time', e.target.value || null)}
               />
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs mt-1">
                 Horário base para todas as ocorrências
               </p>
               {errors.default_time && (
@@ -445,7 +445,7 @@ export function RoutineTaskForm({
                   setValueAs: (value) => (value === '' ? 1 : parseInt(value)),
                 })}
               />
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs mt-1">
                 Quantas vezes no dia (1-24)
               </p>
             </div>
@@ -462,7 +462,7 @@ export function RoutineTaskForm({
               onChange={(e) => setValue('interval_hours', e.target.value ? parseInt(e.target.value) : null)}
               placeholder="Ex: 4 (a cada 4 horas)"
             />
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs mt-1">
               Requer horário padrão. Ex: Horário padrão 8:00 + intervalo 4h = 8:00, 12:00, 16:00...
             </p>
             {errors.interval_hours && (
@@ -487,7 +487,7 @@ export function RoutineTaskForm({
                 setValue('scheduled_times', times.length > 0 ? times : null);
               }}
             />
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs mt-1">
               Sobrescreve intervalo. Separe por vírgula (HH:MM)
             </p>
             {errors.scheduled_times && (

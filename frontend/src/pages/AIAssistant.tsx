@@ -265,14 +265,14 @@ export default function AIAssistant() {
         <ScrollArea className="flex-1 p-4">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center py-12">
-              <Bot className="w-16 h-16 text-muted-foreground mb-4" />
+              <Bot className="w-16 h-16 mb-4" />
               <h3 className="text-lg font-semibold mb-2">Como posso ajudar?</h3>
-              <p className="text-sm text-muted-foreground max-w-md mb-4">
+              <p className="text-sm max-w-md mb-4">
                 Faça perguntas sobre suas finanças, senhas, livros ou hábitos.
                 Posso mostrar gráficos, tabelas e estatísticas!
               </p>
               <div className="mt-6 grid gap-2 w-full max-w-md">
-                <p className="text-xs text-muted-foreground text-left">Exemplos de perguntas:</p>
+                <p className="text-xs text-left">Exemplos de perguntas:</p>
                 <Button
                   variant="outline"
                   className="justify-start text-left"
@@ -356,18 +356,18 @@ export default function AIAssistant() {
                                 <div className="flex-1">
                                   <p className="font-medium">{getEntityLabel(source.type)}</p>
                                   {source.metadata.title && (
-                                    <p className="text-muted-foreground">{source.metadata.title}</p>
+                                    <p>{source.metadata.title}</p>
                                   )}
                                   {source.metadata.name && !source.metadata.title && (
-                                    <p className="text-muted-foreground">{source.metadata.name}</p>
+                                    <p>{source.metadata.name}</p>
                                   )}
                                   {source.metadata.description && (
-                                    <p className="text-muted-foreground line-clamp-1">
+                                    <p className="line-clamp-1">
                                       {source.metadata.description}
                                     </p>
                                   )}
                                 </div>
-                                <span className="text-muted-foreground">
+                                <span>
                                   {Math.round(source.score * 100)}%
                                 </span>
                               </div>
@@ -376,7 +376,7 @@ export default function AIAssistant() {
                         </div>
                       )}
 
-                      <p className="text-xs text-muted-foreground mt-2">
+                      <p className="text-xs mt-2">
                         {formatDate(message.timestamp, 'HH:mm')}
                       </p>
                     </div>
@@ -413,7 +413,7 @@ export default function AIAssistant() {
               )}
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
+          <p className="text-xs mt-2">
             Enter para enviar • Shift+Enter para nova linha
           </p>
         </div>

@@ -150,9 +150,9 @@ export default function Publishers() {
       {filteredPublishers.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Building2 className="w-12 h-12 text-muted-foreground mb-4" />
+            <Building2 className="w-12 h-12 mb-4" />
             <p className="text-lg font-medium mb-2">Nenhuma editora encontrada</p>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm mb-4">
               {searchTerm
                 ? 'Tente ajustar sua pesquisa'
                 : 'Comece adicionando sua primeira editora'}
@@ -192,15 +192,15 @@ export default function Publishers() {
               <CardContent className="space-y-3">
                 {publisher.founded_year && (
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
+                    <Calendar className="w-4 h-4" />
+                    <span className="text-sm">
                       Fundada em {publisher.founded_year}
                     </span>
                   </div>
                 )}
                 {publisher.website && (
                   <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-muted-foreground" />
+                    <Globe className="w-4 h-4" />
                     <a
                       href={publisher.website}
                       target="_blank"
@@ -212,8 +212,8 @@ export default function Publishers() {
                   </div>
                 )}
                 <div className="flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
+                  <BookOpen className="w-4 h-4" />
+                  <span className="text-sm">
                     {publisher.books_count} {publisher.books_count === 1 ? 'livro' : 'livros'}
                   </span>
                 </div>

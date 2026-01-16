@@ -62,7 +62,7 @@ export function StarRating({
               'transition-colors duration-150',
               rating <= displayValue
                 ? 'fill-yellow-400 text-yellow-400'
-                : 'fill-transparent text-muted-foreground hover:text-yellow-400/50'
+                : 'fill-transparent hover:text-yellow-400/50'
             )}
           />
         </button>
@@ -71,7 +71,7 @@ export function StarRating({
         <button
           type="button"
           onClick={() => onChange?.(null)}
-          className="ml-2 text-xs text-muted-foreground hover:text-destructive transition-colors"
+          className="ml-2 text-xs hover:text-destructive transition-colors"
         >
           Limpar
         </button>

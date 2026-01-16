@@ -180,7 +180,7 @@ export default function Revenues() {
         <div>
           <div className="font-medium">{revenue.description}</div>
           {revenue.source && (
-            <div className="text-xs text-muted-foreground">Origem: {revenue.source}</div>
+            <div className="text-xs">Origem: {revenue.source}</div>
           )}
         </div>
       ),
@@ -225,7 +225,7 @@ export default function Revenues() {
         <div>
           <div className="text-sm">{formatDateTime(revenue.date, revenue.horary)}</div>
           {revenue.member_name && (
-            <div className="text-xs text-muted-foreground">Membro: {revenue.member_name}</div>
+            <div className="text-xs">Membro: {revenue.member_name}</div>
           )}
         </div>
       ),
@@ -248,7 +248,7 @@ export default function Revenues() {
       <div className="bg-card border rounded-xl p-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-muted-foreground" />
+            <Filter className="w-4 h-4" />
             <span className="font-semibold">Filtros</span>
           </div>
           {(searchTerm || categoryFilter !== 'all' || statusFilter !== 'all' || startDate || endDate || selectedAccounts.length > 0) && (
@@ -289,7 +289,7 @@ export default function Revenues() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-1">
-            <label className="text-sm text-muted-foreground">Data Inicial</label>
+            <label className="text-sm">Data Inicial</label>
             <DatePicker
               value={startDate}
               onChange={setStartDate}
@@ -298,7 +298,7 @@ export default function Revenues() {
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm text-muted-foreground">Data Final</label>
+            <label className="text-sm">Data Final</label>
             <DatePicker
               value={endDate}
               onChange={setEndDate}
@@ -307,7 +307,7 @@ export default function Revenues() {
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm text-muted-foreground">Contas</label>
+            <label className="text-sm">Contas</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full justify-between">
@@ -338,7 +338,7 @@ export default function Revenues() {
           </div>
         </div>
         <div className="flex justify-between items-center pt-2 border-t">
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm">
             {filteredRevenues.length} receita(s) encontrada(s)
           </span>
           <span className="text-lg font-bold text-success">

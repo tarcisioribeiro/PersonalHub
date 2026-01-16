@@ -25,7 +25,7 @@ import { PageContainer } from '@/components/common/PageContainer';
 export default function StoredCards() {
   const [cards, setCards] = useState<StoredCreditCard[]>([]);
   const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
-  const [members, setMembers] = useState<Member[]>([]);
+  const [currentUserMember, setCurrentUserMember] = useState<Member | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState<StoredCreditCard | undefined>();
@@ -45,14 +45,14 @@ export default function StoredCards() {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const [cardsData, creditCardsData, membersData] = await Promise.all([
+      const [cardsData, creditCardsData, memberData] = await Promise.all([
         storedCardsService.getAll(),
         creditCardsService.getAll(),
-        membersService.getAll(),
+        membersService.getCurrentUserMember(),
       ]);
       setCards(cardsData);
       setCreditCards(creditCardsData);
-      setMembers(membersData);
+      setCurrentUserMember(memberData);
     } catch (error: any) {
       toast({
         title: 'Erro ao carregar dados',
@@ -193,7 +193,7 @@ export default function StoredCards() {
       label: 'Nome',
       render: (card) => (
         <div className="flex items-center gap-2">
-          <CreditCardIcon className="w-4 h-4 text-muted-foreground" />
+          <CreditCardIcon className="w-4 h-4" />
           <span className="font-medium">{card.name}</span>
         </div>
       ),
@@ -223,7 +223,7 @@ export default function StoredCards() {
           );
         }
         return (
-          <span className="font-mono text-sm text-muted-foreground">
+          <span className="font-mono text-sm">
             **** **** **** {card.last_four_digits || '****'}
           </span>
         );
@@ -249,7 +249,7 @@ export default function StoredCards() {
             </div>
           );
         }
-        return <span className="text-muted-foreground">***</span>;
+        return <span>***</span>;
       },
     },
     {
@@ -355,7 +355,7 @@ export default function StoredCards() {
           <StoredCardForm
             card={selectedCard}
             creditCards={creditCards}
-            members={members}
+            currentMember={currentUserMember}
             onSubmit={handleSubmit}
             onCancel={() => setIsDialogOpen(false)}
             isLoading={isSubmitting}

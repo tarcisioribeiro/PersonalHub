@@ -32,7 +32,7 @@ const ACCOUNT_TYPES: Record<string, string> = {
 export default function StoredAccounts() {
   const [accounts, setAccounts] = useState<StoredBankAccount[]>([]);
   const [financeAccounts, setFinanceAccounts] = useState<Account[]>([]);
-  const [members, setMembers] = useState<Member[]>([]);
+  const [currentUserMember, setCurrentUserMember] = useState<Member | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<StoredBankAccount | undefined>();
@@ -52,14 +52,14 @@ export default function StoredAccounts() {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const [accountsData, financeAccountsData, membersData] = await Promise.all([
+      const [accountsData, financeAccountsData, memberData] = await Promise.all([
         storedAccountsService.getAll(),
         accountsService.getAll(),
-        membersService.getAll(),
+        membersService.getCurrentUserMember(),
       ]);
       setAccounts(accountsData);
       setFinanceAccounts(financeAccountsData);
-      setMembers(membersData);
+      setCurrentUserMember(memberData);
     } catch (error: any) {
       toast({
         title: 'Erro ao carregar dados',
@@ -211,7 +211,7 @@ export default function StoredAccounts() {
       label: 'Nome',
       render: (acc) => (
         <div className="flex items-center gap-2">
-          <Building2 className="w-4 h-4 text-muted-foreground" />
+          <Building2 className="w-4 h-4" />
           <span className="font-medium">{acc.name}</span>
         </div>
       ),
@@ -251,7 +251,7 @@ export default function StoredAccounts() {
             <div className="space-y-1 text-xs">
               {revealed.password && (
                 <div className="flex items-center gap-2 font-mono">
-                  <span className="text-muted-foreground">Senha 1:</span>
+                  <span>Senha 1:</span>
                   <span>{revealed.password}</span>
                   <Button
                     size="sm"
@@ -264,7 +264,7 @@ export default function StoredAccounts() {
               )}
               {revealed.password2 && (
                 <div className="flex items-center gap-2 font-mono">
-                  <span className="text-muted-foreground">Senha 2:</span>
+                  <span>Senha 2:</span>
                   <span>{revealed.password2}</span>
                   <Button
                     size="sm"
@@ -278,7 +278,7 @@ export default function StoredAccounts() {
             </div>
           );
         }
-        return <span className="text-muted-foreground text-sm">***</span>;
+        return <span className="text-sm">***</span>;
       },
     },
     {
@@ -369,7 +369,7 @@ export default function StoredAccounts() {
           <StoredAccountForm
             account={selectedAccount}
             financeAccounts={financeAccounts}
-            members={members}
+            currentMember={currentUserMember}
             onSubmit={handleSubmit}
             onCancel={() => setIsDialogOpen(false)}
             isLoading={isSubmitting}

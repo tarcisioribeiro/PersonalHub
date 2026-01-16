@@ -139,7 +139,7 @@ export const RevenueForm: React.FC<RevenueFormProps> = ({ revenue, accounts, loa
               ))}
             </SelectContent>
           </Select>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs">
             Vincule esta receita a um empréstimo que você está recebendo
           </p>
         </div>

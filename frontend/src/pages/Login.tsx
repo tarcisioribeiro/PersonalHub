@@ -126,7 +126,7 @@ export default function Login() {
           </form>
 
           <div className="mt-6 text-center text-sm">
-            <span className="text-muted-foreground">Não tem uma conta? </span>
+            <span>Não tem uma conta? </span>
             <Link to="/register" className="text-primary hover:underline font-medium">
               Cadastre-se
             </Link>

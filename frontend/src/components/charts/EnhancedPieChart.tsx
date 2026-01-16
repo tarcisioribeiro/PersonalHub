@@ -102,7 +102,7 @@ export const EnhancedPieChart = ({
               <span className="text-foreground/80 truncate max-w-[100px]" title={entry.value}>
                 {truncateLabel(entry.value, 12)}
               </span>
-              <span className="text-muted-foreground font-medium">
+              <span className="font-medium">
                 {percent}%
               </span>
             </li>

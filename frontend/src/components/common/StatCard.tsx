@@ -111,10 +111,10 @@ export const StatCard: React.FC<StatCardProps> = ({
     >
       <Card className={`transition-shadow ${variantClasses[variant]}`}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+          <CardTitle className="text-sm font-medium">{title}</CardTitle>
           {icon && (
             <motion.div
-              className="text-muted-foreground"
+             
               whileHover={{ scale: 1.1, rotate: 5 }}
               transition={{ duration: 0.3 }}
             >
@@ -124,7 +124,7 @@ export const StatCard: React.FC<StatCardProps> = ({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{displayValue}</div>
-          {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
+          {subtitle && <p className="text-xs mt-1">{subtitle}</p>}
           {trend && (
             <div className="flex items-center gap-1 mt-2">
               <motion.div

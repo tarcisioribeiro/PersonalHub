@@ -109,7 +109,7 @@ export default function Home() {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
             Bem-vindo ao PersonalHub
           </h1>
-          <p className="text-muted-foreground mt-2 text-lg">
+          <p className="mt-2 text-lg">
             Sua plataforma completa de gestão pessoal
           </p>
         </motion.div>
@@ -174,7 +174,7 @@ export default function Home() {
                     <CardContent>
                       <ul className="space-y-2">
                         {module.features.map((feature, idx) => (
-                          <li key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <li key={idx} className="flex items-center gap-2 text-sm">
                             <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                             {feature}
                           </li>
@@ -205,7 +205,7 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm">
                   Controle total das suas finanças pessoais com dashboards intuitivos e relatórios detalhados.
                 </p>
               </CardContent>
@@ -221,7 +221,7 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm">
                   Seus dados protegidos com criptografia de ponta a ponta e armazenamento seguro.
                 </p>
               </CardContent>
@@ -237,7 +237,7 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm">
                   Organize sua biblioteca pessoal e acompanhe seu progresso de leitura.
                 </p>
               </CardContent>

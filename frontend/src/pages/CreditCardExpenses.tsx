@@ -73,6 +73,18 @@ export default function CreditCardExpenses() {
       setFilteredExpenses(expensesData);
       setCreditCards(cardsData);
       setBills(billsData);
+
+      // Selecionar automaticamente o primeiro cartão e sua primeira fatura
+      if (cardsData.length > 0) {
+        const firstCardId = cardsData[0].id.toString();
+        setCardFilter(firstCardId);
+
+        // Encontrar a primeira fatura do primeiro cartão
+        const firstCardBills = billsData.filter(b => b.credit_card.toString() === firstCardId);
+        if (firstCardBills.length > 0) {
+          setBillFilter(firstCardBills[0].id.toString());
+        }
+      }
     } catch (error: any) {
       toast({ title: 'Erro ao carregar dados', description: error.message, variant: 'destructive' });
     } finally {
@@ -251,7 +263,7 @@ export default function CreditCardExpenses() {
       render: (expense) => (
         <div>
           <div className="font-medium">{expense.description}</div>
-          {expense.merchant && <div className="text-sm text-muted-foreground">{expense.merchant}</div>}
+          {expense.merchant && <div className="text-sm">{expense.merchant}</div>}
         </div>
       ),
     },
@@ -300,7 +312,7 @@ export default function CreditCardExpenses() {
       key: 'date',
       label: 'Data',
       render: (expense) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm">
           {formatDate(expense.date, 'dd/MM/yyyy')}
         </span>
       ),
@@ -326,11 +338,11 @@ export default function CreditCardExpenses() {
       <div className="bg-card border rounded-xl p-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-muted-foreground" />
+            <Filter className="w-4 h-4" />
             <span className="font-semibold">Filtros</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Visualização:</span>
+            <span className="text-sm">Visualização:</span>
             <Select value={viewMode} onValueChange={(v) => setViewMode(v as 'list' | 'grouped')}>
               <SelectTrigger className="w-[140px]">
                 <SelectValue />
@@ -386,7 +398,7 @@ export default function CreditCardExpenses() {
           </Select>
         </div>
         <div className="flex justify-between items-center pt-2 border-t">
-          <span className="text-sm text-muted-foreground">{filteredExpenses.length} despesa(s) encontrada(s)</span>
+          <span className="text-sm">{filteredExpenses.length} despesa(s) encontrada(s)</span>
           <span className="text-lg font-bold text-destructive">Total: {formatCurrency(totalExpenses)}</span>
         </div>
       </div>
@@ -395,7 +407,7 @@ export default function CreditCardExpenses() {
         <div className="space-y-6">
           {expensesByMonth.length === 0 ? (
             <Card>
-              <CardContent className="py-8 text-center text-muted-foreground">
+              <CardContent className="py-8 text-center">
                 Nenhuma despesa encontrada.
               </CardContent>
             </Card>

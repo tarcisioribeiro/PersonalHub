@@ -111,7 +111,7 @@ export default function PersonalPlanningDashboard() {
       case 'good':
         return <Smile className="h-4 w-4 text-info" />;
       case 'neutral':
-        return <Meh className="h-4 w-4 text-muted-foreground" />;
+        return <Meh className="h-4 w-4" />;
       case 'bad':
         return <Frown className="h-4 w-4 text-warning" />;
       case 'terrible':
@@ -132,7 +132,7 @@ export default function PersonalPlanningDashboard() {
           title="Dashboard - Planejamento Pessoal"
           description="Acompanhe suas tarefas, objetivos e reflexões"
         />
-        <p className="text-center text-muted-foreground mt-8">
+        <p className="text-center mt-8">
           Nenhum dado disponível
         </p>
       </div>
@@ -288,12 +288,12 @@ export default function PersonalPlanningDashboard() {
                 <div key={index}>
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-medium">{goal.title}</span>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm">
                       {goal.progress_percentage}%
                     </span>
                   </div>
                   <Progress value={goal.progress_percentage} className="h-3" />
-                  <div className="flex justify-between items-center mt-1 text-xs text-muted-foreground">
+                  <div className="flex justify-between items-center mt-1 text-xs">
                     <span>{goal.current_value}/{goal.target_value}</span>
                     <span>{goal.days_active} dias ativos</span>
                   </div>
@@ -324,13 +324,13 @@ export default function PersonalPlanningDashboard() {
                     {reflection.mood && (
                       <div className="flex items-center gap-2">
                         {getMoodIcon(reflection.mood)}
-                        <span className="text-sm text-muted-foreground capitalize">
+                        <span className="text-sm capitalize">
                           {reflection.mood_display}
                         </span>
                       </div>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                  <p className="text-sm leading-relaxed">
                     {reflection.reflection}
                   </p>
                 </div>

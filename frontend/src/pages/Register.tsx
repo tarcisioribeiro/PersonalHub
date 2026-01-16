@@ -72,7 +72,7 @@ export default function Register() {
             <h1 className="text-3xl font-bold gradient-primary bg-clip-text text-transparent">
               PersonalHub
             </h1>
-            <p className="text-muted-foreground mt-2">Crie sua conta</p>
+            <p className="mt-2">Crie sua conta</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -217,7 +217,7 @@ export default function Register() {
           </form>
 
           <div className="mt-6 text-center text-sm">
-            <span className="text-muted-foreground">Já tem uma conta? </span>
+            <span>Já tem uma conta? </span>
             <Link to="/login" className="text-primary hover:underline font-medium">
               Fazer login
             </Link>

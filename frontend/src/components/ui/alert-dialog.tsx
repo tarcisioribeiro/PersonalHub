@@ -124,7 +124,7 @@ const variantIconColors: Record<string, string> = {
   warning: 'text-warning',
   destructive: 'text-destructive',
   info: 'text-info',
-  default: 'text-muted-foreground',
+  default: 'text-foreground',
 };
 
 const AlertDialogHeader = ({
@@ -205,7 +205,7 @@ const AlertDialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Description
     ref={ref}
-    className={cn('text-sm text-muted-foreground', className)}
+    className={cn('text-sm', className)}
     {...props}
   />
 ));
