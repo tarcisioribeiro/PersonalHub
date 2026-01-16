@@ -1,5 +1,10 @@
 import { apiClient } from './api-client';
-import type { DashboardStats, AccountBalance } from '@/types';
+import type { DashboardStats, AccountBalance, CreditCardExpensesByCategory } from '@/types';
+
+interface CreditCardExpensesByCategoryParams {
+  card?: number;
+  bill?: number;
+}
 
 class DashboardService {
   async getStats(): Promise<DashboardStats> {
@@ -10,6 +15,15 @@ class DashboardService {
 
   async getAccountBalances(): Promise<AccountBalance[]> {
     return apiClient.get<AccountBalance[]>('/api/v1/dashboard/account-balances/');
+  }
+
+  async getCreditCardExpensesByCategory(
+    params?: CreditCardExpensesByCategoryParams
+  ): Promise<CreditCardExpensesByCategory[]> {
+    return apiClient.get<CreditCardExpensesByCategory[]>(
+      '/api/v1/dashboard/credit-card-expenses-by-category/',
+      params as Record<string, any>
+    );
   }
 }
 

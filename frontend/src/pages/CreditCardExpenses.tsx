@@ -5,8 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CreditCardExpenseForm } from '@/components/credit-cards/CreditCardExpenseForm';
-import { creditCardExpensesService } from '@/services/credit-card-expenses-service';
+import { CreditCardPurchaseForm } from '@/components/credit-cards/CreditCardPurchaseForm';
+import { creditCardPurchasesService } from '@/services/credit-card-purchases-service';
+import { creditCardInstallmentsService } from '@/services/credit-card-installments-service';
 import { creditCardsService } from '@/services/credit-cards-service';
 import { creditCardBillsService } from '@/services/credit-card-bills-service';
 import { useToast } from '@/hooks/use-toast';
@@ -15,19 +16,23 @@ import { translate, TRANSLATIONS, EXPENSE_CATEGORIES_CANONICAL } from '@/config/
 import { formatCurrency, formatDate } from '@/lib/formatters';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable, type Column } from '@/components/common/DataTable';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import type { CreditCardExpense, CreditCardExpenseFormData, CreditCard, CreditCardBill } from '@/types';
+import type {
+  CreditCardPurchase,
+  CreditCardPurchaseFormData,
+  CreditCardInstallment,
+  CreditCard,
+  CreditCardBill,
+} from '@/types';
 import { PageContainer } from '@/components/common/PageContainer';
 
 export default function CreditCardExpenses() {
-  const [expenses, setExpenses] = useState<CreditCardExpense[]>([]);
-  const [filteredExpenses, setFilteredExpenses] = useState<CreditCardExpense[]>([]);
+  const [purchases, setPurchases] = useState<CreditCardPurchase[]>([]);
+  const [installments, setInstallments] = useState<CreditCardInstallment[]>([]);
   const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
   const [bills, setBills] = useState<CreditCardBill[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedExpense, setSelectedExpense] = useState<CreditCardExpense | undefined>();
+  const [selectedPurchase, setSelectedPurchase] = useState<CreditCardPurchase | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cardFilter, setCardFilter] = useState<string>('all');
   const [billFilter, setBillFilter] = useState<string>('all');
@@ -40,10 +45,6 @@ export default function CreditCardExpenses() {
   useEffect(() => {
     loadData();
   }, []);
-
-  useEffect(() => {
-    filterExpenses();
-  }, [cardFilter, billFilter, categoryFilter, statusFilter, expenses]);
 
   // Faturas filtradas pelo cartão selecionado
   const availableBills = useMemo(() => {
@@ -60,173 +61,6 @@ export default function CreditCardExpenses() {
       }
     }
   }, [cardFilter, availableBills, billFilter]);
-
-  const loadData = async () => {
-    try {
-      setIsLoading(true);
-      const [expensesData, cardsData, billsData] = await Promise.all([
-        creditCardExpensesService.getAll(),
-        creditCardsService.getAll(),
-        creditCardBillsService.getAll(),
-      ]);
-      setExpenses(expensesData);
-      setFilteredExpenses(expensesData);
-      setCreditCards(cardsData);
-      setBills(billsData);
-
-      // Selecionar automaticamente o primeiro cartão e sua primeira fatura
-      if (cardsData.length > 0) {
-        const firstCardId = cardsData[0].id.toString();
-        setCardFilter(firstCardId);
-
-        // Encontrar a primeira fatura do primeiro cartão
-        const firstCardBills = billsData.filter(b => b.credit_card.toString() === firstCardId);
-        if (firstCardBills.length > 0) {
-          setBillFilter(firstCardBills[0].id.toString());
-        }
-      }
-    } catch (error: any) {
-      toast({ title: 'Erro ao carregar dados', description: error.message, variant: 'destructive' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const filterExpenses = () => {
-    let filtered = [...expenses];
-    if (cardFilter !== 'all') filtered = filtered.filter(e => e.card.toString() === cardFilter);
-    if (billFilter !== 'all') filtered = filtered.filter(e => e.bill?.toString() === billFilter);
-    if (categoryFilter !== 'all') filtered = filtered.filter(e => e.category === categoryFilter);
-    if (statusFilter !== 'all') filtered = filtered.filter(e => statusFilter === 'paid' ? e.payed : !e.payed);
-    setFilteredExpenses(filtered);
-  };
-
-  // Agrupar despesas por mês
-  const expensesByMonth = useMemo(() => {
-    const grouped: Record<string, CreditCardExpense[]> = {};
-
-    filteredExpenses.forEach(expense => {
-      const date = new Date(expense.date);
-      const monthKey = format(date, 'yyyy-MM');
-
-      if (!grouped[monthKey]) {
-        grouped[monthKey] = [];
-      }
-      grouped[monthKey].push(expense);
-    });
-
-    // Ordenar por data decrescente
-    return Object.entries(grouped)
-      .sort(([a], [b]) => b.localeCompare(a))
-      .map(([key, monthExpenses]) => ({
-        key,
-        label: format(new Date(key + '-01'), 'MMMM yyyy', { locale: ptBR }),
-        expenses: monthExpenses.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
-        total: monthExpenses.reduce((sum, e) => sum + parseFloat(e.value), 0)
-      }));
-  }, [filteredExpenses]);
-
-  const handleSubmit = async (data: CreditCardExpenseFormData) => {
-    try {
-      setIsSubmitting(true);
-
-      if (selectedExpense) {
-        await creditCardExpensesService.update(selectedExpense.id, data);
-        toast({ title: 'Despesa atualizada', description: 'A despesa foi atualizada com sucesso.' });
-      } else {
-        const totalInstallments = data.total_installments || 1;
-
-        if (totalInstallments > 1) {
-          const installmentValue = data.value / totalInstallments;
-          const baseDate = new Date(data.date);
-          const promises = [];
-
-          for (let i = 0; i < totalInstallments; i++) {
-            const installmentDate = new Date(baseDate);
-            installmentDate.setDate(installmentDate.getDate() + (i * 30));
-
-            let installmentBill = data.bill;
-            if (bills.length > 0) {
-              const matchingBill = bills.find(b => {
-                if (b.credit_card !== data.card) return false;
-                const beginDate = new Date(b.invoice_beginning_date);
-                const endDate = new Date(b.invoice_ending_date);
-                return installmentDate >= beginDate && installmentDate <= endDate;
-              });
-              if (matchingBill) {
-                installmentBill = matchingBill.id;
-              }
-            }
-
-            const installmentData = {
-              ...data,
-              value: installmentValue,
-              date: installmentDate.toISOString().split('T')[0],
-              installment: i + 1,
-              total_installments: totalInstallments,
-              bill: installmentBill,
-              payed: false,
-            };
-
-            promises.push(creditCardExpensesService.create(installmentData));
-          }
-
-          await Promise.all(promises);
-          toast({
-            title: 'Despesas criadas',
-            description: `${totalInstallments} parcelas foram criadas com sucesso.`,
-          });
-        } else {
-          const expenseData = {
-            ...data,
-            installment: 1,
-            total_installments: 1,
-            payed: false,
-          };
-          await creditCardExpensesService.create(expenseData);
-          toast({ title: 'Despesa criada', description: 'A despesa foi criada com sucesso.' });
-        }
-      }
-
-      setIsDialogOpen(false);
-      loadData();
-    } catch (error: any) {
-      toast({ title: 'Erro ao salvar', description: error.message, variant: 'destructive' });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleCreate = () => {
-    if (creditCards.length === 0) {
-      toast({
-        title: 'Ação não permitida',
-        description: 'É necessário ter pelo menos um cartão de crédito cadastrado antes de criar uma despesa de cartão.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    setSelectedExpense(undefined);
-    setIsDialogOpen(true);
-  };
-
-  const handleDelete = async (id: number) => {
-    const confirmed = await showConfirm({
-      title: 'Excluir despesa',
-      description: 'Tem certeza que deseja excluir esta despesa? Esta ação não pode ser desfeita.',
-      confirmText: 'Excluir',
-      cancelText: 'Cancelar',
-      variant: 'destructive',
-    });
-    if (!confirmed) return;
-    try {
-      await creditCardExpensesService.delete(id);
-      toast({ title: 'Despesa excluída', description: 'A despesa foi excluída com sucesso.' });
-      loadData();
-    } catch (error: any) {
-      toast({ title: 'Erro ao excluir', description: error.message, variant: 'destructive' });
-    }
-  };
 
   const getCardDisplayName = (cardId: number) => {
     const card = creditCards.find(c => c.id === cardId);
@@ -249,87 +83,262 @@ export default function CreditCardExpenses() {
     return 'N/A';
   };
 
-  const totalExpenses = filteredExpenses.reduce((sum, exp) => sum + parseFloat(exp.value), 0);
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      const [purchasesData, installmentsData, cardsData, billsData] = await Promise.all([
+        creditCardPurchasesService.getAll(),
+        creditCardInstallmentsService.getAll(),
+        creditCardsService.getAll(),
+        creditCardBillsService.getAll(),
+      ]);
+      setPurchases(purchasesData);
+      setInstallments(installmentsData);
+      setCreditCards(cardsData);
+      setBills(billsData);
 
-  const handleEdit = (expense: CreditCardExpense) => {
-    setSelectedExpense(expense);
+      // Selecionar automaticamente o primeiro cartão e sua primeira fatura
+      if (cardsData.length > 0) {
+        const firstCardId = cardsData[0].id.toString();
+        setCardFilter(firstCardId);
+
+        // Encontrar a primeira fatura do primeiro cartão
+        const firstCardBills = billsData.filter(b => b.credit_card.toString() === firstCardId);
+        if (firstCardBills.length > 0) {
+          setBillFilter(firstCardBills[0].id.toString());
+        }
+      }
+    } catch (error: any) {
+      toast({ title: 'Erro ao carregar dados', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Filtrar parcelas
+  const filteredInstallments = useMemo(() => {
+    let filtered = [...installments];
+    if (cardFilter !== 'all') {
+      filtered = filtered.filter(i => i.card_id?.toString() === cardFilter);
+    }
+    if (billFilter !== 'all') {
+      filtered = filtered.filter(i => i.bill?.toString() === billFilter);
+    }
+    if (categoryFilter !== 'all') {
+      filtered = filtered.filter(i => i.category === categoryFilter);
+    }
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(i => statusFilter === 'paid' ? i.payed : !i.payed);
+    }
+    return filtered;
+  }, [installments, cardFilter, billFilter, categoryFilter, statusFilter]);
+
+  // Agrupar parcelas por fatura
+  const installmentsByBill = useMemo(() => {
+    const grouped: Record<string, CreditCardInstallment[]> = {};
+
+    filteredInstallments.forEach(installment => {
+      const billKey = installment.bill?.toString() || 'sem-fatura';
+      if (!grouped[billKey]) {
+        grouped[billKey] = [];
+      }
+      grouped[billKey].push(installment);
+    });
+
+    // Mapear para estrutura com informações da fatura
+    return Object.entries(grouped)
+      .map(([billKey, billInstallments]) => {
+        const bill = bills.find(b => b.id.toString() === billKey);
+        const card = bill ? creditCards.find(c => c.id === bill.credit_card) : null;
+
+        return {
+          key: billKey,
+          bill,
+          card,
+          label: bill
+            ? `${TRANSLATIONS.months[bill.month as keyof typeof TRANSLATIONS.months]}/${bill.year}`
+            : 'Sem Fatura',
+          period: bill
+            ? `${formatDate(bill.invoice_beginning_date, 'dd/MM')} a ${formatDate(bill.invoice_ending_date, 'dd/MM/yyyy')}`
+            : '',
+          cardName: card ? getCardName(card.id) : '',
+          installments: billInstallments.sort((a, b) =>
+            new Date(b.due_date).getTime() - new Date(a.due_date).getTime()
+          ),
+          total: billInstallments.reduce((sum, i) => sum + i.value, 0),
+        };
+      })
+      // Ordenar por data de início da fatura (mais recentes primeiro)
+      .sort((a, b) => {
+        if (!a.bill) return 1;
+        if (!b.bill) return -1;
+        return new Date(b.bill.invoice_beginning_date).getTime() - new Date(a.bill.invoice_beginning_date).getTime();
+      });
+  }, [filteredInstallments, bills, creditCards]);
+
+  const handleSubmit = async (data: CreditCardPurchaseFormData) => {
+    try {
+      setIsSubmitting(true);
+
+      if (selectedPurchase) {
+        await creditCardPurchasesService.update(selectedPurchase.id, data);
+        toast({ title: 'Compra atualizada', description: 'A compra foi atualizada com sucesso.' });
+      } else {
+        await creditCardPurchasesService.create(data);
+        toast({
+          title: 'Compra criada',
+          description: data.total_installments > 1
+            ? `Compra criada com ${data.total_installments} parcelas.`
+            : 'Compra criada com sucesso.',
+        });
+      }
+
+      setIsDialogOpen(false);
+      loadData();
+    } catch (error: any) {
+      toast({ title: 'Erro ao salvar', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCreate = () => {
+    if (creditCards.length === 0) {
+      toast({
+        title: 'Ação não permitida',
+        description: 'É necessário ter pelo menos um cartão de crédito cadastrado antes de criar uma compra.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setSelectedPurchase(undefined);
     setIsDialogOpen(true);
   };
 
-  const columns: Column<CreditCardExpense>[] = [
+  const handleEditPurchase = (purchaseId: number) => {
+    const purchase = purchases.find(p => p.id === purchaseId);
+    if (purchase) {
+      setSelectedPurchase(purchase);
+      setIsDialogOpen(true);
+    }
+  };
+
+  const handleDeletePurchase = async (purchaseId: number) => {
+    const purchase = purchases.find(p => p.id === purchaseId);
+    if (!purchase) return;
+
+    const confirmed = await showConfirm({
+      title: 'Excluir compra',
+      description: `Tem certeza que deseja excluir a compra "${purchase.description}" e todas as suas ${purchase.total_installments} parcela(s)? Esta ação não pode ser desfeita.`,
+      confirmText: 'Excluir',
+      cancelText: 'Cancelar',
+      variant: 'destructive',
+    });
+    if (!confirmed) return;
+    try {
+      await creditCardPurchasesService.delete(purchaseId);
+      toast({ title: 'Compra excluída', description: 'A compra e suas parcelas foram excluídas com sucesso.' });
+      loadData();
+    } catch (error: any) {
+      toast({ title: 'Erro ao excluir', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleTogglePaid = async (installment: CreditCardInstallment) => {
+    try {
+      await creditCardInstallmentsService.update(installment.id, { payed: !installment.payed });
+      toast({
+        title: installment.payed ? 'Parcela desmarcada' : 'Parcela paga',
+        description: `Status da parcela atualizado com sucesso.`,
+      });
+      loadData();
+    } catch (error: any) {
+      toast({ title: 'Erro ao atualizar', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const totalInstallments = filteredInstallments.reduce((sum, i) => sum + i.value, 0);
+
+  const columns: Column<CreditCardInstallment>[] = [
     {
       key: 'description',
       label: 'Descrição',
-      render: (expense) => (
+      render: (installment) => (
         <div>
-          <div className="font-medium">{expense.description}</div>
-          {expense.merchant && <div className="text-sm">{expense.merchant}</div>}
+          <div className="font-medium">{installment.description}</div>
+          {installment.merchant && <div className="text-sm">{installment.merchant}</div>}
         </div>
       ),
     },
     {
       key: 'card',
       label: 'Cartão',
-      render: (expense) => <span className="text-sm">{getCardName(expense.card)}</span>,
+      render: (installment) => (
+        <span className="text-sm">{installment.card_name || getCardName(installment.card_id || 0)}</span>
+      ),
     },
     {
       key: 'value',
       label: 'Valor',
       align: 'right',
-      render: (expense) => (
+      render: (installment) => (
         <span className="font-semibold text-destructive">
-          {formatCurrency(expense.value)}
+          {formatCurrency(installment.value)}
         </span>
       ),
     },
     {
       key: 'category',
       label: 'Categoria',
-      render: (expense) => (
-        <Badge variant="secondary">{translate('expenseCategories', expense.category)}</Badge>
+      render: (installment) => (
+        <Badge variant="secondary">{translate('expenseCategories', installment.category || '')}</Badge>
       ),
     },
     {
       key: 'installment',
       label: 'Parcela',
       align: 'center',
-      render: (expense) => (
+      render: (installment) => (
         <span className="text-sm">
-          {expense.installment}/{expense.total_installments}
+          {installment.installment_number}/{installment.total_installments}
         </span>
       ),
     },
     {
       key: 'payed',
       label: 'Status',
-      render: (expense) => (
-        <Badge variant={expense.payed ? 'success' : 'warning'}>
-          {expense.payed ? 'Paga' : 'Pendente'}
+      render: (installment) => (
+        <Badge
+          variant={installment.payed ? 'success' : 'warning'}
+          className="cursor-pointer"
+          onClick={() => handleTogglePaid(installment)}
+        >
+          {installment.payed ? 'Paga' : 'Pendente'}
         </Badge>
       ),
     },
     {
-      key: 'date',
-      label: 'Data',
-      render: (expense) => (
+      key: 'due_date',
+      label: 'Vencimento',
+      render: (installment) => (
         <span className="text-sm">
-          {formatDate(expense.date, 'dd/MM/yyyy')}
+          {formatDate(installment.due_date, 'dd/MM/yyyy')}
         </span>
       ),
     },
   ];
 
-  // Colunas simplificadas para visualização agrupada (sem coluna de data)
-  const groupedColumns: Column<CreditCardExpense>[] = columns.filter(c => c.key !== 'date');
+  // Colunas simplificadas para visualização agrupada (sem coluna de vencimento)
+  const groupedColumns: Column<CreditCardInstallment>[] = columns.filter(c => c.key !== 'due_date');
 
   return (
     <PageContainer>
       <PageHeader
         title="Despesas de Cartão"
-        description="Gerencie suas despesas de cartão de crédito"
+        description="Gerencie suas compras e parcelas de cartão de crédito"
         icon={<ShoppingCart />}
         action={{
-          label: 'Nova Despesa',
+          label: 'Nova Compra',
           icon: <Plus className="w-4 h-4" />,
           onClick: handleCreate,
         }}
@@ -348,7 +357,7 @@ export default function CreditCardExpenses() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="grouped">Por Mês</SelectItem>
+                <SelectItem value="grouped">Por Fatura</SelectItem>
                 <SelectItem value="list">Lista</SelectItem>
               </SelectContent>
             </Select>
@@ -398,28 +407,37 @@ export default function CreditCardExpenses() {
           </Select>
         </div>
         <div className="flex justify-between items-center pt-2 border-t">
-          <span className="text-sm">{filteredExpenses.length} despesa(s) encontrada(s)</span>
-          <span className="text-lg font-bold text-destructive">Total: {formatCurrency(totalExpenses)}</span>
+          <span className="text-sm">{filteredInstallments.length} parcela(s) encontrada(s)</span>
+          <span className="text-lg font-bold text-destructive">Total: {formatCurrency(totalInstallments)}</span>
         </div>
       </div>
 
       {viewMode === 'grouped' ? (
         <div className="space-y-6">
-          {expensesByMonth.length === 0 ? (
+          {installmentsByBill.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center">
-                Nenhuma despesa encontrada.
+                Nenhuma parcela encontrada.
               </CardContent>
             </Card>
           ) : (
-            expensesByMonth.map(({ key, label, expenses: monthExpenses, total }) => (
+            installmentsByBill.map(({ key, label, period, cardName, installments: billInstallments, total }) => (
               <Card key={key}>
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2 text-lg capitalize">
-                      <Calendar className="w-5 h-5 text-primary" />
-                      {label}
-                    </CardTitle>
+                    <div>
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Calendar className="w-5 h-5 text-primary" />
+                        Fatura {label}
+                      </CardTitle>
+                      {period && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {cardName && <span className="font-medium">{cardName}</span>}
+                          {cardName && period && ' • '}
+                          {period}
+                        </p>
+                      )}
+                    </div>
                     <span className="text-lg font-bold text-destructive">
                       {formatCurrency(total)}
                     </span>
@@ -427,17 +445,27 @@ export default function CreditCardExpenses() {
                 </CardHeader>
                 <CardContent className="pt-0">
                   <DataTable
-                    data={monthExpenses}
+                    data={billInstallments}
                     columns={groupedColumns}
-                    keyExtractor={(expense) => expense.id}
+                    keyExtractor={(installment) => installment.id}
                     isLoading={false}
-                    emptyState={{ message: 'Nenhuma despesa.' }}
-                    actions={(expense) => (
+                    emptyState={{ message: 'Nenhuma parcela.' }}
+                    actions={(installment) => (
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(expense)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditPurchase(installment.purchase)}
+                          title="Editar compra"
+                        >
                           <Pencil className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(expense.id)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeletePurchase(installment.purchase)}
+                          title="Excluir compra"
+                        >
                           <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
                       </div>
@@ -450,19 +478,29 @@ export default function CreditCardExpenses() {
         </div>
       ) : (
         <DataTable
-          data={filteredExpenses}
+          data={filteredInstallments}
           columns={columns}
-          keyExtractor={(expense) => expense.id}
+          keyExtractor={(installment) => installment.id}
           isLoading={isLoading}
           emptyState={{
-            message: 'Nenhuma despesa encontrada.',
+            message: 'Nenhuma parcela encontrada.',
           }}
-          actions={(expense) => (
+          actions={(installment) => (
             <div className="flex items-center justify-end gap-2">
-              <Button variant="ghost" size="icon" onClick={() => handleEdit(expense)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleEditPurchase(installment.purchase)}
+                title="Editar compra"
+              >
                 <Pencil className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => handleDelete(expense.id)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleDeletePurchase(installment.purchase)}
+                title="Excluir compra"
+              >
                 <Trash2 className="w-4 h-4 text-destructive" />
               </Button>
             </div>
@@ -473,13 +511,16 @@ export default function CreditCardExpenses() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto custom-scrollbar">
           <DialogHeader>
-            <DialogTitle>{selectedExpense ? 'Editar' : 'Nova'} Despesa de Cartão</DialogTitle>
-            <DialogDescription>Preencha os dados da despesa de cartão de crédito</DialogDescription>
+            <DialogTitle>{selectedPurchase ? 'Editar' : 'Nova'} Compra de Cartão</DialogTitle>
+            <DialogDescription>
+              {selectedPurchase
+                ? 'Edite os dados da compra. Valor total e parcelas não podem ser alterados.'
+                : 'Preencha os dados da compra. As parcelas serão geradas automaticamente.'}
+            </DialogDescription>
           </DialogHeader>
-          <CreditCardExpenseForm
-            expense={selectedExpense}
+          <CreditCardPurchaseForm
+            purchase={selectedPurchase}
             creditCards={creditCards}
-            bills={bills}
             onSubmit={handleSubmit}
             onCancel={() => setIsDialogOpen(false)}
             isLoading={isSubmitting}

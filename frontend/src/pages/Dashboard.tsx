@@ -3,18 +3,21 @@ import { motion } from 'framer-motion';
 import { Wallet, TrendingDown, TrendingUp, CreditCard, LayoutDashboard, Building2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnimatedPage } from '@/components/common/AnimatedPage';
 import { containerVariants, itemVariants } from '@/lib/animations';
 import { StatCard } from '@/components/common/StatCard';
 import { dashboardService } from '@/services/dashboard-service';
 import { expensesService } from '@/services/expenses-service';
 import { revenuesService } from '@/services/revenues-service';
+import { creditCardsService } from '@/services/credit-cards-service';
+import { creditCardBillsService } from '@/services/credit-card-bills-service';
 import { useToast } from '@/hooks/use-toast';
-import { translate } from '@/config/constants';
+import { translate, TRANSLATIONS } from '@/config/constants';
 import { formatCurrency } from '@/lib/formatters';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
-import type { DashboardStats, Expense, Revenue, AccountBalance } from '@/types';
+import type { DashboardStats, Expense, Revenue, AccountBalance, CreditCard as CreditCardType, CreditCardBill, CreditCardExpensesByCategory } from '@/types';
 import { format, subMonths, startOfMonth, endOfMonth, eachMonthOfInterval } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useChartColors } from '@/lib/chart-colors';
@@ -26,6 +29,11 @@ export default function Dashboard() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [revenues, setRevenues] = useState<Revenue[]>([]);
   const [accountBalances, setAccountBalances] = useState<AccountBalance[]>([]);
+  const [creditCards, setCreditCards] = useState<CreditCardType[]>([]);
+  const [creditCardBills, setCreditCardBills] = useState<CreditCardBill[]>([]);
+  const [creditCardExpensesByCategory, setCreditCardExpensesByCategory] = useState<CreditCardExpensesByCategory[]>([]);
+  const [selectedCard, setSelectedCard] = useState<string>('all');
+  const [selectedBill, setSelectedBill] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -55,22 +63,82 @@ export default function Dashboard() {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const [statsData, expensesData, revenuesData, accountBalancesData] = await Promise.all([
+      const [statsData, expensesData, revenuesData, accountBalancesData, cardsData, billsData, ccExpensesByCategoryData] = await Promise.all([
         dashboardService.getStats(),
         expensesService.getAll(),
         revenuesService.getAll(),
         dashboardService.getAccountBalances(),
+        creditCardsService.getAll(),
+        creditCardBillsService.getAll(),
+        dashboardService.getCreditCardExpensesByCategory(),
       ]);
       setStats(statsData);
       setExpenses(expensesData);
       setRevenues(revenuesData);
       setAccountBalances(accountBalancesData);
+      setCreditCards(cardsData);
+      setCreditCardBills(billsData);
+      setCreditCardExpensesByCategory(ccExpensesByCategoryData);
     } catch (error: any) {
       toast({ title: 'Erro ao carregar dados', description: error.message, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Load credit card expenses by category with filters
+  const loadCreditCardExpensesByCategory = async () => {
+    try {
+      const params: { card?: number; bill?: number } = {};
+      if (selectedCard !== 'all') {
+        params.card = parseInt(selectedCard);
+      }
+      if (selectedBill !== 'all') {
+        params.bill = parseInt(selectedBill);
+      }
+      const data = await dashboardService.getCreditCardExpensesByCategory(params);
+      setCreditCardExpensesByCategory(data);
+    } catch (error: any) {
+      toast({ title: 'Erro ao carregar despesas por categoria', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  // Reload credit card expenses when filters change
+  useEffect(() => {
+    if (!isLoading) {
+      loadCreditCardExpensesByCategory();
+    }
+  }, [selectedCard, selectedBill]);
+
+  // Filter bills by selected card
+  const filteredBills = useMemo(() => {
+    if (selectedCard === 'all') return creditCardBills;
+    return creditCardBills.filter(b => b.credit_card.toString() === selectedCard);
+  }, [selectedCard, creditCardBills]);
+
+  // Reset bill filter when card changes
+  useEffect(() => {
+    if (selectedCard !== 'all') {
+      const currentBillValid = filteredBills.some(b => b.id.toString() === selectedBill);
+      if (!currentBillValid) {
+        setSelectedBill('all');
+      }
+    }
+  }, [selectedCard, filteredBills]);
+
+  // Format credit card expenses for chart
+  const creditCardExpensesChartData = useMemo(() => {
+    return creditCardExpensesByCategory.map(item => ({
+      category: item.category,
+      name: translate('expenseCategories', item.category),
+      value: item.total,
+      count: item.count,
+    })).slice(0, 8); // Top 8 categories
+  }, [creditCardExpensesByCategory]);
+
+  const creditCardExpensesTotal = useMemo(() => {
+    return creditCardExpensesByCategory.reduce((sum, item) => sum + item.total, 0);
+  }, [creditCardExpensesByCategory]);
 
   // Memoize cálculos pesados para evitar re-renders desnecessários
   // Filtra apenas despesas pagas e receitas recebidas para os gráficos
@@ -343,6 +411,89 @@ export default function Dashboard() {
             ]}
             height={400}
           />
+        </CardContent>
+      </Card>
+
+      {/* Credit Card Expenses by Category */}
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Despesas de Cartão por Categoria
+              </CardTitle>
+              <p className="text-sm mt-1">Distribuição das despesas de cartão de crédito</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Select value={selectedCard} onValueChange={setSelectedCard}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Todos os Cartões" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os Cartões</SelectItem>
+                  {creditCards.map((card) => (
+                    <SelectItem key={card.id} value={card.id.toString()}>
+                      {card.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedBill} onValueChange={setSelectedBill} disabled={filteredBills.length === 0}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder={filteredBills.length === 0 ? "Sem faturas" : "Todas as Faturas"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as Faturas</SelectItem>
+                  {filteredBills.map((bill) => (
+                    <SelectItem key={bill.id} value={bill.id.toString()}>
+                      {TRANSLATIONS.months[bill.month as keyof typeof TRANSLATIONS.months]}/{bill.year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <ChartContainer
+                chartId="credit-card-expenses-category"
+                data={creditCardExpensesChartData}
+                dataKey="value"
+                nameKey="name"
+                formatter={formatCurrency}
+                colors={COLORS}
+                emptyMessage="Nenhuma despesa de cartão encontrada"
+                enabledTypes={['pie']}
+              />
+            </div>
+            <div>
+              {creditCardExpensesChartData.length > 0 ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b">
+                    <span className="font-semibold">Total</span>
+                    <span className="font-bold text-lg text-destructive">{formatCurrency(creditCardExpensesTotal)}</span>
+                  </div>
+                  {creditCardExpensesChartData.map((category, index) => (
+                    <div key={index} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                        <span>{category.name}</span>
+                        <span className="text-xs">({category.count})</span>
+                      </div>
+                      <span className="font-semibold text-destructive">{formatCurrency(category.value)}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-sm">Nenhuma despesa de cartão encontrada</p>
+                </div>
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

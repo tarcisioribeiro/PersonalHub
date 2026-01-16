@@ -29,7 +29,7 @@ class Command(BaseCommand):
             'accounts': ['account'],
             'expenses': ['expense', 'fixedexpense', 'fixedexpensegenerationlog'],
             'revenues': ['revenue'],
-            'credit_cards': ['creditcard', 'creditcardbill', 'creditcardexpense'],
+            'credit_cards': ['creditcard', 'creditcardbill', 'creditcardexpense', 'creditcardpurchase', 'creditcardinstallment'],
             'transfers': ['transfer'],
             'loans': ['loan'],
             'members': ['member'],

@@ -23,6 +23,7 @@ urlpatterns = [
         views.CreditCardBillRetrieveUpdateDestroyView.as_view(),
         name='credit-card-bill-detail-view'
     ),
+    # Legacy endpoints (deprecated, use purchases/installments instead)
     path(
         'credit-cards-expenses/',
         views.CreditCardExpenseCreateListView.as_view(),
@@ -32,5 +33,26 @@ urlpatterns = [
         'credit-cards-expenses/<int:pk>/',
         views.CreditCardExpenseRetrieveUpdateDestroyView.as_view(),
         name='credit-card-expense-detail-view'
+    ),
+    # New endpoints for Purchases and Installments
+    path(
+        'credit-cards-purchases/',
+        views.CreditCardPurchaseCreateListView.as_view(),
+        name='credit_card-purchase-create-list'
+    ),
+    path(
+        'credit-cards-purchases/<int:pk>/',
+        views.CreditCardPurchaseRetrieveUpdateDestroyView.as_view(),
+        name='credit-card-purchase-detail-view'
+    ),
+    path(
+        'credit-cards-installments/',
+        views.CreditCardInstallmentListView.as_view(),
+        name='credit_card-installment-list'
+    ),
+    path(
+        'credit-cards-installments/<int:pk>/',
+        views.CreditCardInstallmentUpdateView.as_view(),
+        name='credit-card-installment-update'
     ),
 ]

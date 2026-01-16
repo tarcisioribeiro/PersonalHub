@@ -1,14 +1,22 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
 from credit_cards.models import (
     CreditCard,
     CreditCardBill,
-    CreditCardExpense
+    CreditCardExpense,
+    CreditCardPurchase,
+    CreditCardInstallment,
 )
 from credit_cards.serializers import (
     CreditCardSerializer,
     CreditCardBillsSerializer,
-    CreditCardExpensesSerializer
+    CreditCardExpensesSerializer,
+    CreditCardPurchaseSerializer,
+    CreditCardPurchaseCreateSerializer,
+    CreditCardPurchaseUpdateSerializer,
+    CreditCardInstallmentSerializer,
+    CreditCardInstallmentUpdateSerializer,
 )
 from app.permissions import GlobalDefaultPermission
 
@@ -170,3 +178,120 @@ class CreditCardExpenseRetrieveUpdateDestroyView(
         'card', 'card__associated_account'
     )
     serializer_class = CreditCardExpensesSerializer
+
+
+# ============================================================================
+# NEW VIEWS FOR PURCHASE AND INSTALLMENT
+# ============================================================================
+
+class CreditCardPurchaseCreateListView(generics.ListCreateAPIView):
+    """
+    ViewSet para listar e criar compras de cartão de crédito.
+
+    Permite:
+    - GET: Lista todas as compras com parcelas aninhadas
+    - POST: Cria uma nova compra (parcelas são geradas automaticamente)
+
+    Query params para filtro:
+    - card: ID do cartão
+    - category: Categoria da compra
+    """
+    permission_classes = (IsAuthenticated, GlobalDefaultPermission,)
+    queryset = CreditCardPurchase.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['card', 'category']
+    ordering = ['-purchase_date', '-id']
+
+    def get_queryset(self):
+        return CreditCardPurchase.objects.filter(is_deleted=False).select_related(
+            'card', 'card__associated_account', 'member'
+        ).prefetch_related(
+            'installments', 'installments__bill'
+        )
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CreditCardPurchaseCreateSerializer
+        return CreditCardPurchaseSerializer
+
+
+class CreditCardPurchaseRetrieveUpdateDestroyView(
+    generics.RetrieveUpdateDestroyAPIView
+):
+    """
+    ViewSet para operações individuais em compras de cartão.
+
+    Permite:
+    - GET: Recupera uma compra específica com parcelas
+    - PUT/PATCH: Atualiza uma compra existente (exceto valor e parcelas)
+    - DELETE: Remove uma compra e suas parcelas
+
+    Attributes
+    ----------
+    permission_classes : tuple
+        Permissões necessárias (IsAuthenticated, GlobalDefaultPermission)
+    """
+    permission_classes = (IsAuthenticated, GlobalDefaultPermission,)
+    queryset = CreditCardPurchase.objects.all()
+
+    def get_queryset(self):
+        return CreditCardPurchase.objects.filter(is_deleted=False).select_related(
+            'card', 'card__associated_account', 'member'
+        ).prefetch_related(
+            'installments', 'installments__bill'
+        )
+
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return CreditCardPurchaseUpdateSerializer
+        return CreditCardPurchaseSerializer
+
+
+class CreditCardInstallmentListView(generics.ListAPIView):
+    """
+    ViewSet para listar parcelas de cartão de crédito.
+
+    Query params para filtro:
+    - card: ID do cartão (via purchase__card)
+    - bill: ID da fatura
+    - category: Categoria (via purchase__category)
+    - payed: Status de pagamento (true/false)
+    """
+    permission_classes = (IsAuthenticated, GlobalDefaultPermission,)
+    queryset = CreditCardInstallment.objects.all()
+    serializer_class = CreditCardInstallmentSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = {
+        'purchase__card': ['exact'],
+        'bill': ['exact', 'isnull'],
+        'purchase__category': ['exact'],
+        'payed': ['exact'],
+    }
+    ordering = ['due_date', 'purchase__description']
+
+    def get_queryset(self):
+        return CreditCardInstallment.objects.filter(
+            is_deleted=False,
+            purchase__is_deleted=False
+        ).select_related(
+            'purchase', 'purchase__card', 'purchase__member', 'bill'
+        )
+
+
+class CreditCardInstallmentUpdateView(generics.UpdateAPIView):
+    """
+    ViewSet para atualizar uma parcela específica.
+
+    Permite alterar apenas:
+    - bill: Fatura associada
+    - payed: Status de pagamento
+    """
+    permission_classes = (IsAuthenticated, GlobalDefaultPermission,)
+    queryset = CreditCardInstallment.objects.all()
+    serializer_class = CreditCardInstallmentUpdateSerializer
+
+    def get_queryset(self):
+        return CreditCardInstallment.objects.filter(
+            is_deleted=False,
+            purchase__is_deleted=False
+        ).select_related('purchase', 'bill')

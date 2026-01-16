@@ -16,7 +16,7 @@ from decimal import Decimal
 from accounts.models import Account
 from expenses.models import Expense
 from revenues.models import Revenue
-from credit_cards.models import CreditCard
+from credit_cards.models import CreditCard, CreditCardInstallment, CreditCardBill
 
 
 class AccountBalancesView(APIView):
@@ -154,3 +154,64 @@ class DashboardStatsView(APIView):
         }
 
         return Response(stats)
+
+
+class CreditCardExpensesByCategoryView(APIView):
+    """
+    GET /api/v1/dashboard/credit-card-expenses-by-category/
+
+    Retorna agregação de despesas de cartão de crédito por categoria.
+
+    Query params:
+    - card: ID do cartão (opcional)
+    - bill: ID da fatura (opcional)
+
+    Response:
+    [
+        {
+            "category": "food and drink",
+            "total": 1500.00,
+            "count": 15
+        },
+        ...
+    ]
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Filtros opcionais
+        card_id = request.query_params.get('card')
+        bill_id = request.query_params.get('bill')
+
+        # Base queryset - parcelas não deletadas de compras não deletadas
+        queryset = CreditCardInstallment.objects.filter(
+            is_deleted=False,
+            purchase__is_deleted=False
+        )
+
+        # Aplicar filtros
+        if card_id:
+            queryset = queryset.filter(purchase__card_id=card_id)
+
+        if bill_id:
+            queryset = queryset.filter(bill_id=bill_id)
+
+        # Agregar por categoria da compra
+        aggregation = queryset.values(
+            'purchase__category'
+        ).annotate(
+            total=Coalesce(Sum('value'), Value(0), output_field=DecimalField()),
+            count=Count('id')
+        ).order_by('-total')
+
+        result = [
+            {
+                'category': item['purchase__category'],
+                'total': float(item['total']),
+                'count': item['count']
+            }
+            for item in aggregation
+        ]
+
+        return Response(result)

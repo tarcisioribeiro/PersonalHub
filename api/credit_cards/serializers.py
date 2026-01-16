@@ -1,5 +1,15 @@
 from rest_framework import serializers
-from credit_cards.models import CreditCard, CreditCardBill, CreditCardExpense
+from django.db import transaction
+from decimal import Decimal
+from datetime import date
+import calendar
+from credit_cards.models import (
+    CreditCard,
+    CreditCardBill,
+    CreditCardExpense,
+    CreditCardPurchase,
+    CreditCardInstallment,
+)
 
 
 class CreditCardSerializer(serializers.ModelSerializer):
@@ -201,3 +211,221 @@ class CreditCardExpensesSerializer(serializers.ModelSerializer):
     class Meta:
         model = CreditCardExpense
         fields = '__all__'
+
+
+# ============================================================================
+# NEW SERIALIZERS FOR PURCHASE AND INSTALLMENT
+# ============================================================================
+
+class CreditCardInstallmentSerializer(serializers.ModelSerializer):
+    """
+    Serializer para leitura de parcelas.
+    Inclui informações da compra para facilitar visualização.
+    """
+    value = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        coerce_to_string=False
+    )
+    # Campos derivados da compra (read-only)
+    description = serializers.CharField(source='purchase.description', read_only=True)
+    category = serializers.CharField(source='purchase.category', read_only=True)
+    card_id = serializers.IntegerField(source='purchase.card_id', read_only=True)
+    card_name = serializers.CharField(source='purchase.card.name', read_only=True)
+    total_installments = serializers.IntegerField(
+        source='purchase.total_installments', read_only=True
+    )
+    merchant = serializers.CharField(source='purchase.merchant', read_only=True)
+    member_id = serializers.IntegerField(source='purchase.member_id', read_only=True)
+    member_name = serializers.CharField(source='purchase.member.name', read_only=True)
+    purchase_date = serializers.DateField(source='purchase.purchase_date', read_only=True)
+    # Informações da fatura
+    bill_month = serializers.CharField(source='bill.month', read_only=True)
+    bill_year = serializers.CharField(source='bill.year', read_only=True)
+
+    class Meta:
+        model = CreditCardInstallment
+        fields = [
+            'id', 'uuid', 'purchase', 'installment_number', 'value', 'due_date',
+            'bill', 'payed',
+            # Campos derivados da compra
+            'description', 'category', 'card_id', 'card_name', 'total_installments',
+            'merchant', 'member_id', 'member_name', 'purchase_date',
+            # Campos da fatura
+            'bill_month', 'bill_year',
+            # Timestamps
+            'created_at', 'updated_at',
+        ]
+        read_only_fields = [
+            'id', 'uuid', 'purchase', 'installment_number', 'value', 'due_date',
+            'created_at', 'updated_at',
+        ]
+
+
+class CreditCardInstallmentUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer para atualização de parcelas.
+    Permite alterar apenas bill e payed.
+    """
+    class Meta:
+        model = CreditCardInstallment
+        fields = ['bill', 'payed']
+
+
+class CreditCardInstallmentNestedSerializer(serializers.ModelSerializer):
+    """
+    Serializer simplificado para exibição aninhada em Purchase.
+    """
+    value = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        coerce_to_string=False
+    )
+    bill_month = serializers.CharField(source='bill.month', read_only=True)
+    bill_year = serializers.CharField(source='bill.year', read_only=True)
+
+    class Meta:
+        model = CreditCardInstallment
+        fields = [
+            'id', 'installment_number', 'value', 'due_date', 'bill', 'payed',
+            'bill_month', 'bill_year',
+        ]
+
+
+class CreditCardPurchaseSerializer(serializers.ModelSerializer):
+    """
+    Serializer para leitura de compras.
+    Inclui parcelas aninhadas.
+    """
+    total_value = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        coerce_to_string=False
+    )
+    installment_value = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        coerce_to_string=False,
+        read_only=True
+    )
+    installments = CreditCardInstallmentNestedSerializer(many=True, read_only=True)
+    # Informações do cartão
+    card_name = serializers.CharField(source='card.name', read_only=True)
+    card_flag = serializers.CharField(source='card.flag', read_only=True)
+    card_number_masked = serializers.CharField(
+        source='card.card_number_masked', read_only=True
+    )
+    # Informações do membro
+    member_name = serializers.CharField(source='member.name', read_only=True)
+
+    class Meta:
+        model = CreditCardPurchase
+        fields = [
+            'id', 'uuid', 'description', 'total_value', 'installment_value',
+            'purchase_date', 'purchase_time', 'category', 'card', 'card_name',
+            'card_flag', 'card_number_masked', 'total_installments', 'merchant',
+            'member', 'member_name', 'notes', 'receipt',
+            'installments',
+            'created_at', 'updated_at',
+        ]
+        read_only_fields = ['id', 'uuid', 'installment_value', 'created_at', 'updated_at']
+
+
+class CreditCardPurchaseCreateSerializer(serializers.ModelSerializer):
+    """
+    Serializer para criação de compras.
+    Cria automaticamente as parcelas.
+    """
+    total_value = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        coerce_to_string=False
+    )
+
+    class Meta:
+        model = CreditCardPurchase
+        fields = [
+            'description', 'total_value', 'purchase_date', 'purchase_time',
+            'category', 'card', 'total_installments', 'merchant', 'member',
+            'notes', 'receipt',
+        ]
+
+    def validate_total_installments(self, value):
+        if value < 1:
+            raise serializers.ValidationError("Quantidade de parcelas deve ser pelo menos 1")
+        if value > 48:
+            raise serializers.ValidationError("Quantidade máxima de parcelas é 48")
+        return value
+
+    def validate_total_value(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("Valor deve ser maior que zero")
+        return value
+
+    @transaction.atomic
+    def create(self, validated_data):
+        """
+        Cria a compra e gera automaticamente as parcelas.
+        """
+        # Criar a compra
+        purchase = CreditCardPurchase.objects.create(**validated_data)
+
+        # Calcular valor de cada parcela
+        total_installments = validated_data.get('total_installments', 1)
+        total_value = Decimal(str(validated_data['total_value']))
+        installment_value = total_value / total_installments
+
+        # Obter data inicial
+        purchase_date = validated_data['purchase_date']
+        card = validated_data['card']
+
+        # Buscar faturas existentes para o cartão
+        bills = CreditCardBill.objects.filter(
+            credit_card=card,
+            is_deleted=False
+        ).order_by('invoice_beginning_date')
+
+        # Criar parcelas
+        for i in range(total_installments):
+            # Calcular data de vencimento (mês a mês)
+            due_date = self._add_months(purchase_date, i)
+
+            # Tentar encontrar fatura correspondente
+            matching_bill = None
+            for bill in bills:
+                if bill.invoice_beginning_date <= due_date <= bill.invoice_ending_date:
+                    matching_bill = bill
+                    break
+
+            CreditCardInstallment.objects.create(
+                purchase=purchase,
+                installment_number=i + 1,
+                value=installment_value,
+                due_date=due_date,
+                bill=matching_bill,
+                payed=False,
+            )
+
+        return purchase
+
+    def _add_months(self, source_date, months):
+        """
+        Adiciona meses a uma data, ajustando o dia se necessário.
+        """
+        month = source_date.month - 1 + months
+        year = source_date.year + month // 12
+        month = month % 12 + 1
+        day = min(source_date.day, calendar.monthrange(year, month)[1])
+        return date(year, month, day)
+
+
+class CreditCardPurchaseUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer para atualização de compras.
+    Não permite alterar valor total ou número de parcelas após criação.
+    """
+    class Meta:
+        model = CreditCardPurchase
+        fields = [
+            'description', 'category', 'merchant', 'member', 'notes',
+        ]

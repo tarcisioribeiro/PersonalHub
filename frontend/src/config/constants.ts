@@ -17,6 +17,8 @@ export const API_CONFIG = {
     CREDIT_CARDS: '/api/v1/credit-cards/',
     CREDIT_CARD_BILLS: '/api/v1/credit-cards-bills/',
     CREDIT_CARD_EXPENSES: '/api/v1/credit-cards-expenses/',
+    CREDIT_CARD_PURCHASES: '/api/v1/credit-cards-purchases/',
+    CREDIT_CARD_INSTALLMENTS: '/api/v1/credit-cards-installments/',
     TRANSFERS: '/api/v1/transfers/',
     LOANS: '/api/v1/loans/',
     MEMBERS: '/api/v1/members/',
