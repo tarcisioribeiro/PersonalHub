@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '@/stores/auth-store';
+import { useThemeAssets } from '@/hooks/use-theme-assets';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +13,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [darkMode, setDarkMode] = useState(true);
   const { login, isLoading, error } = useAuthStore();
+  const { logo } = useThemeAssets();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -76,7 +78,7 @@ export default function Login() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-4 text-center">
           <div className="mx-auto flex items-center justify-center">
-            <img src="/logo.png" alt="PersonalHub" className="w-64 h-auto" />
+            <img src={logo} alt="PersonalHub" className="w-64 h-auto" />
           </div>
           <CardDescription>
             Entre com suas credenciais para acessar o sistema
