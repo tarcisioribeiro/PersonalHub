@@ -42,7 +42,6 @@ export const FixedExpenseStats = () => {
         value={formatCurrency(stats.current_month.total_value)}
         icon={<DollarSign className="w-5 h-5" />}
         variant="danger"
-        subtitle={`${stats.current_month.total_count} despesas`}
       />
       <StatCard
         title="Pagas / Pendentes"
@@ -61,7 +60,6 @@ export const FixedExpenseStats = () => {
           )
         }
         variant={stats.comparison.difference >= 0 ? 'danger' : 'success'}
-        subtitle={`${stats.comparison.percentage_change.toFixed(1)}%`}
       />
     </div>
   );

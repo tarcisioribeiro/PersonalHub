@@ -291,7 +291,6 @@ export default function Dashboard() {
               title="Saldo Total"
               value={formatCurrency(stats?.total_balance || 0)}
               icon={<Wallet className="h-4 w-4" />}
-              subtitle={`${stats?.accounts_count || 0} conta(s)`}
             />
           </motion.div>
 
@@ -300,7 +299,6 @@ export default function Dashboard() {
               title="Despesas do Mês"
               value={formatCurrency(stats?.total_expenses || 0)}
               icon={<TrendingDown className="h-4 w-4" />}
-              subtitle={`${expenses.length} transação(ões)`}
               variant="danger"
             />
           </motion.div>
@@ -310,7 +308,6 @@ export default function Dashboard() {
               title="Receitas do Mês"
               value={formatCurrency(stats?.total_revenues || 0)}
               icon={<TrendingUp className="h-4 w-4" />}
-              subtitle={`${revenues.length} transação(ões)`}
               variant="success"
             />
           </motion.div>
@@ -320,7 +317,6 @@ export default function Dashboard() {
               title="Limite de Crédito"
               value={formatCurrency(stats?.total_credit_limit || 0)}
               icon={<CreditCard className="h-4 w-4" />}
-              subtitle={`${stats?.credit_cards_count || 0} cartão(ões)`}
             />
           </motion.div>
         </motion.div>

@@ -3,14 +3,11 @@ import { useSidebar } from '@/hooks/use-sidebar';
 import { Button } from '@/components/ui/button';
 import { LogOut, Moon, Sun, Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { membersService } from '@/services/members-service';
-import type { Member } from '@/types';
 
 export const Header = () => {
-  const { user, logout } = useAuthStore();
+  const { logout } = useAuthStore();
   const { toggle } = useSidebar();
   const [darkMode, setDarkMode] = useState(true);
-  const [currentMember, setCurrentMember] = useState<Member | null>(null);
 
   useEffect(() => {
     // Check system preference first, then localStorage
@@ -21,22 +18,6 @@ export const Header = () => {
     setDarkMode(isDark);
     updateTheme(isDark);
   }, []);
-
-  useEffect(() => {
-    // Carregar o membro do usuário logado
-    const loadCurrentMember = async () => {
-      if (user) {
-        try {
-          const member = await membersService.getCurrentUserMember();
-          setCurrentMember(member);
-        } catch (error) {
-          console.error('Erro ao carregar membro do usuário:', error);
-        }
-      }
-    };
-
-    loadCurrentMember();
-  }, [user]);
 
   const updateTheme = (isDark: boolean) => {
     const root = document.documentElement;
@@ -77,14 +58,7 @@ export const Header = () => {
           <Menu className="w-5 h-5" />
         </Button>
 
-        <div className="flex-1 lg:flex-none">
-          <h2 className="text-lg font-semibold">
-            Bem-vindo, {currentMember ? currentMember.name.split(' ')[0] : user?.username || 'Usuário'}!
-          </h2>
-          <p className="text-sm hidden sm:block">
-            Gerencie suas finanças de forma inteligente
-          </p>
-        </div>
+        <div className="flex-1 lg:flex-none" />
 
         <div className="flex items-center gap-4">
           <Button

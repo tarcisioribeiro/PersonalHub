@@ -130,7 +130,6 @@ export default function PersonalPlanningDashboard() {
       <div className="container mx-auto px-4 py-8">
         <PageHeader
           title="Dashboard - Planejamento Pessoal"
-          description="Acompanhe suas tarefas, objetivos e reflexões"
         />
         <p className="text-center mt-8">
           Nenhum dado disponível
@@ -138,10 +137,6 @@ export default function PersonalPlanningDashboard() {
       </div>
     );
   }
-
-  const completionRate = stats.total_tasks_today > 0
-    ? ((stats.completed_tasks_today / stats.total_tasks_today) * 100).toFixed(1)
-    : '0.0';
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -155,56 +150,48 @@ export default function PersonalPlanningDashboard() {
           title="Tarefas de Hoje"
           value={`${stats.completed_tasks_today} / ${stats.total_tasks_today}`}
           icon={<Calendar className="h-4 w-4" />}
-          subtitle={`${completionRate}% concluídas`}
         />
 
         <StatCard
           title="Taxa Cumprimento 7d"
           value={`${stats.completion_rate_7d.toFixed(1)}%`}
           icon={<TrendingUp className="h-4 w-4" />}
-          subtitle="Últimos 7 dias"
         />
 
         <StatCard
           title="Tarefas Ativas"
           value={stats.active_tasks}
           icon={<ListTodo className="h-4 w-4" />}
-          subtitle="Tarefas rotineiras configuradas"
         />
 
         <StatCard
           title="Taxa Cumprimento 30d"
           value={`${stats.completion_rate_30d.toFixed(1)}%`}
           icon={<Calendar className="h-4 w-4" />}
-          subtitle="Últimos 30 dias"
         />
 
         <StatCard
           title="Objetivos Ativos"
           value={stats.active_goals}
           icon={<Target className="h-4 w-4" />}
-          subtitle="Objetivos em andamento"
         />
 
         <StatCard
           title="Melhor Sequência"
           value={`${stats.best_streak} dias`}
           icon={<Award className="h-4 w-4" />}
-          subtitle="Recorde de dias consecutivos"
         />
 
         <StatCard
           title="Sequência Atual"
           value={`${stats.current_streak} dias`}
           icon={<TrendingUp className="h-4 w-4" />}
-          subtitle="Dias consecutivos"
         />
 
         <StatCard
           title="Objetivos Completados"
           value={stats.completed_goals}
           icon={<CheckCircle2 className="h-4 w-4" />}
-          subtitle="Total de objetivos concluídos"
         />
       </div>
 
