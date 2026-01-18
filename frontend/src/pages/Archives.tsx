@@ -256,7 +256,6 @@ export default function Archives() {
     <PageContainer>
       <PageHeader
         title="Arquivos Confidenciais"
-        description="Armazene documentos e textos de forma criptografada"
         icon={<ArchiveIcon />}
         action={{
           label: 'Novo Arquivo',

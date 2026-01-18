@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageContainer } from '@/components/common/PageContainer';
 import { containerVariants, itemVariants } from '@/lib/animations';
 import {
@@ -21,7 +21,6 @@ import {
 
 interface ModuleCard {
   title: string;
-  description: string;
   icon: React.ReactNode;
   href: string;
   color: string;
@@ -32,7 +31,6 @@ export default function Home() {
   const modules: ModuleCard[] = [
     {
       title: 'Controle Financeiro',
-      description: 'Gestão Financeira Completa',
       icon: <Wallet className="w-8 h-8" />,
       href: '/dashboard',
       color: 'from-success to-success/70',
@@ -46,7 +44,6 @@ export default function Home() {
     },
     {
       title: 'Segurança',
-      description: 'Gerenciador de Senhas e Segurança',
       icon: <Shield className="w-8 h-8" />,
       href: '/security/passwords',
       color: 'from-info to-primary',
@@ -60,7 +57,6 @@ export default function Home() {
     },
     {
       title: 'Leitura',
-      description: 'Biblioteca Pessoal Digital',
       icon: <Library className="w-8 h-8" />,
       href: '/library/books',
       color: 'from-primary to-accent',
@@ -74,7 +70,6 @@ export default function Home() {
     },
     {
       title: 'AI Assistant',
-      description: 'Assistente Inteligente',
       icon: <Bot className="w-8 h-8" />,
       href: '/ai-assistant',
       color: 'from-warning to-warning/70',
@@ -109,9 +104,6 @@ export default function Home() {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
             Bem-vindo ao PersonalHub
           </h1>
-          <p className="mt-2 text-lg">
-            Sua plataforma completa de gestão pessoal
-          </p>
         </motion.div>
 
         {/* Quick Actions */}
@@ -121,7 +113,6 @@ export default function Home() {
               <LayoutDashboard className="w-5 h-5" />
               Ações Rápidas
             </CardTitle>
-            <CardDescription>Acesso rápido às funcionalidades mais usadas</CardDescription>
           </CardHeader>
           <CardContent>
             <motion.div
@@ -169,7 +160,6 @@ export default function Home() {
                         {module.icon}
                       </motion.div>
                       <CardTitle className="text-xl">{module.title}</CardTitle>
-                      <CardDescription className="text-base">{module.description}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <ul className="space-y-2">

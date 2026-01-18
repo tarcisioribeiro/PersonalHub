@@ -236,7 +236,6 @@ export default function Revenues() {
     <PageContainer>
       <PageHeader
         title="Receitas"
-        description="Acompanhe suas receitas"
         icon={<TrendingUp />}
         action={{
           label: 'Nova Receita',

@@ -2,7 +2,7 @@
  * PageHeader Component
  *
  * Componente reutilizável para cabeçalhos de páginas.
- * Padroniza o layout de título + descrição + botão de ação.
+ * Padroniza o layout de título + botão de ação.
  */
 
 import React from 'react';
@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 
 interface PageHeaderProps {
   title: string;
-  description?: string;
   icon?: React.ReactNode;
   action?: {
     label: string;
@@ -20,7 +19,7 @@ interface PageHeaderProps {
   children?: React.ReactNode;
 }
 
-export const PageHeader: React.FC<PageHeaderProps> = ({ title, description, icon, action, children }) => {
+export const PageHeader: React.FC<PageHeaderProps> = ({ title, icon, action, children }) => {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -29,10 +28,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, description, icon
             <div className="w-6 h-6">{icon}</div>
           </div>
         )}
-        <div>
-          <h1 className="text-3xl font-bold">{title}</h1>
-          {description && <p className="mt-2">{description}</p>}
-        </div>
+        <h1 className="text-3xl font-bold">{title}</h1>
       </div>
       {children}
       {!children && action && (

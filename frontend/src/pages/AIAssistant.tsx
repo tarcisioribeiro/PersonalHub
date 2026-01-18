@@ -245,7 +245,6 @@ export default function AIAssistant() {
     <div className="container mx-auto px-4 py-8 flex flex-col h-[calc(100vh-8rem)]">
       <PageHeader
         title="AI Assistant"
-        description="Converse naturalmente sobre seus dados pessoais"
         icon={<BotMessageSquare />}
       >
         {messages.length > 0 && (

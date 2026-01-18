@@ -129,7 +129,6 @@ export default function CreditCards() {
     <PageContainer>
       <PageHeader
         title="Cartões de Crédito"
-        description="Gerencie seus cartões de crédito"
         icon={<CreditCardIcon />}
         action={{
           label: 'Novo Cartão',

@@ -81,7 +81,6 @@ export default function LibraryDashboard() {
     <div className="container mx-auto px-4 py-8 space-y-6">
       <PageHeader
         title="Dashboard de Leitura"
-        description="Acompanhe seu progresso e estatísticas de leitura"
         icon={<Library />}
       />
 

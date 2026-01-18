@@ -237,7 +237,6 @@ export default function Goals() {
     <PageContainer>
       <PageHeader
         title="Objetivos"
-        description="Acompanhe seus objetivos e metas pessoais"
         icon={<Trophy />}
         action={{
           label: 'Novo Objetivo',

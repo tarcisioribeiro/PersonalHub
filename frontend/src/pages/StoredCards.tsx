@@ -282,7 +282,6 @@ export default function StoredCards() {
     <PageContainer>
       <PageHeader
         title="Cartões Armazenados"
-        description="Gerencie os dados dos seus cartões de crédito de forma segura"
         icon={<CreditCardIcon />}
         action={{
           label: 'Novo Cartão',

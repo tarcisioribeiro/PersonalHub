@@ -50,7 +50,6 @@ export default function ActivityLogs() {
     <div className="space-y-6">
       <PageHeader
         title="Logs de Atividade"
-        description="Acompanhe todas as ações realizadas no sistema"
         icon={<ScrollText />}
       />
 

@@ -146,7 +146,6 @@ export default function Transfers() {
     <PageContainer>
       <PageHeader
         title="Transferências"
-        description="Histórico de transferências"
         icon={<ArrowLeftRight />}
         action={{
           label: 'Nova Transferência',

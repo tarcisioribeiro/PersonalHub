@@ -129,7 +129,6 @@ export default function Publishers() {
     <PageContainer>
       <PageHeader
         title="Editoras"
-        description="Gerencie as editoras da sua biblioteca"
         icon={<Building2 />}
         action={{
           label: 'Nova Editora',

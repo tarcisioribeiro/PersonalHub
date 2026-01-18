@@ -39,7 +39,6 @@ export default function DailyReflections() {
     <div className="container mx-auto px-4 py-8">
       <PageHeader
         title="Reflexões Diárias"
-        description="Registre suas reflexões e pensamentos do dia"
       >
         <Button>
           <Plus className="mr-2 h-4 w-4" />

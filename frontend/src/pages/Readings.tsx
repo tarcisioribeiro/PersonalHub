@@ -145,7 +145,6 @@ export default function Readings() {
     <PageContainer>
       <PageHeader
         title="Leituras"
-        description="Acompanhe seu progresso de leitura"
         icon={<BookMarked />}
         action={{
           label: 'Nova Leitura',

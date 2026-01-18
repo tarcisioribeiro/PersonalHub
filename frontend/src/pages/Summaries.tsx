@@ -190,7 +190,6 @@ export default function Summaries() {
     <PageContainer>
       <PageHeader
         title="Resumos"
-        description="Gerencie os resumos dos seus livros"
         icon={<FileText />}
         action={{
           label: 'Novo Resumo',

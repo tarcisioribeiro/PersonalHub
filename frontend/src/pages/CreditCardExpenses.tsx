@@ -335,7 +335,6 @@ export default function CreditCardExpenses() {
     <PageContainer>
       <PageHeader
         title="Despesas de Cartão"
-        description="Gerencie suas compras e parcelas de cartão de crédito"
         icon={<ShoppingCart />}
         action={{
           label: 'Nova Compra',

@@ -204,7 +204,6 @@ export default function Dashboard() {
       <div className="container mx-auto px-4 py-8 space-y-6">
         <PageHeader
           title="Dashboard"
-          description="Visão geral das suas finanças"
           icon={<LayoutDashboard />}
         />
 

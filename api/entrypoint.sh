@@ -22,6 +22,7 @@ mkdir -p /app/staticfiles
 
 export PGPASSWORD="$DB_PASSWORD"
 
+# Create database if not exists
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d postgres <<EOF
 DO \$\$
 BEGIN
@@ -31,8 +32,8 @@ BEGIN
       CREATE DATABASE $DB_NAME
       WITH OWNER = $DB_USER
       ENCODING = 'UTF8'
-      LC_COLLATE = 'pt_BR.UTF-8'
-      LC_CTYPE = 'pt_BR.UTF-8'
+      LC_COLLATE = 'C.UTF-8'
+      LC_CTYPE = 'C.UTF-8'
       TABLESPACE = pg_default
       CONNECTION LIMIT = -1
       IS_TEMPLATE = false;
@@ -40,6 +41,10 @@ BEGIN
 END
 \$\$;
 EOF
+
+# Create pgvector extension in the application database (required for embeddings)
+echo "Habilitando extensão pgvector..."
+psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "CREATE EXTENSION IF NOT EXISTS vector;"
 
 python manage.py makemigrations
 python manage.py migrate

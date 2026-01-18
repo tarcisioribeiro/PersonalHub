@@ -250,7 +250,6 @@ export default function Passwords() {
     <PageContainer>
       <PageHeader
         title="Senhas"
-        description="Gerencie suas senhas de forma segura e criptografada"
         icon={<Key />}
         action={{
           label: 'Nova Senha',

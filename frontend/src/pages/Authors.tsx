@@ -129,7 +129,6 @@ export default function Authors() {
     <PageContainer>
       <PageHeader
         title="Autores"
-        description="Gerencie os autores da sua biblioteca"
         icon={<UserPen />}
         action={{
           label: 'Novo Autor',

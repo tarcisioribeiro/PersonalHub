@@ -63,7 +63,6 @@ export default function TodayTasks() {
     <div className="container mx-auto px-4 py-8">
       <PageHeader
         title="Tarefas de Hoje"
-        description="Suas tarefas programadas para hoje"
         icon={<CheckCircle2 />}
       />
 

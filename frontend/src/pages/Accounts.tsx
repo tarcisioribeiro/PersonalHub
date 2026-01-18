@@ -170,7 +170,6 @@ export default function Accounts() {
     <PageContainer>
       <PageHeader
         title="Contas Bancárias"
-        description="Gerencie suas contas bancárias"
         icon={<Wallet />}
         action={{
           label: 'Nova Conta',

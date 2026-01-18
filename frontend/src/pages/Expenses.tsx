@@ -228,7 +228,6 @@ export default function Expenses() {
     <PageContainer>
       <PageHeader
         title="Despesas"
-        description="Acompanhe suas despesas"
         icon={<TrendingDown />}
         action={{
           label: 'Nova Despesa',

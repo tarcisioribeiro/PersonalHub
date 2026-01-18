@@ -221,7 +221,6 @@ export default function CreditCardBills() {
     <PageContainer>
       <PageHeader
         title="Faturas de Cartão"
-        description="Gerencie suas faturas de cartão de crédito"
         icon={<Receipt />}
         action={{
           label: 'Nova Fatura',

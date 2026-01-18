@@ -194,7 +194,6 @@ export default function Books() {
     <PageContainer>
       <PageHeader
         title="Biblioteca"
-        description="Gerencie sua coleção de livros"
         icon={<BookOpen />}
         action={{
           label: 'Novo Livro',

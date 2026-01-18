@@ -355,7 +355,6 @@ export default function DailyChecklist() {
     <PageContainer>
       <PageHeader
         title="Checklist Diário"
-        description="Organize suas tarefas no quadro kanban"
         icon={<CheckCircle2 />}
       />
 

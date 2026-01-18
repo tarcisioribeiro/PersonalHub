@@ -70,7 +70,6 @@ export default function SecurityDashboard() {
     <div className="container mx-auto px-4 py-8 space-y-6">
       <PageHeader
         title="Dashboard de Segurança"
-        description="Visão geral das suas informações de segurança"
         icon={<Shield />}
       />
 

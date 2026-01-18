@@ -83,7 +83,6 @@ export default function Members() {
     <PageContainer>
       <PageHeader
         title="Membros"
-        description="Gerencie membros do sistema"
         icon={<Users />}
         action={{
           label: 'Novo Membro',

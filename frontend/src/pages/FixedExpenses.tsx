@@ -178,7 +178,6 @@ export default function FixedExpenses() {
     <PageContainer>
       <PageHeader
         title="Gastos Fixos Mensais"
-        description="Gerencie suas despesas fixas mensais"
         icon={<Calendar className="w-6 h-6" />}
         action={{
           label: 'Nova Despesa Fixa',

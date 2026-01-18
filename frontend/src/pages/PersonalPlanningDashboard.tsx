@@ -147,7 +147,6 @@ export default function PersonalPlanningDashboard() {
     <div className="container mx-auto px-4 py-8">
       <PageHeader
         title="Dashboard - Planejamento Pessoal"
-        description="Acompanhe suas tarefas, objetivos e reflexões"
       />
 
       {/* Grid 1: 8 Cards de Métricas Principais */}

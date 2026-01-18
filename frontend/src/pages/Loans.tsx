@@ -244,7 +244,6 @@ export default function Loans() {
     <PageContainer>
       <PageHeader
         title="Empréstimos"
-        description="Gerencie seus empréstimos"
         icon={<HandCoins />}
         action={{
           label: 'Novo Empréstimo',

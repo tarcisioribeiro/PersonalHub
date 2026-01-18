@@ -226,7 +226,6 @@ export default function RoutineTasks() {
     <PageContainer>
       <PageHeader
         title="Tarefas Rotineiras"
-        description="Gerencie suas tarefas e hábitos diários"
         icon={<CheckSquare />}
         action={{
           label: 'Nova Tarefa',

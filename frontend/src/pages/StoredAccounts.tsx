@@ -296,7 +296,6 @@ export default function StoredAccounts() {
     <PageContainer>
       <PageHeader
         title="Contas Bancárias"
-        description="Armazene dados das suas contas bancárias com segurança"
         icon={<Wallet />}
         action={{
           label: 'Nova Conta',
