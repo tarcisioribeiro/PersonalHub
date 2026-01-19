@@ -14,12 +14,29 @@ interface InstallmentFilters {
 }
 
 class CreditCardInstallmentsService {
+  /**
+   * Busca todas as parcelas, lidando com paginação automaticamente.
+   * Busca todas as páginas e concatena os resultados.
+   */
   async getAll(params?: InstallmentFilters): Promise<CreditCardInstallment[]> {
-    const response = await apiClient.get<PaginatedResponse<CreditCardInstallment>>(
-      API_CONFIG.ENDPOINTS.CREDIT_CARD_INSTALLMENTS,
-      params as Record<string, any>
-    );
-    return response.results;
+    const allResults: CreditCardInstallment[] = [];
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await apiClient.get<PaginatedResponse<CreditCardInstallment>>(
+        API_CONFIG.ENDPOINTS.CREDIT_CARD_INSTALLMENTS,
+        { ...params, page } as Record<string, any>
+      );
+
+      allResults.push(...response.results);
+
+      // Verifica se há mais páginas
+      hasMore = response.next !== null;
+      page++;
+    }
+
+    return allResults;
   }
 
   async update(

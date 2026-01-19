@@ -321,9 +321,9 @@ export default function Books() {
       </div>
 
       {filteredBooks.length === 0 && (
-        <div className="text-center py-12">
-          <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">Nenhum livro encontrado.</p>
+        <div className="text-center py-12 border rounded-lg bg-card">
+          <BookOpen className="h-12 w-12 mx-auto mb-4" />
+          <p>Nenhum livro encontrado.</p>
         </div>
       )}
 

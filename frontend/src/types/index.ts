@@ -236,6 +236,41 @@ export interface CreditCardBillFormData {
   status?: 'open' | 'closed' | 'paid' | 'overdue';
 }
 
+// Bill Payment Types
+export interface BillPaymentFormData {
+  amount: number;
+  payment_date: string;
+  notes?: string;
+}
+
+export interface BillPaymentResponse {
+  message: string;
+  payment: {
+    amount: string;
+    payment_date: string;
+    expense_id: number;
+  };
+  bill: {
+    id: number;
+    total_amount: string;
+    paid_amount: string;
+    remaining: string;
+    status: string;
+    closed: boolean;
+  };
+  card: {
+    id: number;
+    name: string;
+    credit_limit: string;
+    max_limit: string;
+  };
+  account: {
+    id: number;
+    name: string;
+    balance: string;
+  };
+}
+
 // Credit Card Expense Types
 export interface CreditCardExpense {
   id: number;
@@ -357,6 +392,7 @@ export interface CreditCardInstallmentNested {
 export interface CreditCardInstallmentUpdateData {
   bill?: number | null;
   payed?: boolean;
+  value?: number;
 }
 
 // Credit Card Expenses by Category (Dashboard)

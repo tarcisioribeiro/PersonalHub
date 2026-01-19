@@ -130,8 +130,9 @@ export default function PersonalPlanningDashboard() {
       <div className="container mx-auto px-4 py-8 space-y-6">
         <PageHeader
           title="Dashboard de Planejamento Pessoal"
+          icon={<Calendar />}
         />
-        <p className="text-center text-muted-foreground">
+        <p className="text-center">
           Nenhum dado disponível
         </p>
       </div>
@@ -142,6 +143,7 @@ export default function PersonalPlanningDashboard() {
     <div className="container mx-auto px-4 py-8 space-y-6">
       <PageHeader
         title="Dashboard de Planejamento Pessoal"
+        icon={<Calendar />}
       />
 
       {/* Grid 1: 8 Cards de Métricas Principais */}

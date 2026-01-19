@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Pencil, Trash2, Filter, ShoppingCart, Calendar } from 'lucide-react';
+import { Plus, Pencil, Trash2, Filter, ShoppingCart, Calendar, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CreditCardPurchaseForm } from '@/components/credit-cards/CreditCardPurchaseForm';
+import { CreditCardInstallmentForm } from '@/components/credit-cards/CreditCardInstallmentForm';
 import { creditCardPurchasesService } from '@/services/credit-card-purchases-service';
 import { creditCardInstallmentsService } from '@/services/credit-card-installments-service';
 import { creditCardsService } from '@/services/credit-cards-service';
@@ -20,6 +21,7 @@ import type {
   CreditCardPurchase,
   CreditCardPurchaseFormData,
   CreditCardInstallment,
+  CreditCardInstallmentUpdateData,
   CreditCard,
   CreditCardBill,
 } from '@/types';
@@ -32,7 +34,9 @@ export default function CreditCardExpenses() {
   const [bills, setBills] = useState<CreditCardBill[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isInstallmentDialogOpen, setIsInstallmentDialogOpen] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState<CreditCardPurchase | undefined>();
+  const [selectedInstallment, setSelectedInstallment] = useState<CreditCardInstallment | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cardFilter, setCardFilter] = useState<string>('all');
   const [billFilter, setBillFilter] = useState<string>('all');
@@ -46,10 +50,39 @@ export default function CreditCardExpenses() {
     loadData();
   }, []);
 
-  // Faturas filtradas pelo cartão selecionado
+  // Mapeamento de abreviações de mês para número
+  const MONTH_TO_NUMBER: Record<string, number> = {
+    'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4,
+    'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8,
+    'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+  };
+
+  // Faturas filtradas pelo cartão selecionado e ordenadas (atual primeiro, depois mais antiga para mais nova)
   const availableBills = useMemo(() => {
-    if (cardFilter === 'all') return bills;
-    return bills.filter(b => b.credit_card.toString() === cardFilter);
+    let filtered = cardFilter === 'all' ? [...bills] : bills.filter(b => b.credit_card.toString() === cardFilter);
+
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1;
+    const currentYear = today.getFullYear();
+
+    // Sort: current bill first, then oldest to newest
+    return filtered.sort((a, b) => {
+      const aMonth = MONTH_TO_NUMBER[a.month] || 1;
+      const bMonth = MONTH_TO_NUMBER[b.month] || 1;
+
+      // Check if bill is current (current month and year)
+      const aIsCurrent = aMonth === currentMonth && parseInt(a.year) === currentYear;
+      const bIsCurrent = bMonth === currentMonth && parseInt(b.year) === currentYear;
+
+      // Current bill always first
+      if (aIsCurrent && !bIsCurrent) return -1;
+      if (!aIsCurrent && bIsCurrent) return 1;
+
+      // Then sort by date (oldest to newest for the rest)
+      const aDate = new Date(parseInt(a.year), aMonth - 1);
+      const bDate = new Date(parseInt(b.year), bMonth - 1);
+      return aDate.getTime() - bDate.getTime();
+    });
   }, [cardFilter, bills]);
 
   // Reset bill filter when card changes
@@ -257,6 +290,27 @@ export default function CreditCardExpenses() {
     }
   };
 
+  const handleEditInstallment = (installment: CreditCardInstallment) => {
+    setSelectedInstallment(installment);
+    setIsInstallmentDialogOpen(true);
+  };
+
+  const handleInstallmentSubmit = async (data: CreditCardInstallmentUpdateData) => {
+    if (!selectedInstallment) return;
+
+    try {
+      setIsSubmitting(true);
+      await creditCardInstallmentsService.update(selectedInstallment.id, data);
+      toast({ title: 'Parcela atualizada', description: 'A parcela foi atualizada com sucesso.' });
+      setIsInstallmentDialogOpen(false);
+      loadData();
+    } catch (error: any) {
+      toast({ title: 'Erro ao salvar', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const totalInstallments = filteredInstallments.reduce((sum, i) => sum + i.value, 0);
 
   const columns: Column<CreditCardInstallment>[] = [
@@ -430,7 +484,7 @@ export default function CreditCardExpenses() {
                         Fatura {label}
                       </CardTitle>
                       {period && (
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-sm mt-1">
                           {cardName && <span className="font-medium">{cardName}</span>}
                           {cardName && period && ' • '}
                           {period}
@@ -451,6 +505,14 @@ export default function CreditCardExpenses() {
                     emptyState={{ message: 'Nenhuma parcela.' }}
                     actions={(installment) => (
                       <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditInstallment(installment)}
+                          title="Editar valor da parcela"
+                        >
+                          <DollarSign className="w-4 h-4 text-primary" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -489,6 +551,14 @@ export default function CreditCardExpenses() {
               <Button
                 variant="ghost"
                 size="icon"
+                onClick={() => handleEditInstallment(installment)}
+                title="Editar valor da parcela"
+              >
+                <DollarSign className="w-4 h-4 text-primary" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => handleEditPurchase(installment.purchase)}
                 title="Editar compra"
               >
@@ -524,6 +594,26 @@ export default function CreditCardExpenses() {
             onCancel={() => setIsDialogOpen(false)}
             isLoading={isSubmitting}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isInstallmentDialogOpen} onOpenChange={setIsInstallmentDialogOpen}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar">
+          <DialogHeader>
+            <DialogTitle>Editar Parcela</DialogTitle>
+            <DialogDescription>
+              Ajuste o valor, status ou fatura desta parcela específica.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedInstallment && (
+            <CreditCardInstallmentForm
+              installment={selectedInstallment}
+              bills={bills}
+              onSubmit={handleInstallmentSubmit}
+              onCancel={() => setIsInstallmentDialogOpen(false)}
+              isLoading={isSubmitting}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </PageContainer>

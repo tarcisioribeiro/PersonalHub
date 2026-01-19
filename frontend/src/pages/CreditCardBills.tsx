@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Filter, CreditCard as CreditCardIcon, Receipt } from 'lucide-react';
+import { Plus, Pencil, Trash2, Filter, CreditCard as CreditCardIcon, Receipt, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CreditCardBillForm } from '@/components/credit-cards/CreditCardBillForm';
+import { BillPaymentForm } from '@/components/credit-cards/BillPaymentForm';
 import { creditCardBillsService } from '@/services/credit-card-bills-service';
 import { creditCardsService } from '@/services/credit-cards-service';
 import { useToast } from '@/hooks/use-toast';
@@ -13,7 +14,7 @@ import { translate, TRANSLATIONS } from '@/config/constants';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable, type Column } from '@/components/common/DataTable';
-import type { CreditCardBill, CreditCardBillFormData, CreditCard } from '@/types';
+import type { CreditCardBill, CreditCardBillFormData, CreditCard, BillPaymentFormData } from '@/types';
 import { PageContainer } from '@/components/common/PageContainer';
 
 export default function CreditCardBills() {
@@ -22,8 +23,10 @@ export default function CreditCardBills() {
   const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [selectedBill, setSelectedBill] = useState<CreditCardBill | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPaymentSubmitting, setIsPaymentSubmitting] = useState(false);
   const [cardFilter, setCardFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [yearFilter, setYearFilter] = useState<string>('all');
@@ -55,6 +58,13 @@ export default function CreditCardBills() {
     }
   };
 
+  // Mapeamento de abreviações de mês para número
+  const MONTH_TO_NUMBER: Record<string, number> = {
+    'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4,
+    'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8,
+    'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+  };
+
   const filterBills = () => {
     let filtered = [...bills];
     if (cardFilter !== 'all') {
@@ -66,6 +76,36 @@ export default function CreditCardBills() {
     if (yearFilter !== 'all') {
       filtered = filtered.filter(b => b.year === yearFilter);
     }
+
+    // Sort bills: current open bill first, then by date (oldest to newest)
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1;
+    const currentYear = today.getFullYear();
+
+    filtered.sort((a, b) => {
+      const aMonth = MONTH_TO_NUMBER[a.month] || 1;
+      const bMonth = MONTH_TO_NUMBER[b.month] || 1;
+
+      // Check if bill is current (current month and year, not paid)
+      const aIsCurrent = aMonth === currentMonth && parseInt(a.year) === currentYear && a.status !== 'paid';
+      const bIsCurrent = bMonth === currentMonth && parseInt(b.year) === currentYear && b.status !== 'paid';
+
+      // Current open bill always first
+      if (aIsCurrent && !bIsCurrent) return -1;
+      if (!aIsCurrent && bIsCurrent) return 1;
+
+      // Open/overdue bills before paid/closed ones
+      const aIsOpen = a.status === 'open' || a.status === 'overdue';
+      const bIsOpen = b.status === 'open' || b.status === 'overdue';
+      if (aIsOpen && !bIsOpen) return -1;
+      if (!aIsOpen && bIsOpen) return 1;
+
+      // Then sort by date (oldest to newest)
+      const aDate = new Date(parseInt(a.year), aMonth - 1);
+      const bDate = new Date(parseInt(b.year), bMonth - 1);
+      return aDate.getTime() - bDate.getTime();
+    });
+
     setFilteredBills(filtered);
   };
 
@@ -116,6 +156,29 @@ export default function CreditCardBills() {
       loadData();
     } catch (error: any) {
       toast({ title: 'Erro ao excluir', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleOpenPayment = (bill: CreditCardBill) => {
+    setSelectedBill(bill);
+    setIsPaymentDialogOpen(true);
+  };
+
+  const handlePayment = async (data: BillPaymentFormData) => {
+    if (!selectedBill) return;
+    try {
+      setIsPaymentSubmitting(true);
+      const response = await creditCardBillsService.payBill(selectedBill.id, data);
+      toast({
+        title: 'Pagamento realizado',
+        description: `Pagamento de ${formatCurrency(response.payment.amount)} processado com sucesso. Novo limite: ${formatCurrency(response.card.credit_limit)}`,
+      });
+      setIsPaymentDialogOpen(false);
+      loadData();
+    } catch (error: any) {
+      toast({ title: 'Erro ao processar pagamento', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsPaymentSubmitting(false);
     }
   };
 
@@ -300,6 +363,16 @@ export default function CreditCardBills() {
         }}
         actions={(bill) => (
           <div className="flex items-center justify-end gap-2">
+            {bill.status !== 'paid' && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleOpenPayment(bill)}
+                title="Pagar fatura"
+              >
+                <Wallet className="w-4 h-4 text-primary" />
+              </Button>
+            )}
             <Button variant="ghost" size="icon" onClick={() => handleEdit(bill)}>
               <Pencil className="w-4 h-4" />
             </Button>
@@ -323,6 +396,25 @@ export default function CreditCardBills() {
             onCancel={() => setIsDialogOpen(false)}
             isLoading={isSubmitting}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar">
+          <DialogHeader>
+            <DialogTitle>Pagar Fatura</DialogTitle>
+            <DialogDescription>
+              Realize o pagamento da fatura de cartão de crédito
+            </DialogDescription>
+          </DialogHeader>
+          {selectedBill && (
+            <BillPaymentForm
+              bill={selectedBill}
+              onSubmit={handlePayment}
+              onCancel={() => setIsPaymentDialogOpen(false)}
+              isLoading={isPaymentSubmitting}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </PageContainer>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import flatpickr from 'flatpickr';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import type { Options as FlatpickrOptions } from 'flatpickr/dist/types/options';
@@ -58,23 +58,19 @@ export function DatePicker({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const flatpickrRef = useRef<flatpickr.Instance | null>(null);
+  // Ref para armazenar o callback atual de onChange
+  // Isso evita que o Flatpickr seja recriado quando onChange muda
+  const onChangeRef = useRef(onChange);
+
+  // Atualiza a ref quando onChange muda
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   // Converte value para Date
   const dateValue = toLocalDate(value);
 
-  // Callback para mudança de data
-  const handleChange = useCallback(
-    (selectedDates: Date[]) => {
-      if (selectedDates.length > 0) {
-        onChange?.(selectedDates[0]);
-      } else {
-        onChange?.(undefined);
-      }
-    },
-    [onChange]
-  );
-
-  // Inicializa Flatpickr
+  // Inicializa Flatpickr apenas uma vez (ou quando disabled muda)
   useEffect(() => {
     if (!inputRef.current) return;
 
@@ -84,8 +80,14 @@ export function DatePicker({
       allowInput: true,
       clickOpens: !disabled,
       disableMobile: true,
-      defaultDate: dateValue,
-      onChange: handleChange,
+      // Usa a ref para chamar o onChange atual
+      onChange: (selectedDates: Date[]) => {
+        if (selectedDates.length > 0) {
+          onChangeRef.current?.(selectedDates[0]);
+        } else {
+          onChangeRef.current?.(undefined);
+        }
+      },
       // Posiciona o calendário abaixo do input usando posicionamento inline
       // Isso garante que o calendário fique sempre junto ao campo
       static: true,
@@ -117,7 +119,7 @@ export function DatePicker({
     return () => {
       flatpickrRef.current?.destroy();
     };
-  }, [disabled, handleChange]);
+  }, [disabled]);
 
   // Atualiza data quando value muda externamente
   useEffect(() => {

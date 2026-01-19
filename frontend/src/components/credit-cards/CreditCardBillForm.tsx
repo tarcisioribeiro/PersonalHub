@@ -103,6 +103,44 @@ export const CreditCardBillForm: React.FC<CreditCardBillFormProps> = ({
       return;
     }
 
+    // Validações de datas
+    const beginningDate = new Date(data.invoice_beginning_date);
+    const endingDate = new Date(data.invoice_ending_date);
+    const dueDate = data.due_date && data.due_date.trim() !== '' ? new Date(data.due_date) : null;
+
+    // Validação: Data de início deve ser anterior à data de fechamento
+    if (beginningDate >= endingDate) {
+      await showAlert({
+        title: 'Data inválida',
+        description: 'A data de início da fatura deve ser anterior à data de fechamento.',
+        confirmText: 'Ok',
+      });
+      return;
+    }
+
+    // Validações quando a data de vencimento é fornecida
+    if (dueDate) {
+      // Validação: Data de início deve ser anterior à data de vencimento
+      if (beginningDate >= dueDate) {
+        await showAlert({
+          title: 'Data inválida',
+          description: 'A data de início da fatura deve ser anterior à data de vencimento.',
+          confirmText: 'Ok',
+        });
+        return;
+      }
+
+      // Validação: Data de fechamento deve ser anterior à data de vencimento
+      if (endingDate >= dueDate) {
+        await showAlert({
+          title: 'Data inválida',
+          description: 'A data de fechamento da fatura deve ser anterior à data de vencimento.',
+          confirmText: 'Ok',
+        });
+        return;
+      }
+    }
+
     // Garantir que campos de data vazios sejam enviados como undefined ao invés de strings vazias
     const sanitizedData = {
       ...data,

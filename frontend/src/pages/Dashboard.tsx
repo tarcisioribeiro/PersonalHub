@@ -203,7 +203,7 @@ export default function Dashboard() {
     <AnimatedPage>
       <div className="container mx-auto px-4 py-8 space-y-6">
         <PageHeader
-          title="Dashboard"
+          title="Dashboard de Controle Financeiro"
           icon={<LayoutDashboard />}
         />
 

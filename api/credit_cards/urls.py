@@ -23,6 +23,11 @@ urlpatterns = [
         views.CreditCardBillRetrieveUpdateDestroyView.as_view(),
         name='credit-card-bill-detail-view'
     ),
+    path(
+        'credit-cards-bills/<int:pk>/pay/',
+        views.PayCreditCardBillView.as_view(),
+        name='credit-card-bill-pay'
+    ),
     # Legacy endpoints (deprecated, use purchases/installments instead)
     path(
         'credit-cards-expenses/',

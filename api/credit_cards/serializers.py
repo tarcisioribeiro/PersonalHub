@@ -265,11 +265,23 @@ class CreditCardInstallmentSerializer(serializers.ModelSerializer):
 class CreditCardInstallmentUpdateSerializer(serializers.ModelSerializer):
     """
     Serializer para atualização de parcelas.
-    Permite alterar apenas bill e payed.
+    Permite alterar bill, payed e value.
     """
+    value = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        coerce_to_string=False,
+        required=False
+    )
+
     class Meta:
         model = CreditCardInstallment
-        fields = ['bill', 'payed']
+        fields = ['bill', 'payed', 'value']
+
+    def validate_value(self, value):
+        if value is not None and value <= 0:
+            raise serializers.ValidationError("Valor deve ser maior que zero")
+        return value
 
 
 class CreditCardInstallmentNestedSerializer(serializers.ModelSerializer):
@@ -429,3 +441,44 @@ class CreditCardPurchaseUpdateSerializer(serializers.ModelSerializer):
         fields = [
             'description', 'category', 'merchant', 'member', 'notes',
         ]
+
+
+class PayCreditCardBillSerializer(serializers.Serializer):
+    """
+    Serializer para pagamento de fatura de cartão de crédito.
+    """
+    amount = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=True,
+        help_text="Valor do pagamento"
+    )
+    payment_date = serializers.DateField(
+        required=True,
+        help_text="Data do pagamento"
+    )
+    notes = serializers.CharField(
+        max_length=500,
+        required=False,
+        allow_blank=True,
+        help_text="Observações sobre o pagamento"
+    )
+
+    def validate_amount(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("O valor do pagamento deve ser maior que zero")
+        return value
+
+    def validate(self, attrs):
+        """
+        Validação customizada para verificar se o valor não excede o saldo restante.
+        O contexto deve conter a fatura (bill) para esta validação.
+        """
+        bill = self.context.get('bill')
+        if bill:
+            remaining = Decimal(str(bill.total_amount)) - Decimal(str(bill.paid_amount))
+            if attrs['amount'] > remaining:
+                raise serializers.ValidationError({
+                    'amount': f'O valor não pode exceder o saldo restante da fatura (R$ {remaining:.2f})'
+                })
+        return attrs

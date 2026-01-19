@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { TRANSLATIONS } from '@/config/constants';
+import { EXPENSE_CATEGORIES_CANONICAL } from '@/config/constants';
 import { membersService } from '@/services/members-service';
 import type { FixedExpense, FixedExpenseFormData, Account, CreditCard } from '@/types';
 
@@ -153,9 +153,9 @@ export const FixedExpenseForm = ({
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
             <SelectContent>
-              {Object.entries(TRANSLATIONS.expenseCategories).map(([k, v]) => (
-                <SelectItem key={k} value={k}>
-                  {v}
+              {EXPENSE_CATEGORIES_CANONICAL.map(({ key, label }) => (
+                <SelectItem key={key} value={key}>
+                  {label}
                 </SelectItem>
               ))}
             </SelectContent>

@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
-import { TRANSLATIONS } from '@/config/constants';
+import { EXPENSE_CATEGORIES_CANONICAL } from '@/config/constants';
 import { membersService } from '@/services/members-service';
 import type { Expense, ExpenseFormData, Account, Member, Loan } from '@/types';
 
@@ -137,7 +137,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, accounts, loa
           <Select value={watch('category') || ''} onValueChange={(v) => setValue('category', v)}>
             <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
             <SelectContent>
-              {Object.entries(TRANSLATIONS.expenseCategories).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+              {EXPENSE_CATEGORIES_CANONICAL.map(({ key, label }) => <SelectItem key={key} value={key}>{label}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>

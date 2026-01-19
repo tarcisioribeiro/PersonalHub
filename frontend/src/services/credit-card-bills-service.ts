@@ -1,6 +1,6 @@
 import { apiClient } from './api-client';
 import { API_CONFIG } from '@/config/constants';
-import type { CreditCardBill, CreditCardBillFormData , PaginatedResponse } from '@/types';
+import type { CreditCardBill, CreditCardBillFormData, BillPaymentFormData, BillPaymentResponse, PaginatedResponse } from '@/types';
 
 class CreditCardBillsService {
   async getAll(params?: Record<string, any>): Promise<CreditCardBill[]> {
@@ -34,6 +34,10 @@ class CreditCardBillsService {
 
   async getByYear(year: string): Promise<CreditCardBill[]> {
     return this.getAll({ year });
+  }
+
+  async payBill(billId: number, data: BillPaymentFormData): Promise<BillPaymentResponse> {
+    return apiClient.post<BillPaymentResponse>(`${API_CONFIG.ENDPOINTS.CREDIT_CARD_BILLS}${billId}/pay/`, data);
   }
 }
 
