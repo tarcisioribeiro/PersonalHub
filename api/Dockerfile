@@ -40,5 +40,6 @@ EXPOSE 8002
 # Variáveis de ambiente serão injetadas pelo docker-compose
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=app.settings
+ENV TZ=America/Sao_Paulo
 
 ENTRYPOINT ["/app/entrypoint.sh"]

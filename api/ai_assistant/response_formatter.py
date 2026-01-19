@@ -12,7 +12,7 @@ Supported visualization types:
 
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
-from datetime import datetime
+from django.utils import timezone
 from django.db.models import Sum, Count, Avg, Max, Min
 from django.db.models.functions import TruncMonth, TruncWeek
 
@@ -483,7 +483,7 @@ class ResponseFormatter:
             is_active=True
         ).count()
 
-        today = datetime.now().date()
+        today = timezone.now().date()
         completed_today = DailyTaskRecord.objects.filter(
             owner=user_member,
             deleted_at__isnull=True,

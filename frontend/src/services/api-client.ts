@@ -127,7 +127,7 @@ class ApiClient {
             console.error('[ApiClient] Token refresh failed:', refreshError);
             this.clearTokens();
             // Não redireciona aqui - deixa o erro ser tratado normalmente
-            return Promise.reject(new AuthenticationError('Session expired'));
+            return Promise.reject(new AuthenticationError('Sua sessão expirou. Por favor, faça login novamente.'));
           } finally {
             this.isRefreshing = false;
           }

@@ -249,6 +249,23 @@ return FieldEncryption.decrypt_data(self.encrypted_field)
 
 **URL Pattern**: Use `/api/v1/<resource>/` for all endpoints
 
+**Timezone Handling**:
+- Django TIME_ZONE is set to `America/Sao_Paulo` in settings.py
+- USE_TZ=True ensures all datetimes are timezone-aware
+- All containers use `TZ=America/Sao_Paulo` (configured in docker-compose.yml)
+- NEVER use `datetime.now()` - always use `django.utils.timezone.now()`:
+```python
+from django.utils import timezone
+
+# CORRECT
+now = timezone.now()
+today = timezone.now().date()
+
+# WRONG - creates naive datetime
+from datetime import datetime
+now = datetime.now()  # DON'T DO THIS
+```
+
 ### Frontend
 
 **Service Pattern**: Each service exports functions using apiClient:

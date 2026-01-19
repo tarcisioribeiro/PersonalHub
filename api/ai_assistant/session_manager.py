@@ -10,6 +10,7 @@ import threading
 from typing import Dict, List, Optional
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
+from django.utils import timezone
 
 
 @dataclass
@@ -28,8 +29,8 @@ class ConversationSession:
     session_id: str
     user_id: int
     messages: List[ConversationMessage] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.now)
-    last_accessed: datetime = field(default_factory=datetime.now)
+    created_at: 'timezone.datetime' = field(default_factory=timezone.now)
+    last_accessed: 'timezone.datetime' = field(default_factory=timezone.now)
 
 
 class SessionManager:
@@ -85,7 +86,7 @@ class SessionManager:
         with self._lock:
             session = self.sessions.get(session_id)
             if session:
-                session.last_accessed = datetime.now()
+                session.last_accessed = timezone.now()
             return session
 
     def add_message(self, session_id: str, message: ConversationMessage) -> bool:
@@ -103,7 +104,7 @@ class SessionManager:
             session = self.sessions.get(session_id)
             if session:
                 session.messages.append(message)
-                session.last_accessed = datetime.now()
+                session.last_accessed = timezone.now()
                 return True
             return False
 
@@ -150,7 +151,7 @@ class SessionManager:
     def _cleanup_expired(self):
         """Remove expired sessions based on TTL."""
         with self._lock:
-            now = datetime.now()
+            now = timezone.now()
             expired = [
                 sid for sid, session in self.sessions.items()
                 if now - session.last_accessed > self.ttl

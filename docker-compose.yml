@@ -15,6 +15,7 @@ services:
     image: pgvector/pgvector:pg16
     container_name: personalhub-db
     environment:
+      TZ: America/Sao_Paulo
       POSTGRES_DB: ${DB_NAME:-personalhub_db}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -39,6 +40,8 @@ services:
   redis:
     image: redis:7-alpine
     container_name: personalhub-redis
+    environment:
+      TZ: America/Sao_Paulo
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
@@ -68,6 +71,8 @@ services:
       context: ./embeddings-service
       dockerfile: Dockerfile
     container_name: personalhub-embeddings
+    environment:
+      TZ: America/Sao_Paulo
     ports:
       - "${EMBEDDING_PORT:-8080}:8080"
     volumes:
@@ -103,6 +108,7 @@ services:
     env_file:
       - .env
     environment:
+      - TZ=America/Sao_Paulo
       - DB_HOST=db
       - DB_PORT=5432
       - LOG_FORMAT=${LOG_FORMAT:-json}
@@ -145,6 +151,8 @@ services:
       args:
         - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:39100}
     container_name: personalhub-frontend
+    environment:
+      TZ: America/Sao_Paulo
     ports:
       - "${FRONTEND_PORT:-39101}:80"
     depends_on:

@@ -15,8 +15,9 @@ Can be enhanced with LLM-based classification in the future.
 import re
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
+from datetime import timedelta
 from enum import Enum
+from django.utils import timezone
 
 
 class ExecutionMode(Enum):
@@ -264,7 +265,7 @@ class IntentClassifier:
         entities = {}
 
         # Date extraction
-        now = datetime.now()
+        now = timezone.now()
 
         if any(phrase in question for phrase in ['este mês', 'mês atual', 'esse mês']):
             entities['date_range'] = {

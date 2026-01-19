@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Count, Sum, Avg, Q
+from django.utils import timezone
 from app.permissions import GlobalDefaultPermission
 from library.models import Author, Publisher, Book, Summary, Reading
 from library.serializers import (
@@ -634,9 +635,9 @@ class LibraryDashboardStatsView(APIView):
 
         # Timeline mensal (últimos 6 meses)
         from django.db.models.functions import TruncMonth
-        from datetime import datetime, timedelta
+        from datetime import timedelta
 
-        six_months_ago = datetime.now() - timedelta(days=180)
+        six_months_ago = timezone.now() - timedelta(days=180)
 
         reading_timeline_monthly = list(
             readings_qs

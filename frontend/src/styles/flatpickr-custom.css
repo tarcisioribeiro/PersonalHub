@@ -23,12 +23,23 @@
   visibility: hidden;
   transition: opacity 150ms ease, transform 150ms ease;
   transform: translateY(-4px);
+  /* Garante posicionamento acima de outros elementos */
+  z-index: 9999 !important;
+  /* Posicionamento relativo ao container */
+  position: absolute !important;
+  margin-top: 4px;
 }
 
 .flatpickr-calendar.open {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
+}
+
+/* Quando o calendário abre para cima (espaço insuficiente embaixo) */
+.flatpickr-calendar.arrowBottom {
+  margin-top: 0;
+  margin-bottom: 4px;
 }
 
 .flatpickr-calendar.arrowTop::before,

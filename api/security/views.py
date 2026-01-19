@@ -7,7 +7,8 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, Q
 from django.db.models.functions import TruncMonth
-from datetime import datetime, timedelta
+from django.utils import timezone
+from datetime import timedelta
 import re
 from app.permissions import GlobalDefaultPermission
 from security.models import (
@@ -660,7 +661,7 @@ class SecurityDashboardStatsView(APIView):
             item['action_display'] = action_dict.get(item['action'], item['action'])
 
         # Timeline de atividades (últimos 6 meses)
-        six_months_ago = datetime.now() - timedelta(days=180)
+        six_months_ago = timezone.now() - timedelta(days=180)
         activities_timeline = list(
             ActivityLog.objects.filter(
                 user=user,

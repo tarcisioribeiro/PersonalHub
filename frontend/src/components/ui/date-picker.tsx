@@ -55,6 +55,7 @@ export function DatePicker({
   className,
   clearable = true,
 }: DatePickerProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const flatpickrRef = useRef<flatpickr.Instance | null>(null);
 
@@ -85,6 +86,10 @@ export function DatePicker({
       disableMobile: true,
       defaultDate: dateValue,
       onChange: handleChange,
+      // Anexa o calendário ao container pai para posicionamento correto
+      appendTo: containerRef.current || undefined,
+      // Posição automática baseada no espaço disponível
+      position: 'auto',
       // Parser customizado para aceitar DD/MM/YYYY digitado manualmente
       parseDate: (dateStr: string) => {
         const parsed = parseDateBR(dateStr);
@@ -136,7 +141,7 @@ export function DatePicker({
   };
 
   return (
-    <div className={cn('relative w-full', className)}>
+    <div ref={containerRef} className={cn('relative w-full', className)}>
       {/* Ícone do calendário */}
       <CalendarIcon
         className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/70 pointer-events-none z-10"

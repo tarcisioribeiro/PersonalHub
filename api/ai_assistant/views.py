@@ -7,7 +7,7 @@ API views for the AI Assistant module.
 import logging
 import json
 import time
-from datetime import datetime
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -264,7 +264,7 @@ class AIStreamingQueryView(APIView):
                 ConversationMessage(
                     role='user',
                     content=question,
-                    timestamp=datetime.now()
+                    timestamp=timezone.now()
                 )
             )
 
@@ -371,7 +371,7 @@ class AIStreamingQueryView(APIView):
                 ConversationMessage(
                     role='assistant',
                     content=answer,
-                    timestamp=datetime.now(),
+                    timestamp=timezone.now(),
                     visualization=visualization
                 )
             )
