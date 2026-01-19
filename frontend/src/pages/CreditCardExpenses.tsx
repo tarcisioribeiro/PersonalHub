@@ -199,6 +199,8 @@ export default function CreditCardExpenses() {
             new Date(b.due_date).getTime() - new Date(a.due_date).getTime()
           ),
           total: billInstallments.reduce((sum, i) => sum + i.value, 0),
+          paid: billInstallments.filter(i => i.payed).reduce((sum, i) => sum + i.value, 0),
+          pending: billInstallments.filter(i => !i.payed).reduce((sum, i) => sum + i.value, 0),
         };
       })
       // Ordenar por data de início da fatura (mais recentes primeiro)
@@ -312,6 +314,8 @@ export default function CreditCardExpenses() {
   };
 
   const totalInstallments = filteredInstallments.reduce((sum, i) => sum + i.value, 0);
+  const totalPaid = filteredInstallments.filter(i => i.payed).reduce((sum, i) => sum + i.value, 0);
+  const totalPending = filteredInstallments.filter(i => !i.payed).reduce((sum, i) => sum + i.value, 0);
 
   const columns: Column<CreditCardInstallment>[] = [
     {
@@ -461,7 +465,17 @@ export default function CreditCardExpenses() {
         </div>
         <div className="flex justify-between items-center pt-2 border-t">
           <span className="text-sm">{filteredInstallments.length} parcela(s) encontrada(s)</span>
-          <span className="text-lg font-bold text-destructive">Total: {formatCurrency(totalInstallments)}</span>
+          <div className="flex items-center gap-4">
+            <span className="text-sm">
+              <span className="text-muted-foreground">Pago:</span>{' '}
+              <span className="font-semibold text-success">{formatCurrency(totalPaid)}</span>
+            </span>
+            <span className="text-sm">
+              <span className="text-muted-foreground">Restante:</span>{' '}
+              <span className="font-semibold text-warning">{formatCurrency(totalPending)}</span>
+            </span>
+            <span className="text-lg font-bold text-destructive">Total: {formatCurrency(totalInstallments)}</span>
+          </div>
         </div>
       </div>
 
@@ -474,7 +488,7 @@ export default function CreditCardExpenses() {
               </CardContent>
             </Card>
           ) : (
-            installmentsByBill.map(({ key, label, period, cardName, installments: billInstallments, total }) => (
+            installmentsByBill.map(({ key, label, period, cardName, installments: billInstallments, total, paid, pending }) => (
               <Card key={key}>
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
@@ -491,9 +505,19 @@ export default function CreditCardExpenses() {
                         </p>
                       )}
                     </div>
-                    <span className="text-lg font-bold text-destructive">
-                      {formatCurrency(total)}
-                    </span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm">
+                        <span className="text-muted-foreground">Pago:</span>{' '}
+                        <span className="font-semibold text-success">{formatCurrency(paid)}</span>
+                      </span>
+                      <span className="text-sm">
+                        <span className="text-muted-foreground">Restante:</span>{' '}
+                        <span className="font-semibold text-warning">{formatCurrency(pending)}</span>
+                      </span>
+                      <span className="text-lg font-bold text-destructive">
+                        {formatCurrency(total)}
+                      </span>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">

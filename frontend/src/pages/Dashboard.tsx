@@ -315,7 +315,7 @@ export default function Dashboard() {
           <motion.div variants={itemVariants}>
             <StatCard
               title="Limite de Crédito"
-              value={formatCurrency(stats?.total_credit_limit || 0)}
+              value={`${formatCurrency(stats?.available_credit_limit || 0)} / ${formatCurrency(stats?.total_credit_limit || 0)}`}
               icon={<CreditCard className="h-4 w-4" />}
             />
           </motion.div>

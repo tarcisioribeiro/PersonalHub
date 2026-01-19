@@ -164,6 +164,8 @@ export interface CreditCard {
   closing_day: number;
   associated_account: number;
   associated_account_name?: string;
+  used_credit?: number;
+  available_credit?: number;
   is_active: boolean;
   interest_rate?: string;
   annual_fee?: string;
@@ -540,6 +542,8 @@ export interface DashboardStats {
   total_expenses: number;
   total_revenues: number;
   total_credit_limit: number;
+  used_credit_limit: number;
+  available_credit_limit: number;
   accounts_count: number;
   credit_cards_count: number;
 }

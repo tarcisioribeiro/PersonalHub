@@ -104,6 +104,11 @@ export default function CreditCards() {
     'value'
   );
 
+  const totalAvailable = sumByProperty(
+    creditCards.map((c) => ({ value: c.available_credit || 0 })),
+    'value'
+  );
+
   const handleEdit = (card: CreditCard) => {
     setSelectedCard(card);
     setIsDialogOpen(true);
@@ -141,7 +146,7 @@ export default function CreditCards() {
         <span className="text-sm">
           {creditCards.length} cartão(ões) cadastrado(s)
         </span>
-        <span className="text-lg font-bold">Limite Total: {formatCurrency(totalLimit)}</span>
+        <span className="text-lg font-bold">Limite Total: {formatCurrency(totalAvailable)} / {formatCurrency(totalLimit)}</span>
       </div>
 
       {creditCards.length === 0 ? (
@@ -190,7 +195,7 @@ export default function CreditCards() {
                       <Wallet className="w-4 h-4" />
                       <span>Limite</span>
                     </div>
-                    <span className="font-semibold">{formatCurrency(card.credit_limit)}</span>
+                    <span className="font-semibold">{formatCurrency(card.available_credit || 0)} / {formatCurrency(card.credit_limit)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm">

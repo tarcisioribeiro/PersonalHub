@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Save, CheckCircle2, StickyNote } from 'lucide-react';
+import { Save, CheckCircle2, StickyNote, RefreshCw } from 'lucide-react';
 import {
   DndContext,
   DragOverlay,
@@ -89,6 +89,7 @@ export default function DailyChecklist() {
   const [reflectionId, setReflectionId] = useState<number | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [isReflectionOpen, setIsReflectionOpen] = useState(false);
   const [ownerId, setOwnerId] = useState(0);
   const [summary, setSummary] = useState({
@@ -186,11 +187,11 @@ export default function DailyChecklist() {
     }
   };
 
-  const loadData = async () => {
+  const loadData = async (sync: boolean = false) => {
     try {
       setIsLoading(true);
       const [instancesResponse, reflections] = await Promise.all([
-        taskInstancesService.getForDate(selectedDate),
+        taskInstancesService.getForDate(selectedDate, sync),
         dailyReflectionsService.getAll(),
       ]);
 
@@ -345,6 +346,25 @@ export default function DailyChecklist() {
     }
   };
 
+  const handleSync = async () => {
+    try {
+      setIsSyncing(true);
+      await loadData(true);
+      toast({
+        title: 'Tarefas sincronizadas',
+        description: 'As tarefas foram atualizadas com os dados mais recentes.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao sincronizar',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   const completedTasks = cardsByStatus.done.length;
 
   if (isLoading) {
@@ -369,6 +389,15 @@ export default function DailyChecklist() {
               className="max-w-xs"
             />
           </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleSync}
+            disabled={isSyncing || isLoading}
+            title="Sincronizar tarefas com dados atuais"
+          >
+            <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+          </Button>
           <Dialog open={isReflectionOpen} onOpenChange={setIsReflectionOpen}>
             <DialogTrigger asChild>
               <Button

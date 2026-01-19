@@ -35,10 +35,38 @@ class CreditCardSerializer(serializers.ModelSerializer):
         read_only=True,
         help_text="Nome da conta associada"
     )
+    used_credit = serializers.SerializerMethodField(
+        read_only=True,
+        help_text="Crédito utilizado (parcelas não pagas)"
+    )
+    available_credit = serializers.SerializerMethodField(
+        read_only=True,
+        help_text="Crédito disponível"
+    )
 
     class Meta:
         model = CreditCard
         exclude = ['_security_code', '_card_number']
+
+    def get_used_credit(self, obj):
+        """
+        Retorna a soma das parcelas não pagas do cartão.
+        """
+        from django.db.models import Sum
+        result = CreditCardInstallment.objects.filter(
+            purchase__card=obj,
+            purchase__is_deleted=False,
+            is_deleted=False,
+            payed=False
+        ).aggregate(total=Sum('value'))
+        return float(result['total'] or 0)
+
+    def get_available_credit(self, obj):
+        """
+        Retorna o crédito disponível (limite - usado).
+        """
+        used = self.get_used_credit(obj)
+        return float(obj.credit_limit) - used
 
     def get_card_number_masked(self, obj):
         """

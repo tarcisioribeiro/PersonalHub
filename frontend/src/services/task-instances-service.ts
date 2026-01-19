@@ -71,9 +71,13 @@ class TaskInstancesService {
   /**
    * Obtém ou gera instâncias para uma data específica.
    * Este é o principal método para carregar o Kanban/checklist diário.
+   *
+   * @param date - Data no formato YYYY-MM-DD
+   * @param sync - Se true, sincroniza instâncias pendentes com dados atuais do template
    */
-  async getForDate(date: string): Promise<InstancesForDateResponse> {
-    return apiClient.get<InstancesForDateResponse>(`${BASE_URL}for-date/?date=${date}`);
+  async getForDate(date: string, sync: boolean = false): Promise<InstancesForDateResponse> {
+    const syncParam = sync ? '&sync=true' : '';
+    return apiClient.get<InstancesForDateResponse>(`${BASE_URL}for-date/?date=${date}${syncParam}`);
   }
 
   /**

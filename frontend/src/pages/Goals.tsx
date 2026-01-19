@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trophy, Edit, Trash2 } from 'lucide-react';
+import { Plus, Trophy, Edit, Trash2, RefreshCw, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -91,6 +91,60 @@ export default function Goals() {
     } catch (error: any) {
       toast({
         title: 'Erro ao excluir objetivo',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleRecalculate = async (goal: Goal) => {
+    if (goal.goal_type !== 'consecutive_days') {
+      toast({
+        title: 'Ação não disponível',
+        description: 'Recálculo automático só está disponível para objetivos de dias consecutivos.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      await goalsService.recalculate(goal.id);
+      toast({
+        title: 'Progresso recalculado',
+        description: `Progresso atualizado para ${goal.days_active} dias.`,
+      });
+      loadData();
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao recalcular',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleReset = async (goal: Goal) => {
+    const confirmed = await showConfirm({
+      title: 'Resetar progresso',
+      description:
+        `Tem certeza que deseja resetar o progresso do objetivo "${goal.title}"? O contador será zerado e a data de início será atualizada para hoje.`,
+      confirmText: 'Resetar',
+      cancelText: 'Cancelar',
+      variant: 'destructive',
+    });
+
+    if (!confirmed) return;
+
+    try {
+      await goalsService.reset(goal.id);
+      toast({
+        title: 'Progresso resetado',
+        description: 'O progresso foi resetado. Comece novamente!',
+      });
+      loadData();
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao resetar',
         description: error.message,
         variant: 'destructive',
       });
@@ -209,11 +263,32 @@ export default function Goals() {
       label: 'Ações',
       align: 'center',
       render: (goal) => (
-        <div className="flex gap-2 justify-center">
+        <div className="flex gap-1 justify-center">
+          {goal.goal_type === 'consecutive_days' && goal.status === 'active' && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleRecalculate(goal)}
+              title="Recalcular progresso (dias desde início)"
+            >
+              <RefreshCw className="h-4 w-4 text-primary" />
+            </Button>
+          )}
+          {goal.status === 'active' && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleReset(goal)}
+              title="Resetar progresso"
+            >
+              <RotateCcw className="h-4 w-4 text-warning" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"
             onClick={() => handleEdit(goal)}
+            title="Editar objetivo"
           >
             <Edit className="h-4 w-4" />
           </Button>
@@ -221,6 +296,7 @@ export default function Goals() {
             variant="ghost"
             size="icon"
             onClick={() => handleDelete(goal.id)}
+            title="Excluir objetivo"
           >
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>

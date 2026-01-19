@@ -20,7 +20,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
 
 class FixedExpenseSerializer(serializers.ModelSerializer):
     """Serializer para leitura de despesas fixas (templates)"""
-    account_name = serializers.CharField(source='account.account_name', read_only=True, allow_null=True)
+    account_name = serializers.SerializerMethodField()
     member_name = serializers.CharField(source='member.member_name', read_only=True, allow_null=True)
     credit_card_name = serializers.CharField(source='credit_card.name', read_only=True, allow_null=True)
     total_generated = serializers.IntegerField(read_only=True, required=False)
@@ -28,6 +28,18 @@ class FixedExpenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = FixedExpense
         fields = '__all__'
+
+    def get_account_name(self, obj):
+        """
+        Retorna o nome da conta associada.
+        Se for despesa em conta, retorna o nome da conta.
+        Se for despesa em cartão, retorna o nome da conta associada ao cartão.
+        """
+        if obj.account:
+            return obj.account.account_name
+        elif obj.credit_card and obj.credit_card.associated_account:
+            return f"{obj.credit_card.associated_account.account_name} (via {obj.credit_card.name})"
+        return None
 
 
 class FixedExpenseCreateUpdateSerializer(serializers.ModelSerializer):

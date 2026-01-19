@@ -24,6 +24,14 @@ class GoalsService {
   async delete(id: number): Promise<void> {
     return apiClient.delete(`${this.BASE_URL}${id}/`);
   }
+
+  async recalculate(id: number): Promise<Goal> {
+    return apiClient.post<Goal>(`${this.BASE_URL}${id}/recalculate/`);
+  }
+
+  async reset(id: number): Promise<Goal> {
+    return apiClient.post<Goal>(`${this.BASE_URL}${id}/reset/`);
+  }
 }
 
 export const goalsService = new GoalsService();

@@ -172,6 +172,85 @@ class GoalDetailView(generics.RetrieveUpdateDestroyAPIView):
         )
 
 
+class GoalRecalculateView(APIView):
+    """
+    Recalcula o progresso do objetivo baseado nos dias passados.
+    Para objetivos do tipo 'consecutive_days', atualiza current_value para days_active.
+    """
+    permission_classes = [IsAuthenticated, GlobalDefaultPermission]
+
+    def post(self, request, pk):
+        try:
+            goal = Goal.objects.get(
+                pk=pk,
+                owner__user=request.user,
+                deleted_at__isnull=True
+            )
+        except Goal.DoesNotExist:
+            return Response(
+                {'detail': 'Objetivo não encontrado.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Atualiza current_value para dias ativos (apenas para goal_type consecutive_days)
+        if goal.goal_type == 'consecutive_days':
+            goal.current_value = goal.days_active
+            # Verifica se atingiu a meta
+            if goal.current_value >= goal.target_value:
+                goal.status = 'completed'
+                goal.end_date = timezone.now().date()
+            goal.save(update_fields=['current_value', 'status', 'end_date', 'updated_at'])
+
+            log_activity(
+                request, 'update', 'Goal',
+                goal.id, f'Recalculou progresso do objetivo: {goal.title}'
+            )
+
+            serializer = GoalSerializer(goal)
+            return Response(serializer.data)
+
+        return Response(
+            {'detail': 'Recálculo automático só está disponível para objetivos de dias consecutivos.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class GoalResetView(APIView):
+    """
+    Reseta o progresso do objetivo.
+    Define current_value = 0 e start_date = hoje, mantendo o status como ativo.
+    """
+    permission_classes = [IsAuthenticated, GlobalDefaultPermission]
+
+    def post(self, request, pk):
+        try:
+            goal = Goal.objects.get(
+                pk=pk,
+                owner__user=request.user,
+                deleted_at__isnull=True
+            )
+        except Goal.DoesNotExist:
+            return Response(
+                {'detail': 'Objetivo não encontrado.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Reseta o progresso
+        goal.current_value = 0
+        goal.start_date = timezone.now().date()
+        goal.end_date = None
+        goal.status = 'active'
+        goal.save(update_fields=['current_value', 'start_date', 'end_date', 'status', 'updated_at'])
+
+        log_activity(
+            request, 'update', 'Goal',
+            goal.id, f'Resetou progresso do objetivo: {goal.title}'
+        )
+
+        serializer = GoalSerializer(goal)
+        return Response(serializer.data)
+
+
 # ============================================================================
 # DAILY REFLECTION VIEWS
 # ============================================================================
@@ -567,15 +646,21 @@ class TaskInstanceDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class InstancesForDateView(APIView):
     """
-    GET /api/v1/personal-planning/instances/for-date/?date=YYYY-MM-DD
+    GET /api/v1/personal-planning/instances/for-date/?date=YYYY-MM-DD&sync=true
 
     Retorna todas as instancias para uma data, gerando-as se necessario.
     Este endpoint implementa a geracao lazy de instancias.
+
+    Query params:
+    - date: Data no formato YYYY-MM-DD (obrigatório)
+    - sync: Se 'true', sincroniza instâncias pendentes com dados atuais do template
     """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         date_param = request.query_params.get('date')
+        sync_param = request.query_params.get('sync', 'false').lower() == 'true'
+
         if not date_param:
             return Response(
                 {'error': 'Parametro date e obrigatorio'},
@@ -599,8 +684,9 @@ class InstancesForDateView(APIView):
             )
 
         # Gerar instancias (lazy generation)
+        # Se sync=true, atualiza instâncias pendentes com dados do template
         from personal_planning.services.instance_generator import InstanceGenerator
-        instances = InstanceGenerator.generate_for_date(member, target_date)
+        instances = InstanceGenerator.generate_for_date(member, target_date, force_regenerate=sync_param)
 
         serializer = TaskInstanceSerializer(instances, many=True)
 

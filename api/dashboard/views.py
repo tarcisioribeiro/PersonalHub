@@ -105,6 +105,8 @@ class DashboardStatsView(APIView):
         "total_expenses": 5000.00,
         "total_revenues": 8000.00,
         "total_credit_limit": 20000.00,
+        "used_credit_limit": 5000.00,
+        "available_credit_limit": 15000.00,
         "accounts_count": 3,
         "credit_cards_count": 2
     }
@@ -143,12 +145,27 @@ class DashboardStatsView(APIView):
             count=Count('id')
         )
 
+        # Calcular crédito usado (parcelas não pagas de cartões ativos)
+        used_credit = CreditCardInstallment.objects.filter(
+            is_deleted=False,
+            purchase__is_deleted=False,
+            purchase__card__is_deleted=False,
+            payed=False
+        ).aggregate(
+            total=Sum('value')
+        )['total'] or Decimal('0.00')
+
+        total_credit_limit = credit_cards_agg['total_limit'] or Decimal('0.00')
+        available_credit = total_credit_limit - used_credit
+
         # Construir response com valores padrão se None
         stats = {
             'total_balance': float(accounts_agg['total_balance'] or Decimal('0.00')),
             'total_expenses': float(expenses_agg['total'] or Decimal('0.00')),
             'total_revenues': float(revenues_agg['total'] or Decimal('0.00')),
-            'total_credit_limit': float(credit_cards_agg['total_limit'] or Decimal('0.00')),
+            'total_credit_limit': float(total_credit_limit),
+            'used_credit_limit': float(used_credit),
+            'available_credit_limit': float(available_credit),
             'accounts_count': accounts_agg['count'] or 0,
             'credit_cards_count': credit_cards_agg['count'] or 0,
         }

@@ -8,6 +8,8 @@ from personal_planning.views import (
     # Goals
     GoalListCreateView,
     GoalDetailView,
+    GoalRecalculateView,
+    GoalResetView,
     # Daily Reflections
     DailyReflectionListCreateView,
     DailyReflectionDetailView,
@@ -35,6 +37,10 @@ urlpatterns = [
          name='goal-list-create'),
     path('goals/<int:pk>/', GoalDetailView.as_view(),
          name='goal-detail'),
+    path('goals/<int:pk>/recalculate/', GoalRecalculateView.as_view(),
+         name='goal-recalculate'),
+    path('goals/<int:pk>/reset/', GoalResetView.as_view(),
+         name='goal-reset'),
 
     # Daily Reflections
     path('reflections/', DailyReflectionListCreateView.as_view(),
