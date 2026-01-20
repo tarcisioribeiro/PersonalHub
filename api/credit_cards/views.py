@@ -381,14 +381,7 @@ class PayCreditCardBillView(APIView):
         bill.paid_amount = Decimal(str(bill.paid_amount)) + amount
         bill.payment_date = payment_date
 
-        # 5. Restaurar limite do cartão (até o max_limit)
-        new_limit = Decimal(str(card.credit_limit)) + amount
-        if new_limit > Decimal(str(card.max_limit)):
-            new_limit = Decimal(str(card.max_limit))
-        card.credit_limit = new_limit
-        card.save()
-
-        # 6. Atualizar status da fatura conforme regras de negócio
+        # 5. Atualizar status da fatura conforme regras de negócio
         new_paid_amount = Decimal(str(bill.paid_amount))
         total_amount = Decimal(str(bill.total_amount))
 
@@ -396,6 +389,15 @@ class PayCreditCardBillView(APIView):
             # Fatura totalmente paga
             bill.status = 'paid'
             bill.closed = True
+
+            # 5.1 Marcar todas as parcelas desta fatura como pagas
+            # Isso libera o limite do cartão automaticamente no cálculo
+            CreditCardInstallment.objects.filter(
+                bill=bill,
+                is_deleted=False,
+                payed=False
+            ).update(payed=True)
+
         elif bill.due_date and payment_date >= bill.due_date:
             # Pagamento parcial após o vencimento
             if bill.status != 'overdue':
