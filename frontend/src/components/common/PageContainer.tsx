@@ -18,7 +18,7 @@ interface PageContainerProps {
  */
 export const PageContainer: React.FC<PageContainerProps> = ({ children, className }) => {
   return (
-    <AnimatedPage className={cn("container mx-auto px-4 py-8 space-y-6", className)}>
+    <AnimatedPage className={cn("px-4 py-8 space-y-6", className)}>
       {children}
     </AnimatedPage>
   );
