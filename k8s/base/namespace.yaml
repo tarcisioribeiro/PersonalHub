@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: personalhub
+  labels:
+    app.kubernetes.io/name: personalhub
+    app.kubernetes.io/component: namespace

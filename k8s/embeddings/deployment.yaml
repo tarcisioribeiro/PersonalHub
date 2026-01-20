@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: embeddings
+  namespace: personalhub
+  labels:
+    app.kubernetes.io/name: personalhub
+    app.kubernetes.io/component: embeddings
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: embeddings
+  template:
+    metadata:
+      labels:
+        app: embeddings
+        app.kubernetes.io/name: personalhub
+        app.kubernetes.io/component: embeddings
+    spec:
+      containers:
+        - name: embeddings
+          image: localhost:5000/personalhub-embeddings:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: TZ
+              value: "America/Sao_Paulo"
+          volumeMounts:
+            - name: models-cache
+              mountPath: /app/models
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+      volumes:
+        - name: models-cache
+          persistentVolumeClaim:
+            claimName: embeddings-models-pvc
