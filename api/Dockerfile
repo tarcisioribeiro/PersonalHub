@@ -1,8 +1,10 @@
-FROM python:3.12-slim
+# syntax=docker/dockerfile:1.4
+# Multi-stage build for Django API - optimized for fast rebuilds
 
-WORKDIR /app
+# Stage 1: Base with system dependencies (cached)
+FROM python:3.12-slim AS base
 
-# Instalar dependências do sistema
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
@@ -11,33 +13,47 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copiar APENAS requirements primeiro (otimização de cache)
+WORKDIR /app
+
+# Stage 2: Dependencies builder (cached when requirements unchanged)
+FROM base AS deps
+
+# Copy requirements first (for layer caching)
 COPY requirements.txt .
 
-# Instalar dependências Python (layer cacheável)
-RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies with BuildKit cache mount
+# Cache persists between builds, dramatically speeding up rebuilds
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --upgrade pip && \
+    pip install -r requirements.txt
 
-# Copiar código da aplicação (muda frequentemente, vem por último)
-COPY . .
+# Stage 3: Production image
+FROM base AS production
 
-# Criar diretórios necessários com permissões corretas
-RUN mkdir -p /app/media /app/logs /app/staticfiles && \
-    chmod 755 /app/media /app/logs /app/staticfiles
+WORKDIR /app
 
-# Criar usuário não-root
-RUN useradd -m -u 1000 appuser && \
-    chown -R appuser:appuser /app
+# Copy installed packages from deps stage
+COPY --from=deps /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=deps /usr/local/bin /usr/local/bin
 
-# Configurar permissões do entrypoint
-RUN chmod +x /app/entrypoint.sh
+# Create non-root user
+RUN useradd -m -u 1000 appuser
 
-# Trocar para usuário não-root
+# Copy application code (changes frequently, comes last)
+COPY --chown=appuser:appuser . .
+
+# Create required directories with correct permissions (after COPY to ensure proper ownership)
+RUN mkdir -p /app/media/security/archives /app/logs /app/staticfiles && \
+    chown -R appuser:appuser /app && \
+    chmod +x /app/entrypoint.sh
+
+# Switch to non-root user
 USER appuser
 
-# Expor porta da API
+# Expose API port
 EXPOSE 8002
 
-# Variáveis de ambiente serão injetadas pelo docker-compose
+# Environment variables
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=app.settings
 ENV TZ=America/Sao_Paulo

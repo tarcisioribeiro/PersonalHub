@@ -16,9 +16,9 @@ echo "Banco de dados está disponível!"
 
 # Criar diretórios necessários para upload de arquivos
 echo "Criando diretórios necessários..."
-mkdir -p /app/media/security/archives
-mkdir -p /app/logs
-mkdir -p /app/staticfiles
+mkdir -p /app/media/security/archives 2>/dev/null || true
+mkdir -p /app/logs 2>/dev/null || true
+mkdir -p /app/staticfiles 2>/dev/null || true
 
 export PGPASSWORD="$DB_PASSWORD"
 

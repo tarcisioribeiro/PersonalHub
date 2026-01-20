@@ -1,4 +1,5 @@
-# Multi-stage build for React frontend
+# syntax=docker/dockerfile:1.4
+# Multi-stage build for React frontend - optimized for fast rebuilds
 
 # Stage 1: Build
 FROM node:20-alpine AS builder
@@ -9,16 +10,20 @@ WORKDIR /app
 ARG VITE_API_BASE_URL=http://localhost:8002
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
-# Copy package files
+# Copy package files first (for layer caching)
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies with BuildKit cache mount
+# npm ci is faster than npm install (skips dependency resolution)
+# Cache mount preserves npm cache between builds
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
 
 # Manually install rollup binary for Alpine (fixes optional dependency issue)
-RUN npm install @rollup/rollup-linux-x64-musl --save-optional
+RUN --mount=type=cache,target=/root/.npm \
+    npm install @rollup/rollup-linux-x64-musl --save-optional
 
-# Copy source code
+# Copy source code (changes frequently, comes last)
 COPY . .
 
 # Build the application
@@ -27,7 +32,7 @@ RUN npm run build
 # Stage 2: Production with nginx
 FROM nginx:alpine
 
-# Criar usuário não-root para nginx
+# Create non-root user for nginx
 RUN addgroup -g 1000 appuser && \
     adduser -D -u 1000 -G appuser appuser && \
     chown -R appuser:appuser /var/cache/nginx && \
@@ -43,7 +48,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Trocar para usuário não-root
+# Switch to non-root user
 USER appuser
 
 # Expose port 80
