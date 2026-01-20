@@ -203,8 +203,8 @@ EMBEDDING_CONFIG = {
 
 # AI Assistant Configuration
 AI_ASSISTANT_CONFIG = {
-    'MAX_CONTEXT_TOKENS': 4000,
-    'DEFAULT_TOP_K': 10,
+    'MAX_CONTEXT_TOKENS': 6000,
+    'DEFAULT_TOP_K': 50,  # Increased for better RAG coverage
     'CACHE_SEMANTIC_THRESHOLD': 0.92,
     'CACHE_TTL_EXACT': 3600,      # 1 hour for exact matches
     'CACHE_TTL_SEMANTIC': 1800,   # 30 min for semantic matches

@@ -78,7 +78,7 @@ export default function LibraryDashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
+    <div className="px-4 py-8 space-y-6">
       <PageHeader
         title="Dashboard de Leitura"
         icon={<Library />}

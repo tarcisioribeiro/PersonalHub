@@ -454,7 +454,9 @@ class ArchiveRevealView(generics.RetrieveAPIView):
 
 class ArchiveDownloadView(APIView):
     """Faz download do arquivo criptografado."""
-    permission_classes = [IsAuthenticated, GlobalDefaultPermission]
+    permission_classes = [IsAuthenticated]
+    # Note: GlobalDefaultPermission removed because APIView doesn't have queryset
+    # Security is handled by filtering on owner__user in the query below
 
     def get(self, request, pk):
         """Download do arquivo criptografado."""

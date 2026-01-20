@@ -200,7 +200,8 @@ class SQLValidator:
         sql = self._ensure_soft_delete_filter(sql, tables_used)
 
         # Step 10: Inject or adjust LIMIT
-        if inject_limit:
+        # Don't inject LIMIT for pure aggregation queries (they already return few rows)
+        if inject_limit and not (has_aggregation and not has_grouping):
             sql = self._inject_or_adjust_limit(sql, max_limit)
 
         return ValidationResult(

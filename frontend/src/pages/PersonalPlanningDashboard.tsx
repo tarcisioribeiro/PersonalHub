@@ -127,7 +127,7 @@ export default function PersonalPlanningDashboard() {
 
   if (!stats) {
     return (
-      <div className="container mx-auto px-4 py-8 space-y-6">
+      <div className="px-4 py-8 space-y-6">
         <PageHeader
           title="Dashboard de Planejamento Pessoal"
           icon={<Calendar />}
@@ -140,7 +140,7 @@ export default function PersonalPlanningDashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
+    <div className="px-4 py-8 space-y-6">
       <PageHeader
         title="Dashboard de Planejamento Pessoal"
         icon={<Calendar />}
