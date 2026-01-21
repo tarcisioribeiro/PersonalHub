@@ -53,10 +53,6 @@ END
 \$\$;
 EOF
 
-# Create pgvector extension in the application database (required for embeddings)
-echo "Habilitando extensão pgvector..."
-psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "CREATE EXTENSION IF NOT EXISTS vector;"
-
 python manage.py makemigrations
 python manage.py migrate
 python manage.py collectstatic --noinput

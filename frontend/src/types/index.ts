@@ -1084,32 +1084,6 @@ export const READ_STATUS = [
   { value: 'read', label: 'Lido' },
 ];
 
-// AI Assistant Types
-export interface AIQueryRequest {
-  question: string;
-  top_k?: number;
-}
-
-export interface AISource {
-  module: string;
-  type: string;
-  score: number;
-  metadata: Record<string, any>;
-}
-
-export interface AIQueryResponse {
-  answer: string;
-  sources: AISource[];
-}
-
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  sources?: AISource[];
-}
-
 // ============================================================================
 // PERSONAL PLANNING MODULE TYPES
 // ============================================================================

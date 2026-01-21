@@ -27,8 +27,6 @@ import {
   BookMarked,
   FileText,
   Home,
-  Bot,
-  MessageSquare,
   Calendar,
   Target,
   CheckCircle2,
@@ -143,13 +141,6 @@ const navModules: NavModule[] = [
       { title: 'Editoras', href: '/library/publishers', icon: <Building2 className="w-4 h-4" /> },
       { title: 'Resumos', href: '/library/summaries', icon: <FileText className="w-4 h-4" /> },
       { title: 'Leituras', href: '/library/readings', icon: <BookMarked className="w-4 h-4" /> },
-    ],
-  },
-  {
-    title: 'Assistente de IA',
-    icon: <Bot className="w-5 h-5" />,
-    items: [
-      { title: 'Chat', href: '/ai-assistant', icon: <MessageSquare className="w-4 h-4" /> },
     ],
   },
 ];

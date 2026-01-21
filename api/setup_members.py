@@ -32,7 +32,6 @@ apps = [
     'dashboard',
     'security',
     'library',
-    'ai_assistant',
     'personal_planning',
     'payables'
 ]

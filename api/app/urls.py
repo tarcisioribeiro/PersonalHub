@@ -27,8 +27,6 @@ urlpatterns = [
     path('api/v1/security/', include('security.urls')),
     # Library Module
     path('api/v1/library/', include('library.urls')),
-    # AI Assistant
-    path('api/v1/ai/', include('ai_assistant.urls')),
     # Personal Planning Module
     path('api/v1/personal-planning/', include('personal_planning.urls')),
     # Payables Module

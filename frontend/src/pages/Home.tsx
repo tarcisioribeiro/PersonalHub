@@ -16,7 +16,7 @@ import {
   LayoutDashboard,
   Shield,
   Library,
-  Bot,
+  Calendar,
 } from 'lucide-react';
 
 interface ModuleCard {
@@ -29,6 +29,19 @@ interface ModuleCard {
 
 export default function Home() {
   const modules: ModuleCard[] = [
+    {
+      title: 'Planejamento Pessoal',
+      icon: <Calendar className="w-8 h-8" />,
+      href: '/planning/dashboard',
+      color: 'from-warning to-warning/70',
+      features: [
+        'Checklist Diário',
+        'Tarefas Rotineiras',
+        'Objetivos e Metas',
+        'Acompanhamento de Progresso',
+        'Organização Pessoal'
+      ]
+    },
     {
       title: 'Controle Financeiro',
       icon: <Wallet className="w-8 h-8" />,
@@ -66,19 +79,6 @@ export default function Home() {
         'Resumos e Anotações',
         'Controle de Leituras',
         'Estatísticas de Leitura'
-      ]
-    },
-    {
-      title: 'AI Assistant',
-      icon: <Bot className="w-8 h-8" />,
-      href: '/ai-assistant',
-      color: 'from-warning to-warning/70',
-      features: [
-        'Consultas em Linguagem Natural',
-        'Análise de Dados Financeiros',
-        'Recomendações Personalizadas',
-        'Busca Inteligente',
-        'Insights Automatizados'
       ]
     }
   ];

@@ -43,9 +43,6 @@ const Publishers = lazy(() => import('./pages/Publishers'));
 const Summaries = lazy(() => import('./pages/Summaries'));
 const Readings = lazy(() => import('./pages/Readings'));
 
-// AI Assistant
-const AIAssistant = lazy(() => import('./pages/AIAssistant'));
-
 // Personal Planning Module
 const PersonalPlanningDashboard = lazy(() => import('./pages/PersonalPlanningDashboard'));
 const RoutineTasks = lazy(() => import('./pages/RoutineTasks'));
@@ -117,9 +114,6 @@ function AnimatedRoutes() {
           <Route path="/library/publishers" element={<Suspense fallback={<LoadingFallback />}><Publishers /></Suspense>} />
           <Route path="/library/summaries" element={<Suspense fallback={<LoadingFallback />}><Summaries /></Suspense>} />
           <Route path="/library/readings" element={<Suspense fallback={<LoadingFallback />}><Readings /></Suspense>} />
-
-          {/* AI Assistant route */}
-          <Route path="/ai-assistant" element={<Suspense fallback={<LoadingFallback />}><AIAssistant /></Suspense>} />
 
           {/* Personal Planning Module routes */}
           <Route path="/planning/dashboard" element={<Suspense fallback={<LoadingFallback />}><PersonalPlanningDashboard /></Suspense>} />

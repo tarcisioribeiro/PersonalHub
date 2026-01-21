@@ -40,10 +40,6 @@ export const API_CONFIG = {
     SUMMARIES: '/api/v1/library/summaries/',
     READINGS: '/api/v1/library/readings/',
 
-    // AI Assistant
-    AI_QUERY: '/api/v1/ai/query/',
-    AI_STREAM: '/api/v1/ai/stream/',
-
     // Health
     HEALTH: '/api/v1/health/',
   },

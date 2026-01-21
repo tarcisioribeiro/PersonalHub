@@ -192,12 +192,10 @@ tag_and_push_images() {
     # Tag images for local registry
     docker tag personalhub-api:latest "localhost:${REGISTRY_PORT}/personalhub-api:latest"
     docker tag personalhub-frontend:latest "localhost:${REGISTRY_PORT}/personalhub-frontend:latest"
-    docker tag personalhub-embeddings:latest "localhost:${REGISTRY_PORT}/personalhub-embeddings:latest"
 
     # Push to local registry
     docker push "localhost:${REGISTRY_PORT}/personalhub-api:latest"
     docker push "localhost:${REGISTRY_PORT}/personalhub-frontend:latest"
-    docker push "localhost:${REGISTRY_PORT}/personalhub-embeddings:latest"
 
     log_success "Images pushed to local registry."
 }
@@ -240,10 +238,6 @@ apply_manifests() {
     log_info "Deploying Redis..."
     kubectl apply -f "${K8S_DIR}/redis/"
 
-    # Apply Embeddings service
-    log_info "Deploying Embeddings service..."
-    kubectl apply -f "${K8S_DIR}/embeddings/"
-
     # Apply API
     log_info "Deploying API..."
     kubectl apply -f "${K8S_DIR}/api/"
@@ -263,7 +257,6 @@ wait_for_deployments() {
 
     kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/postgres || true
     kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/redis || true
-    kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/embeddings || true
     kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/api || true
     kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/frontend || true
 

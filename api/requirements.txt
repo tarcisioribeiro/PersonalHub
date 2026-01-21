@@ -18,13 +18,8 @@ django-cors-headers==4.6.0
 # Monitoring and logging
 python-json-logger==2.0.7
 
-# AI Assistant dependencies
-groq==0.14.0
-# sentence-transformers moved to embeddings-service container
-# HTTP client uses requests to communicate with embeddings service
+# HTTP client
 requests>=2.31.0
 
-# RAG Architecture dependencies
-pgvector==0.3.6
+# Redis cache
 django-redis==5.4.0
-tiktoken==0.8.0

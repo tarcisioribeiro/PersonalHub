@@ -41,17 +41,6 @@ spec:
                 sleep 2
               done
               echo "Redis is ready!"
-        - name: wait-for-embeddings
-          image: busybox:1.36
-          command:
-            - sh
-            - -c
-            - |
-              until nc -z embeddings-service 8080; do
-                echo "Waiting for Embeddings service..."
-                sleep 2
-              done
-              echo "Embeddings service is ready!"
       containers:
         - name: api
           image: localhost:5000/personalhub-api:latest

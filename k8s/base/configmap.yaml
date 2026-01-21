@@ -25,6 +25,3 @@ data:
   DJANGO_SETTINGS_MODULE: "app.settings"
   LOG_FORMAT: "json"
   TZ: "America/Sao_Paulo"
-
-  # Embeddings service
-  EMBEDDING_SERVICE_URL: "http://embeddings-service:8080"

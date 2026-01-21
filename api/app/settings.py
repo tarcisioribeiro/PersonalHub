@@ -44,8 +44,6 @@ INSTALLED_APPS = [
     'security',
     # Library Module
     'library',
-    # AI Assistant
-    'ai_assistant',
     # Personal Planning Module
     'personal_planning',
     # Payables Module
@@ -187,35 +185,6 @@ CACHES = {
         'KEY_PREFIX': 'personalhub',
         'TIMEOUT': 3600,  # 1 hour default
     }
-}
-
-# Embedding Service Configuration
-# URL do serviço de embeddings (container separado)
-# - Se definido: usa HTTP client para chamar serviço externo
-# - Se 'local' ou não definido: usa sentence-transformers local (requer instalação)
-EMBEDDING_SERVICE_URL = os.getenv('EMBEDDING_SERVICE_URL', 'http://embeddings:8080')
-
-EMBEDDING_CONFIG = {
-    'MODEL': 'all-MiniLM-L6-v2',  # Fast, multilingual, 384 dimensions
-    'DIMENSIONS': 384,
-    'BATCH_SIZE': 32,
-}
-
-# AI Assistant Configuration
-AI_ASSISTANT_CONFIG = {
-    'MAX_CONTEXT_TOKENS': 6000,
-    'DEFAULT_TOP_K': 50,  # Increased for better RAG coverage
-    'CACHE_SEMANTIC_THRESHOLD': 0.92,
-    'CACHE_TTL_EXACT': 3600,      # 1 hour for exact matches
-    'CACHE_TTL_SEMANTIC': 1800,   # 30 min for semantic matches
-    'EMBEDDING_BATCH_SIZE': 32,
-}
-
-# Groq Configuration (for all LLM text generation)
-GROQ_CONFIG = {
-    'API_KEY': os.getenv('GROQ_API_KEY'),
-    'MODEL': 'llama-3.3-70b-versatile',  # Fast, accurate, generous free tier
-    'TIMEOUT': 60,
 }
 
 # Structured Logging Configuration
