@@ -112,9 +112,13 @@ export default function CreditCardExpenses() {
     return 'N/A';
   };
 
-  const loadData = async () => {
+  const loadData = async (preserveFilters = false) => {
     try {
       setIsLoading(true);
+      // Salvar filtros atuais se necessário
+      const currentCardFilter = cardFilter;
+      const currentBillFilter = billFilter;
+
       const [purchasesData, installmentsData, cardsData, billsData] = await Promise.all([
         creditCardPurchasesService.getAll(),
         creditCardInstallmentsService.getAll(),
@@ -125,6 +129,24 @@ export default function CreditCardExpenses() {
       setInstallments(installmentsData);
       setCreditCards(cardsData);
       setBills(billsData);
+
+      // Se deve preservar filtros e eles são válidos, restaurá-los
+      if (preserveFilters) {
+        // Verificar se o cartão selecionado ainda existe
+        const cardStillExists = currentCardFilter === 'all' || cardsData.some(c => c.id.toString() === currentCardFilter);
+        if (cardStillExists) {
+          setCardFilter(currentCardFilter);
+          // Verificar se a fatura selecionada ainda existe e pertence ao cartão
+          const billStillValid = currentBillFilter === 'all' || billsData.some(b =>
+            b.id.toString() === currentBillFilter &&
+            (currentCardFilter === 'all' || b.credit_card.toString() === currentCardFilter)
+          );
+          if (billStillValid) {
+            setBillFilter(currentBillFilter);
+          }
+        }
+        return;
+      }
 
       // Selecionar automaticamente o primeiro cartão e sua primeira fatura ABERTA
       if (cardsData.length > 0) {
@@ -248,7 +270,7 @@ export default function CreditCardExpenses() {
       }
 
       setIsDialogOpen(false);
-      loadData();
+      loadData(true);
     } catch (error: any) {
       toast({ title: 'Erro ao salvar', description: error.message, variant: 'destructive' });
     } finally {
@@ -292,7 +314,7 @@ export default function CreditCardExpenses() {
     try {
       await creditCardPurchasesService.delete(purchaseId);
       toast({ title: 'Compra excluída', description: 'A compra e suas parcelas foram excluídas com sucesso.' });
-      loadData();
+      loadData(true);
     } catch (error: any) {
       toast({ title: 'Erro ao excluir', description: error.message, variant: 'destructive' });
     }
@@ -305,7 +327,7 @@ export default function CreditCardExpenses() {
         title: installment.payed ? 'Parcela desmarcada' : 'Parcela paga',
         description: `Status da parcela atualizado com sucesso.`,
       });
-      loadData();
+      loadData(true);
     } catch (error: any) {
       toast({ title: 'Erro ao atualizar', description: error.message, variant: 'destructive' });
     }
@@ -324,7 +346,7 @@ export default function CreditCardExpenses() {
       await creditCardInstallmentsService.update(selectedInstallment.id, data);
       toast({ title: 'Parcela atualizada', description: 'A parcela foi atualizada com sucesso.' });
       setIsInstallmentDialogOpen(false);
-      loadData();
+      loadData(true);
     } catch (error: any) {
       toast({ title: 'Erro ao salvar', description: error.message, variant: 'destructive' });
     } finally {

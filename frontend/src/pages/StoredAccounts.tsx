@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable, type Column } from '@/components/common/DataTable';
+import { translate } from '@/config/constants';
 import type { StoredBankAccount, StoredBankAccountFormData, Account, Member } from '@/types';
 import { PageContainer } from '@/components/common/PageContainer';
 
@@ -219,7 +220,7 @@ export default function StoredAccounts() {
     {
       key: 'institution',
       label: 'Instituição',
-      render: (acc) => <span className="text-sm">{acc.institution_name}</span>,
+      render: (acc) => <span className="text-sm">{translate('institutions', acc.institution_name)}</span>,
     },
     {
       key: 'type',

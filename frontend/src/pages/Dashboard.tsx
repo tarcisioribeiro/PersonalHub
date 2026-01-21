@@ -18,7 +18,7 @@ import { formatCurrency } from '@/lib/formatters';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import type { DashboardStats, Expense, Revenue, AccountBalance, CreditCard as CreditCardType, CreditCardBill, CreditCardExpensesByCategory, BalanceForecast } from '@/types';
-import { format, subMonths, startOfMonth, endOfMonth, eachMonthOfInterval } from 'date-fns';
+import { format, subMonths, subWeeks, subYears, startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYear, eachMonthOfInterval, eachWeekOfInterval, eachYearOfInterval } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useChartColors } from '@/lib/chart-colors';
 import { ChartContainer } from '@/components/charts';
@@ -35,6 +35,7 @@ export default function Dashboard() {
   const [balanceForecast, setBalanceForecast] = useState<BalanceForecast | null>(null);
   const [selectedCard, setSelectedCard] = useState<string>('all');
   const [selectedBill, setSelectedBill] = useState<string>('all');
+  const [evolutionPeriod, setEvolutionPeriod] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -165,7 +166,7 @@ export default function Dashboard() {
 
   const revenuesByCategory = useMemo(() => {
     return revenues
-      .filter(rev => rev.received) // Apenas receitas recebidas
+      .filter(rev => rev.received && rev.category !== 'transfer') // Apenas receitas recebidas, excluindo transferências
       .reduce((acc: any[], rev) => {
         const existing = acc.find(item => item.category === rev.category);
         if (existing) {
@@ -181,20 +182,50 @@ export default function Dashboard() {
       }, []).sort((a, b) => b.value - a.value).slice(0, 5);
   }, [revenues]);
 
-  const monthlyData = useMemo(() => {
-    return eachMonthOfInterval({ start: subMonths(new Date(), 5), end: new Date() }).map(month => {
-      const monthStart = startOfMonth(month);
-      const monthEnd = endOfMonth(month);
-      // Filtra apenas despesas pagas e receitas recebidas
-      const monthExpenses = expenses
-        .filter(e => e.payed && new Date(e.date) >= monthStart && new Date(e.date) <= monthEnd)
-        .reduce((sum, e) => sum + parseFloat(e.value), 0);
-      const monthRevenues = revenues
-        .filter(r => r.received && new Date(r.date) >= monthStart && new Date(r.date) <= monthEnd)
-        .reduce((sum, r) => sum + parseFloat(r.value), 0);
-      return { month: format(month, 'MMM/yy', { locale: ptBR }), despesas: monthExpenses, receitas: monthRevenues, saldo: monthRevenues - monthExpenses };
-    });
-  }, [expenses, revenues]);
+  const evolutionData = useMemo(() => {
+    const now = new Date();
+
+    if (evolutionPeriod === 'weekly') {
+      // Últimas 8 semanas
+      return eachWeekOfInterval({ start: subWeeks(now, 7), end: now }, { weekStartsOn: 0 }).map(week => {
+        const weekStart = startOfWeek(week, { weekStartsOn: 0 });
+        const weekEnd = endOfWeek(week, { weekStartsOn: 0 });
+        const weekExpenses = expenses
+          .filter(e => e.payed && new Date(e.date) >= weekStart && new Date(e.date) <= weekEnd)
+          .reduce((sum, e) => sum + parseFloat(e.value), 0);
+        const weekRevenues = revenues
+          .filter(r => r.received && new Date(r.date) >= weekStart && new Date(r.date) <= weekEnd)
+          .reduce((sum, r) => sum + parseFloat(r.value), 0);
+        return { month: format(weekStart, 'dd/MM', { locale: ptBR }), despesas: weekExpenses, receitas: weekRevenues, saldo: weekRevenues - weekExpenses };
+      });
+    } else if (evolutionPeriod === 'yearly') {
+      // Últimos 5 anos
+      return eachYearOfInterval({ start: subYears(now, 4), end: now }).map(year => {
+        const yearStart = startOfYear(year);
+        const yearEnd = endOfYear(year);
+        const yearExpenses = expenses
+          .filter(e => e.payed && new Date(e.date) >= yearStart && new Date(e.date) <= yearEnd)
+          .reduce((sum, e) => sum + parseFloat(e.value), 0);
+        const yearRevenues = revenues
+          .filter(r => r.received && new Date(r.date) >= yearStart && new Date(r.date) <= yearEnd)
+          .reduce((sum, r) => sum + parseFloat(r.value), 0);
+        return { month: format(year, 'yyyy', { locale: ptBR }), despesas: yearExpenses, receitas: yearRevenues, saldo: yearRevenues - yearExpenses };
+      });
+    } else {
+      // Mensal (padrão) - Últimos 6 meses
+      return eachMonthOfInterval({ start: subMonths(now, 5), end: now }).map(month => {
+        const monthStart = startOfMonth(month);
+        const monthEnd = endOfMonth(month);
+        const monthExpenses = expenses
+          .filter(e => e.payed && new Date(e.date) >= monthStart && new Date(e.date) <= monthEnd)
+          .reduce((sum, e) => sum + parseFloat(e.value), 0);
+        const monthRevenues = revenues
+          .filter(r => r.received && new Date(r.date) >= monthStart && new Date(r.date) <= monthEnd)
+          .reduce((sum, r) => sum + parseFloat(r.value), 0);
+        return { month: format(month, 'MMM/yy', { locale: ptBR }), despesas: monthExpenses, receitas: monthRevenues, saldo: monthRevenues - monthExpenses };
+      });
+    }
+  }, [expenses, revenues, evolutionPeriod]);
 
   const COLORS = useChartColors();
 
@@ -512,11 +543,27 @@ export default function Dashboard() {
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Evolução Mensal (Últimos 6 Meses)</CardTitle></CardHeader>
+        <CardHeader>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <CardTitle>
+              Evolução {evolutionPeriod === 'weekly' ? 'Semanal (Últimas 8 Semanas)' : evolutionPeriod === 'yearly' ? 'Anual (Últimos 5 Anos)' : 'Mensal (Últimos 6 Meses)'}
+            </CardTitle>
+            <Select value={evolutionPeriod} onValueChange={(v) => setEvolutionPeriod(v as 'weekly' | 'monthly' | 'yearly')}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="weekly">Semanal</SelectItem>
+                <SelectItem value="monthly">Mensal</SelectItem>
+                <SelectItem value="yearly">Anual</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
         <CardContent>
           <ChartContainer
             chartId="financial-monthly-evolution"
-            data={monthlyData}
+            data={evolutionData}
             dataKey="saldo"
             nameKey="month"
             formatter={formatCurrency}
