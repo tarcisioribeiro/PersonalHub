@@ -1,11 +1,11 @@
-# PersonalHub
+# MindLedger
 
 Sistema completo de gestão pessoal com funcionalidades para controle de planejamento pessoal, finanças, dados pessoais e leituras.
 
 ## Estrutura do Projeto
 
 ```
-PersonalHub/
+MindLedger/
 ├── api/              # Backend Django REST Framework
 ├── frontend/         # Frontend React + Vite + TypeScript
 ├── docker-compose.yml
@@ -43,7 +43,7 @@ PersonalHub/
 
 ```bash
 git clone <seu-repositorio>
-cd PersonalHub
+cd MindLedger
 ```
 
 ### 2. Configure as variáveis de ambiente
@@ -216,13 +216,13 @@ docker-compose exec api python manage.py setup_permissions
 Backups do banco de dados podem ser salvos em `./backups/`:
 
 ```bash
-docker-compose exec db pg_dump -U $DB_USER personalhub_db > backups/backup_$(date +%Y%m%d_%H%M%S).sql
+docker-compose exec db pg_dump -U $DB_USER MindLedger_db > backups/backup_$(date +%Y%m%d_%H%M%S).sql
 ```
 
 ## Restauração
 
 ```bash
-docker-compose exec -T db psql -U $DB_USER personalhub_db < backups/seu_backup.sql
+docker-compose exec -T db psql -U $DB_USER MindLedger_db < backups/seu_backup.sql
 ```
 
 ## Health Check
