@@ -31,6 +31,8 @@ urlpatterns = [
     path('api/v1/personal-planning/', include('personal_planning.urls')),
     # Payables Module
     path('api/v1/', include('payables.urls')),
+    # Vaults Module (Cofres)
+    path('api/v1/', include('vaults.urls')),
 ]
 
 if settings.DEBUG:

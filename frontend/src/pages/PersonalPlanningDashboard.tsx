@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { StatCard } from '@/components/common/StatCard';
-import { useChartColors } from '@/lib/chart-colors';
+import { useChartColors, useTaskCategoryColors } from '@/lib/chart-colors';
 import type { PersonalPlanningDashboardStats, DailyReflection } from '@/types';
 import { ChartContainer } from '@/components/charts';
 
@@ -20,6 +20,7 @@ export default function PersonalPlanningDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const COLORS = useChartColors();
+  const categoryColors = useTaskCategoryColors();
 
   useEffect(() => {
     loadData();
@@ -63,12 +64,19 @@ export default function PersonalPlanningDashboard() {
   // Processar dados para gráficos
   const weeklyProgressData = useMemo(() => {
     if (!stats?.weekly_progress) return [];
-    return stats.weekly_progress.map(item => ({
-      date: new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-      total: item.total,
-      completadas: item.completed,
-      taxa: parseFloat(item.rate.toFixed(1))
-    }));
+    return stats.weekly_progress.map(item => {
+      // Parse da data sem problemas de timezone - a data vem como "YYYY-MM-DD"
+      const parts = item.date.split('-');
+      const day = parts[2];
+      const month = parts[1];
+      const dateStr = `${day}/${month}`;
+      return {
+        date: dateStr,
+        total: item.total,
+        completadas: item.completed,
+        taxa: parseFloat(item.rate.toFixed(1))
+      };
+    });
   }, [stats?.weekly_progress]);
 
   const tasksByCategoryData = useMemo(() => {
@@ -80,27 +88,9 @@ export default function PersonalPlanningDashboard() {
     }));
   }, [stats?.tasks_by_category]);
 
-  // Cores por categoria - Dracula palette
+  // Função para obter cor por categoria (usa cores do tema)
   const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      health: '#50fa7b',        // green
-      studies: '#8be9fd',       // cyan
-      spiritual: '#bd93f9',     // purple
-      exercise: '#ffb86c',      // orange
-      nutrition: '#50fa7b',     // green
-      meditation: '#bd93f9',    // purple
-      reading: '#f1fa8c',       // yellow
-      writing: '#8be9fd',       // cyan
-      work: '#6272a4',          // comment
-      leisure: '#ff79c6',       // pink
-      family: '#ff5555',        // red
-      social: '#ffb86c',        // orange
-      finance: '#50fa7b',       // green
-      household: '#f1fa8c',     // yellow
-      personal_care: '#8be9fd', // cyan
-      other: '#6272a4',         // comment
-    };
-    return colors[category] || colors.other;
+    return categoryColors[category as keyof typeof categoryColors] || categoryColors.other;
   };
 
   // Ícone de mood - usando cores Dracula

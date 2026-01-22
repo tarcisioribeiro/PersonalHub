@@ -18,7 +18,7 @@ import { formatCurrency } from '@/lib/formatters';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import type { DashboardStats, Expense, Revenue, AccountBalance, CreditCard as CreditCardType, CreditCardBill, CreditCardExpensesByCategory, BalanceForecast } from '@/types';
-import { format, subMonths, subWeeks, subYears, subDays, startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYear, startOfDay, endOfDay, eachMonthOfInterval, eachWeekOfInterval, eachYearOfInterval, eachDayOfInterval } from 'date-fns';
+import { format, subMonths, subWeeks, subYears, subDays, startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYear, eachMonthOfInterval, eachWeekOfInterval, eachYearOfInterval, eachDayOfInterval } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useChartColors } from '@/lib/chart-colors';
 import { ChartContainer } from '@/components/charts';
@@ -185,16 +185,28 @@ export default function Dashboard() {
   const evolutionData = useMemo(() => {
     const now = new Date();
 
+    // Função auxiliar para verificar se uma data (string "YYYY-MM-DD") está dentro de um intervalo
+    // Usa comparação de strings para evitar problemas de timezone
+    const isDateInRange = (dateStr: string, start: Date, end: Date): boolean => {
+      const startStr = format(start, 'yyyy-MM-dd');
+      const endStr = format(end, 'yyyy-MM-dd');
+      return dateStr >= startStr && dateStr <= endStr;
+    };
+
+    // Função auxiliar para verificar se uma data está em um dia específico
+    const isDateOnDay = (dateStr: string, day: Date): boolean => {
+      const dayStr = format(day, 'yyyy-MM-dd');
+      return dateStr === dayStr;
+    };
+
     if (evolutionPeriod === 'daily') {
       // Últimos 30 dias
       return eachDayOfInterval({ start: subDays(now, 29), end: now }).map(day => {
-        const dayStart = startOfDay(day);
-        const dayEnd = endOfDay(day);
         const dayExpenses = expenses
-          .filter(e => e.payed && new Date(e.date) >= dayStart && new Date(e.date) <= dayEnd)
+          .filter(e => e.payed && isDateOnDay(e.date, day))
           .reduce((sum, e) => sum + parseFloat(e.value), 0);
         const dayRevenues = revenues
-          .filter(r => r.received && new Date(r.date) >= dayStart && new Date(r.date) <= dayEnd)
+          .filter(r => r.received && r.category !== 'transfer' && isDateOnDay(r.date, day))
           .reduce((sum, r) => sum + parseFloat(r.value), 0);
         return { month: format(day, 'dd/MM', { locale: ptBR }), despesas: dayExpenses, receitas: dayRevenues, saldo: dayRevenues - dayExpenses };
       });
@@ -204,10 +216,10 @@ export default function Dashboard() {
         const weekStart = startOfWeek(week, { weekStartsOn: 0 });
         const weekEnd = endOfWeek(week, { weekStartsOn: 0 });
         const weekExpenses = expenses
-          .filter(e => e.payed && new Date(e.date) >= weekStart && new Date(e.date) <= weekEnd)
+          .filter(e => e.payed && isDateInRange(e.date, weekStart, weekEnd))
           .reduce((sum, e) => sum + parseFloat(e.value), 0);
         const weekRevenues = revenues
-          .filter(r => r.received && new Date(r.date) >= weekStart && new Date(r.date) <= weekEnd)
+          .filter(r => r.received && r.category !== 'transfer' && isDateInRange(r.date, weekStart, weekEnd))
           .reduce((sum, r) => sum + parseFloat(r.value), 0);
         return { month: format(weekStart, 'dd/MM', { locale: ptBR }), despesas: weekExpenses, receitas: weekRevenues, saldo: weekRevenues - weekExpenses };
       });
@@ -217,10 +229,10 @@ export default function Dashboard() {
         const yearStart = startOfYear(year);
         const yearEnd = endOfYear(year);
         const yearExpenses = expenses
-          .filter(e => e.payed && new Date(e.date) >= yearStart && new Date(e.date) <= yearEnd)
+          .filter(e => e.payed && isDateInRange(e.date, yearStart, yearEnd))
           .reduce((sum, e) => sum + parseFloat(e.value), 0);
         const yearRevenues = revenues
-          .filter(r => r.received && new Date(r.date) >= yearStart && new Date(r.date) <= yearEnd)
+          .filter(r => r.received && r.category !== 'transfer' && isDateInRange(r.date, yearStart, yearEnd))
           .reduce((sum, r) => sum + parseFloat(r.value), 0);
         return { month: format(year, 'yyyy', { locale: ptBR }), despesas: yearExpenses, receitas: yearRevenues, saldo: yearRevenues - yearExpenses };
       });
@@ -230,10 +242,10 @@ export default function Dashboard() {
         const monthStart = startOfMonth(month);
         const monthEnd = endOfMonth(month);
         const monthExpenses = expenses
-          .filter(e => e.payed && new Date(e.date) >= monthStart && new Date(e.date) <= monthEnd)
+          .filter(e => e.payed && isDateInRange(e.date, monthStart, monthEnd))
           .reduce((sum, e) => sum + parseFloat(e.value), 0);
         const monthRevenues = revenues
-          .filter(r => r.received && new Date(r.date) >= monthStart && new Date(r.date) <= monthEnd)
+          .filter(r => r.received && r.category !== 'transfer' && isDateInRange(r.date, monthStart, monthEnd))
           .reduce((sum, r) => sum + parseFloat(r.value), 0);
         return { month: format(month, 'MMM/yy', { locale: ptBR }), despesas: monthExpenses, receitas: monthRevenues, saldo: monthRevenues - monthExpenses };
       });
@@ -504,21 +516,9 @@ export default function Dashboard() {
               formatter={formatCurrency}
               colors={COLORS}
               emptyMessage="Nenhuma despesa cadastrada"
-              enabledTypes={['pie']}
+              lockChartType="pie"
+              height={350}
             />
-            {expensesByCategory.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {expensesByCategory.map((category, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                      <span>{category.name}</span>
-                    </div>
-                    <span className="font-semibold text-destructive">{formatCurrency(category.value)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
           </CardContent>
         </Card>
 
@@ -536,21 +536,9 @@ export default function Dashboard() {
               formatter={formatCurrency}
               colors={COLORS}
               emptyMessage="Nenhuma receita cadastrada"
-              enabledTypes={['pie']}
+              lockChartType="pie"
+              height={350}
             />
-            {revenuesByCategory.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {revenuesByCategory.map((category, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                      <span>{category.name}</span>
-                    </div>
-                    <span className="font-semibold text-success">{formatCurrency(category.value)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
@@ -646,7 +634,8 @@ export default function Dashboard() {
                 formatter={formatCurrency}
                 colors={COLORS}
                 emptyMessage="Nenhuma despesa de cartão encontrada"
-                enabledTypes={['pie']}
+                lockChartType="pie"
+                height={350}
               />
             </div>
             <div>

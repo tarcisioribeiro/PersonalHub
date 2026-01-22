@@ -427,10 +427,75 @@ class Goal(BaseModel):
         ]
 
     @property
+    def calculated_current_value(self):
+        """
+        Calcula o valor atual do progresso automaticamente baseado no tipo de objetivo
+        e nas tarefas relacionadas completadas.
+        """
+        from datetime import timedelta
+
+        today = timezone.now().date()
+
+        # Para objetivos do tipo consecutive_days ou avoid_habit
+        if self.goal_type in ('consecutive_days', 'avoid_habit'):
+            if self.related_task:
+                # Contar dias consecutivos em que a tarefa foi completada
+                # começando de hoje e voltando no tempo
+                consecutive_days = 0
+                check_date = today
+
+                while check_date >= self.start_date:
+                    # Verificar se a tarefa foi completada neste dia
+                    completed_instance = TaskInstance.objects.filter(
+                        template=self.related_task,
+                        scheduled_date=check_date,
+                        status='completed',
+                        owner=self.owner,
+                        deleted_at__isnull=True
+                    ).exists()
+
+                    # Verificar se a tarefa deveria aparecer neste dia
+                    should_appear = self.related_task.should_appear_on_date(check_date)
+
+                    if should_appear:
+                        if completed_instance:
+                            consecutive_days += 1
+                        else:
+                            # Quebrou a sequência
+                            break
+
+                    check_date -= timedelta(days=1)
+
+                return consecutive_days
+            else:
+                # Sem tarefa relacionada, usar days_active
+                return self.days_active
+
+        # Para objetivos do tipo total_days
+        elif self.goal_type == 'total_days':
+            if self.related_task:
+                # Contar total de dias que a tarefa foi completada
+                return TaskInstance.objects.filter(
+                    template=self.related_task,
+                    scheduled_date__gte=self.start_date,
+                    status='completed',
+                    owner=self.owner,
+                    deleted_at__isnull=True
+                ).values('scheduled_date').distinct().count()
+            else:
+                return self.days_active
+
+        # Para outros tipos, usar o valor armazenado
+        return self.current_value
+
+    @property
     def progress_percentage(self):
         """Calcula percentual de progresso do objetivo."""
         if self.target_value == 0:
             return 0.0
+        # Usar o valor calculado automaticamente para tipos que suportam
+        if self.goal_type in ('consecutive_days', 'avoid_habit', 'total_days') and self.related_task:
+            return min((self.calculated_current_value / self.target_value) * 100, 100.0)
         return min((self.current_value / self.target_value) * 100, 100.0)
 
     @property

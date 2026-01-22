@@ -49,6 +49,10 @@ const RoutineTasks = lazy(() => import('./pages/RoutineTasks'));
 const Goals = lazy(() => import('./pages/Goals'));
 const DailyChecklist = lazy(() => import('./pages/DailyChecklist'));
 
+// Vaults Module (Cofres e Metas)
+const Vaults = lazy(() => import('./pages/Vaults'));
+const FinancialGoals = lazy(() => import('./pages/FinancialGoals'));
+
 // Loading component
 const LoadingFallback = () => (
   <div className="flex items-center justify-center h-screen">
@@ -120,6 +124,10 @@ function AnimatedRoutes() {
           <Route path="/planning/routine-tasks" element={<Suspense fallback={<LoadingFallback />}><RoutineTasks /></Suspense>} />
           <Route path="/planning/goals" element={<Suspense fallback={<LoadingFallback />}><Goals /></Suspense>} />
           <Route path="/planning/daily" element={<Suspense fallback={<LoadingFallback />}><DailyChecklist /></Suspense>} />
+
+          {/* Vaults Module routes (Cofres e Metas) */}
+          <Route path="/vaults" element={<Suspense fallback={<LoadingFallback />}><Vaults /></Suspense>} />
+          <Route path="/financial-goals" element={<Suspense fallback={<LoadingFallback />}><FinancialGoals /></Suspense>} />
         </Route>
 
         {/* Fallback */}

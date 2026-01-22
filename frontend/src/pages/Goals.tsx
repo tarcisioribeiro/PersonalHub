@@ -227,19 +227,25 @@ export default function Goals() {
     {
       key: 'progress',
       label: 'Progresso',
-      render: (goal) => (
-        <div className="space-y-1">
-          <div className="flex items-center justify-between text-sm">
-            <span>
-              {goal.current_value} / {goal.target_value}
-            </span>
-            <span className="font-medium">
-              {goal.progress_percentage.toFixed(0)}%
-            </span>
+      render: (goal) => {
+        // Usar calculated_current_value quando disponível (para objetivos com tarefa relacionada)
+        const displayValue = goal.calculated_current_value !== undefined
+          ? goal.calculated_current_value
+          : goal.current_value;
+        return (
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-sm">
+              <span>
+                {displayValue} / {goal.target_value}
+              </span>
+              <span className="font-medium">
+                {goal.progress_percentage.toFixed(0)}%
+              </span>
+            </div>
+            <Progress value={goal.progress_percentage} className="h-2" />
           </div>
-          <Progress value={goal.progress_percentage} className="h-2" />
-        </div>
-      ),
+        );
+      },
     },
     {
       key: 'status',

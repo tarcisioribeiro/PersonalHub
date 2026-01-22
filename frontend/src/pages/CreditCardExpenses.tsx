@@ -408,7 +408,7 @@ export default function CreditCardExpenses() {
       label: 'Status',
       render: (installment) => (
         <Badge
-          variant={installment.payed ? 'success' : 'warning'}
+          variant={installment.payed ? 'success' : 'destructive'}
           className="cursor-pointer"
           onClick={() => handleTogglePaid(installment)}
         >

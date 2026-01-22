@@ -8,7 +8,6 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { EnhancedTooltip } from './EnhancedTooltip';
-import { useChartGradientId } from '@/lib/chart-colors';
 import { truncateLabel } from '@/lib/chart-formatters';
 import type { ChartDataPoint } from '@/lib/chart-types';
 
@@ -27,13 +26,11 @@ interface EnhancedPieChartProps {
  *
  * Recursos:
  * - Gráfico de pizza completo (100% preenchido)
- * - Gradientes radiais para profundidade
- * - Sombra sutil para elevação
+ * - Cores sólidas sem sombras ou gradientes
  * - Legenda personalizada e limpa
  * - Animações suaves
  * - Tooltip customizado
  * - Sem labels sobrepostos (usa legenda)
- * - IDs únicos para gradientes
  */
 export const EnhancedPieChart = ({
   data,
@@ -44,33 +41,6 @@ export const EnhancedPieChart = ({
   customColors,
   height = 300,
 }: EnhancedPieChartProps) => {
-  // Gera IDs únicos para gradientes
-  const getGradientId = useChartGradientId('pie-radial');
-  const shadowId = useChartGradientId('pie-shadow');
-
-  // Definições de gradientes memoizadas
-  const gradientDefs = useMemo(
-    () => (
-      <>
-        {colors.map((color, idx) => (
-          <radialGradient
-            key={getGradientId(idx)}
-            id={getGradientId(idx)}
-            cx="30%"
-            cy="30%"
-          >
-            <stop offset="0%" stopColor={color} stopOpacity={1} />
-            <stop offset="70%" stopColor={color} stopOpacity={0.85} />
-            <stop offset="100%" stopColor={color} stopOpacity={0.7} />
-          </radialGradient>
-        ))}
-        <filter id={shadowId(0)} x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.1" />
-        </filter>
-      </>
-    ),
-    [colors, getGradientId, shadowId]
-  );
 
   // Calcula o total para percentuais na legenda
   const total = useMemo(
@@ -115,8 +85,6 @@ export const EnhancedPieChart = ({
   return (
     <ResponsiveContainer width="100%" height={height}>
       <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-        <defs>{gradientDefs}</defs>
-
         <Pie
           data={data}
           cx="50%"
@@ -129,12 +97,11 @@ export const EnhancedPieChart = ({
           animationBegin={0}
           animationDuration={600}
           animationEasing="ease-out"
-          style={{ filter: `url(#${shadowId(0)})` }}
         >
           {data.map((entry, index) => {
             const fillColor = customColors
               ? customColors(entry)
-              : `url(#${getGradientId(index % colors.length)})`;
+              : colors[index % colors.length];
 
             return (
               <Cell

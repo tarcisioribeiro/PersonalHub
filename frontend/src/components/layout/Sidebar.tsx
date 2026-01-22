@@ -33,6 +33,7 @@ import {
   Users,
   FolderOpen,
   ClipboardList,
+  Vault,
 } from 'lucide-react';
 
 interface NavSubItem {
@@ -104,6 +105,7 @@ const navModules: NavModule[] = [
           { title: 'Faturas', href: '/credit-card-bills', icon: <Receipt className="w-4 h-4" /> },
           { title: 'Gastos Fixos', href: '/fixed-expenses', icon: <CalendarClock className="w-4 h-4" /> },
           { title: 'Valores a Pagar', href: '/payables', icon: <Receipt className="w-4 h-4" /> },
+          { title: 'Metas Financeiras', href: '/financial-goals', icon: <Target className="w-4 h-4" /> },
           { title: 'Beneficiários/Credores', href: '/members', icon: <Users className="w-4 h-4" /> },
         ],
       },
@@ -116,6 +118,7 @@ const navModules: NavModule[] = [
           { title: 'Gastos do Cartão', href: '/credit-card-expenses', icon: <ShoppingCart className="w-4 h-4" /> },
           { title: 'Transferências', href: '/transfers', icon: <ArrowLeftRight className="w-4 h-4" /> },
           { title: 'Empréstimos', href: '/loans', icon: <HandCoins className="w-4 h-4" /> },
+          { title: 'Cofres', href: '/vaults', icon: <Vault className="w-4 h-4" /> },
         ],
       },
     ],

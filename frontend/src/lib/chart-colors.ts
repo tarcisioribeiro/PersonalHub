@@ -12,8 +12,10 @@ const ALUCARD_PALETTE = {
   pink: '#A3144D',
   blue: '#036A96',
   green: '#14710A',
+  yellow: '#857228',
   orange: '#A34D14',
   red: '#CB3A2A',
+  comment: '#6C664B',
 } as const;
 
 // Paleta dark - Dracula Classic
@@ -22,8 +24,10 @@ const DRACULA_PALETTE = {
   pink: '#ff79c6',
   cyan: '#8be9fd',
   green: '#50fa7b',
+  yellow: '#f1fa8c',
   orange: '#ffb86c',
   red: '#ff5555',
+  comment: '#6272a4',
 } as const;
 
 // Cores semânticas para cada tema
@@ -35,6 +39,8 @@ const SEMANTIC_COLORS = {
     info: ALUCARD_PALETTE.blue,
     primary: ALUCARD_PALETTE.purple,
     accent: ALUCARD_PALETTE.pink,
+    caution: ALUCARD_PALETTE.yellow,
+    neutral: ALUCARD_PALETTE.comment,
   },
   dark: {
     success: DRACULA_PALETTE.green,
@@ -43,6 +49,8 @@ const SEMANTIC_COLORS = {
     info: DRACULA_PALETTE.cyan,
     primary: DRACULA_PALETTE.purple,
     accent: DRACULA_PALETTE.pink,
+    caution: DRACULA_PALETTE.yellow,
+    neutral: DRACULA_PALETTE.comment,
   },
 } as const;
 
@@ -151,6 +159,109 @@ export const withOpacity = (color: string, opacity: number): string => {
     return `rgba(${r}, ${g}, ${b}, ${opacity})`;
   }
   return color;
+};
+
+/**
+ * Retorna cores para força de senha baseadas no tema
+ */
+export const getPasswordStrengthColors = () => {
+  const palette = isDarkTheme() ? DRACULA_PALETTE : ALUCARD_PALETTE;
+  return {
+    weak: palette.red,
+    medium: palette.yellow,
+    strong: palette.green,
+  };
+};
+
+/**
+ * Hook reativo para cores de força de senha
+ */
+export const usePasswordStrengthColors = () => {
+  const [colors, setColors] = useState(getPasswordStrengthColors);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setColors(getPasswordStrengthColors());
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  return colors;
+};
+
+/**
+ * Retorna cores para categorias de tarefas baseadas no tema
+ */
+export const getTaskCategoryColors = () => {
+  if (isDarkTheme()) {
+    const palette = DRACULA_PALETTE;
+    return {
+      health: palette.green,
+      studies: palette.cyan,
+      spiritual: palette.purple,
+      exercise: palette.orange,
+      nutrition: palette.green,
+      meditation: palette.purple,
+      reading: palette.yellow,
+      writing: palette.cyan,
+      work: palette.comment,
+      leisure: palette.pink,
+      family: palette.red,
+      social: palette.orange,
+      finance: palette.green,
+      household: palette.yellow,
+      personal_care: palette.cyan,
+      other: palette.comment,
+    };
+  } else {
+    const palette = ALUCARD_PALETTE;
+    return {
+      health: palette.green,
+      studies: palette.blue,
+      spiritual: palette.purple,
+      exercise: palette.orange,
+      nutrition: palette.green,
+      meditation: palette.purple,
+      reading: palette.yellow,
+      writing: palette.blue,
+      work: palette.comment,
+      leisure: palette.pink,
+      family: palette.red,
+      social: palette.orange,
+      finance: palette.green,
+      household: palette.yellow,
+      personal_care: palette.blue,
+      other: palette.comment,
+    };
+  }
+};
+
+/**
+ * Hook reativo para cores de categorias de tarefas
+ */
+export const useTaskCategoryColors = () => {
+  const [colors, setColors] = useState(getTaskCategoryColors);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setColors(getTaskCategoryColors());
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  return colors;
 };
 
 // Exporta as paletas para uso direto se necessário

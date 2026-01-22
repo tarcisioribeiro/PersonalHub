@@ -5,16 +5,10 @@ import { securityDashboardService, type SecurityDashboardStats } from '@/service
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
-import { useChartColors } from '@/lib/chart-colors';
+import { useChartColors, usePasswordStrengthColors } from '@/lib/chart-colors';
 import { ChartContainer } from '@/components/charts';
 
 type PasswordStrength = 'weak' | 'medium' | 'strong';
-
-const strengthColors: Record<PasswordStrength, string> = {
-    weak: '#ff5555',    // Dracula red
-    medium: '#f1fa8c',  // Dracula yellow
-    strong: '#50fa7b'   // Dracula green
-};
 
 export default function SecurityDashboard() {
   const [stats, setStats] = useState<SecurityDashboardStats | null>(null);
@@ -61,6 +55,7 @@ export default function SecurityDashboard() {
   };
 
   const COLORS = useChartColors();
+  const strengthColors = usePasswordStrengthColors();
 
   if (isLoading) {
     return <LoadingState fullScreen />;
@@ -144,26 +139,9 @@ export default function SecurityDashboard() {
               formatter={(value) => `${value} ${value === 1 ? 'item' : 'itens'}`}
               colors={COLORS}
               emptyMessage="Nenhum item cadastrado"
-              enabledTypes={['pie']}
+              lockChartType="pie"
+              height={350}
             />
-            {stats && stats.items_distribution.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {stats.items_distribution.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                      ></div>
-                      <span>{item.type_display}</span>
-                    </div>
-                    <span className="font-semibold">
-                      {item.count} {item.count === 1 ? 'item' : 'itens'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
           </CardContent>
         </Card>
 
@@ -182,28 +160,9 @@ export default function SecurityDashboard() {
               formatter={(value) => `${value} ${value === 1 ? 'senha' : 'senhas'}`}
               colors={COLORS}
               emptyMessage="Nenhuma senha cadastrada"
-              defaultType="pie"
-              layout="horizontal"
-              enabledTypes={['pie']}
+              lockChartType="pie"
+              height={350}
             />
-            {stats && stats.passwords_by_category.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {stats.passwords_by_category.map((category, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                      ></div>
-                      <span>{category.category_display}</span>
-                    </div>
-                    <span className="font-semibold">
-                      {category.count} {category.count === 1 ? 'senha' : 'senhas'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
           </CardContent>
         </Card>
 
@@ -223,32 +182,9 @@ export default function SecurityDashboard() {
               colors={COLORS}
               customColors={(entry) => strengthColors[entry.strength as PasswordStrength] || COLORS[0]}
               emptyMessage="Nenhuma senha cadastrada"
-              layout="horizontal"
-              enabledTypes={['pie']}
+              lockChartType="pie"
+              height={350}
             />
-            {stats && stats.password_strength_distribution.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {stats.password_strength_distribution.map((strength, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{
-                          backgroundColor:
-                            strength.strength === 'weak' ? '#ff5555' :      // Dracula red
-                            strength.strength === 'medium' ? '#f1fa8c' :    // Dracula yellow
-                            '#50fa7b'                                        // Dracula green
-                        }}
-                      ></div>
-                      <span>{strength.strength_display}</span>
-                    </div>
-                    <span className="font-semibold">
-                      {strength.count} {strength.count === 1 ? 'senha' : 'senhas'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
           </CardContent>
         </Card>
 

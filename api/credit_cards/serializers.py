@@ -294,6 +294,7 @@ class CreditCardInstallmentUpdateSerializer(serializers.ModelSerializer):
     """
     Serializer para atualização de parcelas.
     Permite alterar bill, payed e value.
+    Atualiza automaticamente o status das faturas afetadas.
     """
     value = serializers.DecimalField(
         max_digits=12,
@@ -310,6 +311,64 @@ class CreditCardInstallmentUpdateSerializer(serializers.ModelSerializer):
         if value is not None and value <= 0:
             raise serializers.ValidationError("Valor deve ser maior que zero")
         return value
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        """
+        Atualiza a parcela e as faturas afetadas.
+        Se a parcela for movida para uma fatura diferente, atualiza os totais e status.
+        """
+        old_bill = instance.bill
+        new_bill = validated_data.get('bill', old_bill)
+        old_value = Decimal(str(instance.value))
+        new_value = Decimal(str(validated_data.get('value', instance.value)))
+
+        # Verificar se a fatura mudou
+        bill_changed = old_bill != new_bill
+        value_changed = old_value != new_value
+
+        # Atualizar a parcela
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Atualizar fatura antiga (remover valor)
+        if bill_changed and old_bill:
+            old_bill.total_amount = Decimal(str(old_bill.total_amount)) - old_value
+            if old_bill.total_amount < 0:
+                old_bill.total_amount = Decimal('0')
+
+            # Recalcular status da fatura antiga
+            if Decimal(str(old_bill.paid_amount)) >= old_bill.total_amount and old_bill.total_amount > 0:
+                if not old_bill.closed:
+                    old_bill.status = 'paid'
+            old_bill.save()
+
+        # Atualizar fatura nova (adicionar valor)
+        if bill_changed and new_bill:
+            new_bill.total_amount = Decimal(str(new_bill.total_amount)) + new_value
+
+            # Se a fatura estava 'paid' mas não fechada, mudar status para 'open'
+            if new_bill.status == 'paid' and not new_bill.closed:
+                if Decimal(str(new_bill.paid_amount)) < new_bill.total_amount:
+                    new_bill.status = 'open'
+            new_bill.save()
+
+        # Se apenas o valor mudou (sem mudar a fatura)
+        elif value_changed and old_bill:
+            diff = new_value - old_value
+            old_bill.total_amount = Decimal(str(old_bill.total_amount)) + diff
+
+            # Ajustar status conforme necessário
+            if Decimal(str(old_bill.paid_amount)) >= old_bill.total_amount:
+                if not old_bill.closed:
+                    old_bill.status = 'paid'
+            elif old_bill.status == 'paid' and not old_bill.closed:
+                old_bill.status = 'open'
+
+            old_bill.save()
+
+        return instance
 
 
 class CreditCardInstallmentNestedSerializer(serializers.ModelSerializer):
@@ -406,6 +465,7 @@ class CreditCardPurchaseCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """
         Cria a compra e gera automaticamente as parcelas.
+        Atualiza o total_amount das faturas e redefine o status se necessário.
         """
         # Criar a compra
         purchase = CreditCardPurchase.objects.create(**validated_data)
@@ -424,6 +484,9 @@ class CreditCardPurchaseCreateSerializer(serializers.ModelSerializer):
             credit_card=card,
             is_deleted=False
         ).order_by('invoice_beginning_date')
+
+        # Rastrear faturas que precisam ser atualizadas
+        bills_to_update = {}
 
         # Criar parcelas
         for i in range(total_installments):
@@ -445,6 +508,31 @@ class CreditCardPurchaseCreateSerializer(serializers.ModelSerializer):
                 bill=matching_bill,
                 payed=False,
             )
+
+            # Rastrear valor a adicionar à fatura
+            if matching_bill:
+                if matching_bill.id not in bills_to_update:
+                    bills_to_update[matching_bill.id] = {
+                        'bill': matching_bill,
+                        'value_to_add': Decimal('0')
+                    }
+                bills_to_update[matching_bill.id]['value_to_add'] += installment_value
+
+        # Atualizar faturas afetadas
+        for bill_data in bills_to_update.values():
+            bill = bill_data['bill']
+            value_to_add = bill_data['value_to_add']
+
+            # Atualizar total_amount
+            bill.total_amount = Decimal(str(bill.total_amount)) + value_to_add
+
+            # Se a fatura estava 'paid' mas não fechada, mudar status para 'open'
+            # porque agora o total é maior que o valor pago
+            if bill.status == 'paid' and not bill.closed:
+                if Decimal(str(bill.paid_amount)) < bill.total_amount:
+                    bill.status = 'open'
+
+            bill.save()
 
         return purchase
 

@@ -209,7 +209,7 @@ export default function Expenses() {
       key: 'payed',
       label: 'Status',
       render: (expense) => (
-        <Badge variant={expense.payed ? 'success' : 'warning'}>
+        <Badge variant={expense.payed ? 'success' : 'destructive'}>
           {expense.payed ? 'Pago' : 'Pendente'}
         </Badge>
       ),

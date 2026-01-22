@@ -100,13 +100,14 @@ class GoalSerializer(serializers.ModelSerializer):
     )
     progress_percentage = serializers.ReadOnlyField()
     days_active = serializers.ReadOnlyField()
+    calculated_current_value = serializers.ReadOnlyField()
 
     class Meta:
         model = Goal
         fields = [
             'id', 'uuid', 'title', 'description', 'goal_type', 'goal_type_display',
             'related_task', 'related_task_name', 'target_value', 'current_value',
-            'start_date', 'end_date', 'status', 'status_display',
+            'calculated_current_value', 'start_date', 'end_date', 'status', 'status_display',
             'progress_percentage', 'days_active',
             'owner', 'owner_name', 'created_at', 'updated_at'
         ]

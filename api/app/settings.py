@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'personal_planning',
     # Payables Module
     'payables',
+    # Vaults Module (Cofres)
+    'vaults',
 ]
 
 MIDDLEWARE = [

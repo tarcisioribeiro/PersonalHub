@@ -37,6 +37,7 @@ class Command(BaseCommand):
             'library': ['author', 'publisher', 'book', 'summary', 'reading'],
             'security': ['password', 'storedcreditcard', 'storedbankaccount', 'archive', 'activitylog'],
             'personal_planning': ['routinetask', 'dailytaskrecord', 'goal', 'dailyreflection'],
+            'vaults': ['vault', 'vaulttransaction', 'financialgoal'],
         }
 
         # Define the permissions: view, add, change, delete (full CRUD)

@@ -14,22 +14,18 @@ const EASING = {
   snappy: [0.4, 0, 0.2, 1] as const,
 };
 
-// Page transitions
+// Page transitions - apenas fade para evitar movimento do menu lateral
 export const pageVariants: Variants = {
-  initial: { opacity: 0, y: 20, scale: 0.98 },
+  initial: { opacity: 0 },
   animate: {
     opacity: 1,
-    y: 0,
-    scale: 1,
     transition: {
-      duration: DURATION.normal,
-      ease: EASING.bounce,
+      duration: DURATION.fast,
+      ease: EASING.smooth,
     },
   },
   exit: {
     opacity: 0,
-    y: -20,
-    scale: 0.98,
     transition: { duration: DURATION.fast },
   },
 };

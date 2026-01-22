@@ -213,7 +213,7 @@ export default function Revenues() {
       key: 'received',
       label: 'Status',
       render: (revenue) => (
-        <Badge variant={revenue.received ? 'success' : 'secondary'}>
+        <Badge variant={revenue.received ? 'success' : 'destructive'}>
           {revenue.received ? 'Recebido' : 'Pendente'}
         </Badge>
       ),

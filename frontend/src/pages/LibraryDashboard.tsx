@@ -280,26 +280,9 @@ export default function LibraryDashboard() {
               formatter={(value) => `${value} ${value === 1 ? 'livro' : 'livros'}`}
               colors={COLORS}
               emptyMessage="Nenhum livro cadastrado"
-              enabledTypes={['pie']}
+              lockChartType="pie"
+              height={350}
             />
-            {stats && stats.books_by_genre.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {stats.books_by_genre.map((genre, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                      ></div>
-                      <span>{genre.genre_display}</span>
-                    </div>
-                    <span className="font-semibold">
-                      {genre.count} {genre.count === 1 ? 'livro' : 'livros'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
           </CardContent>
         </Card>
 
@@ -319,25 +302,8 @@ export default function LibraryDashboard() {
               colors={COLORS}
               emptyMessage="Nenhum livro cadastrado"
               lockChartType="pie"
+              height={350}
             />
-            {stats && stats.reading_status_distribution.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {stats.reading_status_distribution.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                      ></div>
-                      <span>{item.status_display}</span>
-                    </div>
-                    <span className="font-semibold">
-                      {item.count} {item.count === 1 ? 'livro' : 'livros'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
           </CardContent>
         </Card>
 
@@ -422,30 +388,9 @@ export default function LibraryDashboard() {
               formatter={(value) => `${value} ${value === 1 ? 'livro' : 'livros'}`}
               colors={COLORS}
               emptyMessage="Nenhum autor cadastrado"
-              defaultType="pie"
-              layout="horizontal"
-              enabledTypes={['pie']}
+              lockChartType="pie"
+              height={350}
             />
-            {stats && stats.top_authors.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {stats.top_authors.map((author, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                      ></div>
-                      <span className="truncate max-w-[200px]" title={author.name}>
-                        {author.name}
-                      </span>
-                    </div>
-                    <span className="font-semibold">
-                      {author.books_count} {author.books_count === 1 ? 'livro' : 'livros'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
@@ -467,27 +412,9 @@ export default function LibraryDashboard() {
               formatter={(value) => `${value} ${value === 1 ? 'livro' : 'livros'}`}
               colors={COLORS}
               emptyMessage="Nenhum livro avaliado"
-              layout="horizontal"
-              enabledTypes={['pie']}
+              lockChartType="pie"
+              height={350}
             />
-            {stats && stats.rating_distribution.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {stats.rating_distribution.map((rating, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                      ></div>
-                      <span>Avaliação {rating.rating_range}</span>
-                    </div>
-                    <span className="font-semibold">
-                      {rating.count} {rating.count === 1 ? 'livro' : 'livros'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
           </CardContent>
         </Card>
 
