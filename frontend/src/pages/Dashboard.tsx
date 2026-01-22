@@ -18,7 +18,7 @@ import { formatCurrency } from '@/lib/formatters';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import type { DashboardStats, Expense, Revenue, AccountBalance, CreditCard as CreditCardType, CreditCardBill, CreditCardExpensesByCategory, BalanceForecast } from '@/types';
-import { format, subMonths, subWeeks, subYears, startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYear, eachMonthOfInterval, eachWeekOfInterval, eachYearOfInterval } from 'date-fns';
+import { format, subMonths, subWeeks, subYears, subDays, startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYear, startOfDay, endOfDay, eachMonthOfInterval, eachWeekOfInterval, eachYearOfInterval, eachDayOfInterval } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useChartColors } from '@/lib/chart-colors';
 import { ChartContainer } from '@/components/charts';
@@ -35,7 +35,7 @@ export default function Dashboard() {
   const [balanceForecast, setBalanceForecast] = useState<BalanceForecast | null>(null);
   const [selectedCard, setSelectedCard] = useState<string>('all');
   const [selectedBill, setSelectedBill] = useState<string>('all');
-  const [evolutionPeriod, setEvolutionPeriod] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
+  const [evolutionPeriod, setEvolutionPeriod] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily');
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -185,7 +185,20 @@ export default function Dashboard() {
   const evolutionData = useMemo(() => {
     const now = new Date();
 
-    if (evolutionPeriod === 'weekly') {
+    if (evolutionPeriod === 'daily') {
+      // Últimos 30 dias
+      return eachDayOfInterval({ start: subDays(now, 29), end: now }).map(day => {
+        const dayStart = startOfDay(day);
+        const dayEnd = endOfDay(day);
+        const dayExpenses = expenses
+          .filter(e => e.payed && new Date(e.date) >= dayStart && new Date(e.date) <= dayEnd)
+          .reduce((sum, e) => sum + parseFloat(e.value), 0);
+        const dayRevenues = revenues
+          .filter(r => r.received && new Date(r.date) >= dayStart && new Date(r.date) <= dayEnd)
+          .reduce((sum, r) => sum + parseFloat(r.value), 0);
+        return { month: format(day, 'dd/MM', { locale: ptBR }), despesas: dayExpenses, receitas: dayRevenues, saldo: dayRevenues - dayExpenses };
+      });
+    } else if (evolutionPeriod === 'weekly') {
       // Últimas 8 semanas
       return eachWeekOfInterval({ start: subWeeks(now, 7), end: now }, { weekStartsOn: 0 }).map(week => {
         const weekStart = startOfWeek(week, { weekStartsOn: 0 });
@@ -546,13 +559,14 @@ export default function Dashboard() {
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <CardTitle>
-              Evolução {evolutionPeriod === 'weekly' ? 'Semanal (Últimas 8 Semanas)' : evolutionPeriod === 'yearly' ? 'Anual (Últimos 5 Anos)' : 'Mensal (Últimos 6 Meses)'}
+              Evolução {evolutionPeriod === 'daily' ? 'Diária (Últimos 30 Dias)' : evolutionPeriod === 'weekly' ? 'Semanal (Últimas 8 Semanas)' : evolutionPeriod === 'yearly' ? 'Anual (Últimos 5 Anos)' : 'Mensal (Últimos 6 Meses)'}
             </CardTitle>
-            <Select value={evolutionPeriod} onValueChange={(v) => setEvolutionPeriod(v as 'weekly' | 'monthly' | 'yearly')}>
+            <Select value={evolutionPeriod} onValueChange={(v) => setEvolutionPeriod(v as 'daily' | 'weekly' | 'monthly' | 'yearly')}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="daily">Diário</SelectItem>
                 <SelectItem value="weekly">Semanal</SelectItem>
                 <SelectItem value="monthly">Mensal</SelectItem>
                 <SelectItem value="yearly">Anual</SelectItem>
