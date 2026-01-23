@@ -1,11 +1,11 @@
-# Kind cluster configuration for PersonalHub
+# Kind cluster configuration for MindLedger
 # This file configures the kind cluster with:
 # - Container registry connectivity
 # - Port mappings for external access
 # - Extra mounts for local development (optional)
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
-name: personalhub
+name: mindledger
 containerdConfigPatches:
   # Configure containerd to use local registry
   - |-

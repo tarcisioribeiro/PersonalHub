@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-O PersonalHub utiliza **React Router v6** para gerenciamento de rotas, com suporte a lazy loading, proteção de rotas autenticadas e animações de transição.
+O MindLedger utiliza **React Router v6** para gerenciamento de rotas, com suporte a lazy loading, proteção de rotas autenticadas e animações de transição.
 
 ## Estrutura de Rotas
 

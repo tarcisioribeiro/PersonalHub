@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-O PersonalHub utiliza **Zustand** para gerenciamento de estado global, com foco em simplicidade, performance e tipagem TypeScript.
+O MindLedger utiliza **Zustand** para gerenciamento de estado global, com foco em simplicidade, performance e tipagem TypeScript.
 
 ## Por que Zustand?
 

@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend
-  namespace: personalhub
+  namespace: mindledger
   labels:
-    app.kubernetes.io/name: personalhub
+    app.kubernetes.io/name: mindledger
     app.kubernetes.io/component: frontend
 spec:
   replicas: 1
@@ -15,7 +15,7 @@ spec:
     metadata:
       labels:
         app: frontend
-        app.kubernetes.io/name: personalhub
+        app.kubernetes.io/name: mindledger
         app.kubernetes.io/component: frontend
     spec:
       initContainers:
@@ -32,7 +32,7 @@ spec:
               echo "API is ready!"
       containers:
         - name: frontend
-          image: localhost:5000/personalhub-frontend:latest
+          image: localhost:5000/mindledger-frontend:latest
           ports:
             - containerPort: 8080
               name: http

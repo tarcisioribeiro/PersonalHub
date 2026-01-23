@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-Script de Migração: CodexDB (PostgreSQL) → PersonalHub (PostgreSQL)
+Script de Migração: CodexDB (PostgreSQL) → MindLedger (PostgreSQL)
 
-Este script migra todos os dados do CodexDB para o módulo Library do PersonalHub.
+Este script migra todos os dados do CodexDB para o módulo Library do MindLedger.
 
 Migrações:
 1. authors.Author → library.Author
@@ -68,7 +68,7 @@ def get_default_member():
         # Se não houver members, cria um
         user = User.objects.first()
         if not user:
-            print("  ✗ Nenhum usuário encontrado no PersonalHub. Crie um usuário primeiro.")
+            print("  ✗ Nenhum usuário encontrado no MindLedger. Crie um usuário primeiro.")
             sys.exit(1)
         
         member = Member.objects.create(
@@ -92,9 +92,9 @@ def get_default_member():
 
 def migrate_authors(cursor, default_member):
     """
-    Migra autores do CodexDB para PersonalHub.
+    Migra autores do CodexDB para MindLedger.
     
-    CodexDB.authors.Author → PersonalHub.library.Author
+    CodexDB.authors.Author → MindLedger.library.Author
     """
     print("\n[1/5] Migrando autores...")
     
@@ -147,7 +147,7 @@ def migrate_authors(cursor, default_member):
 
 
 def migrate_publishers(cursor, default_member):
-    """Migra editoras do CodexDB para PersonalHub."""
+    """Migra editoras do CodexDB para MindLedger."""
     print("\n[2/5] Migrando editoras...")
     
     cursor.execute("SELECT * FROM publishers_publisher")
@@ -196,7 +196,7 @@ def migrate_publishers(cursor, default_member):
 
 
 def migrate_books(cursor, default_member, author_id_map, publisher_id_map):
-    """Migra livros do CodexDB para PersonalHub."""
+    """Migra livros do CodexDB para MindLedger."""
     print("\n[3/5] Migrando livros...")
     
     cursor.execute("SELECT * FROM books_book")
@@ -278,7 +278,7 @@ def migrate_books(cursor, default_member, author_id_map, publisher_id_map):
 
 
 def migrate_summaries(cursor, default_member, book_id_map):
-    """Migra resumos do CodexDB para PersonalHub."""
+    """Migra resumos do CodexDB para MindLedger."""
     print("\n[4/5] Migrando resumos...")
     
     cursor.execute("SELECT * FROM summaries_summary")
@@ -326,7 +326,7 @@ def migrate_summaries(cursor, default_member, book_id_map):
 
 
 def migrate_readings(cursor, default_member, book_id_map):
-    """Migra leituras do CodexDB para PersonalHub."""
+    """Migra leituras do CodexDB para MindLedger."""
     print("\n[5/5] Migrando leituras...")
     
     cursor.execute("SELECT * FROM readings_reading")
@@ -373,7 +373,7 @@ def migrate_readings(cursor, default_member, book_id_map):
 def main():
     """Executa a migração completa."""
     print("=" * 60)
-    print("MIGRAÇÃO: CodexDB → PersonalHub Library Module")
+    print("MIGRAÇÃO: CodexDB → MindLedger Library Module")
     print("=" * 60)
     
     # Conectar ao CodexDB
@@ -419,7 +419,7 @@ def main():
 
 if __name__ == '__main__':
     # Confirmação antes de executar
-    print("\n⚠ ATENÇÃO: Este script irá migrar dados do CodexDB para o PersonalHub.")
+    print("\n⚠ ATENÇÃO: Este script irá migrar dados do CodexDB para o MindLedger.")
     print("  Certifique-se de ter um backup antes de continuar.")
     confirm = input("\nDeseja continuar? (sim/não): ")
     

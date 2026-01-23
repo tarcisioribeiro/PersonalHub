@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-O PersonalHub utiliza **Axios** como cliente HTTP base, com interceptors customizados para autenticação automática, refresh de tokens e tratamento de erros centralizado.
+O MindLedger utiliza **Axios** como cliente HTTP base, com interceptors customizados para autenticação automática, refresh de tokens e tratamento de erros centralizado.
 
 ## Arquitetura
 

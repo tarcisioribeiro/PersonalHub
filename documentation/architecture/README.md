@@ -1,6 +1,6 @@
 # Documentação de Arquitetura
 
-Esta seção contém a documentação completa da arquitetura do PersonalHub, incluindo decisões de design, fluxos de dados e visão geral do sistema.
+Esta seção contém a documentação completa da arquitetura do MindLedger, incluindo decisões de design, fluxos de dados e visão geral do sistema.
 
 ## Documentos Disponíveis
 
@@ -22,7 +22,7 @@ Apresentação completa da arquitetura do sistema, suas camadas, padrões e orga
 
 ### 2. [Fluxo de Dados](./fluxo-dados.md)
 
-Detalha como os dados fluem através do PersonalHub, desde a interface até o banco de dados.
+Detalha como os dados fluem através do MindLedger, desde a interface até o banco de dados.
 
 **Conteúdo**:
 - Fluxo de autenticação (login, refresh, logout)
@@ -83,7 +83,7 @@ Todos os documentos incluem diagramas Mermaid para visualização:
 
 ### Para Desenvolvedores Novos
 
-1. Comece com [Introdução ao PersonalHub](../01-overview/introducao.md)
+1. Comece com [Introdução ao MindLedger](../01-overview/introducao.md)
 2. Leia [Visão Geral da Arquitetura](./visao-geral.md)
 3. Explore [Recursos e Funcionalidades](../01-overview/recursos.md)
 4. Consulte [Guia de Desenvolvimento](../08-development/guia-desenvolvimento.md)
@@ -138,7 +138,7 @@ Todos os documentos incluem diagramas Mermaid para visualização:
 
 Para questões sobre arquitetura ou sugestões de melhoria:
 
-- **Issues**: [GitHub Issues](https://github.com/tarcisioribeiro/personalhub/issues)
+- **Issues**: [GitHub Issues](https://github.com/tarcisioribeiro/mindledger/issues)
 - **Email**: tarcisio.ribeiro.1840@hotmail.com
 
 ---

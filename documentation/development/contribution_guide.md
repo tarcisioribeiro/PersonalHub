@@ -1,6 +1,6 @@
 # Guia de Contribuição
 
-Este guia estabelece padrões e boas práticas para contribuir com o PersonalHub.
+Este guia estabelece padrões e boas práticas para contribuir com o MindLedger.
 
 ## Índice
 
@@ -19,11 +19,11 @@ Este guia estabelece padrões e boas práticas para contribuir com o PersonalHub
 ```bash
 # Fork no GitHub (botão Fork)
 # Clone seu fork
-git clone https://github.com/seu-usuario/PersonalHub.git
-cd PersonalHub
+git clone https://github.com/seu-usuario/MindLedger.git
+cd MindLedger
 
 # Adicione o repositório original como upstream
-git remote add upstream https://github.com/original-repo/PersonalHub.git
+git remote add upstream https://github.com/original-repo/MindLedger.git
 ```
 
 ### 2. Configurar Ambiente

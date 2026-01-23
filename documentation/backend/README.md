@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Esta seção contém a documentação técnica completa do backend Django do PersonalHub, um sistema de gerenciamento financeiro pessoal com módulos adicionais de segurança, biblioteca e assistente de IA.
+Esta seção contém a documentação técnica completa do backend Django do MindLedger, um sistema de gerenciamento financeiro pessoal com módulos adicionais de segurança, biblioteca e assistente de IA.
 
 ## Stack Tecnológico
 
@@ -89,7 +89,7 @@ Interceptadores de requisições e eventos de modelos:
 
 Criptografia de dados sensíveis com Fernet:
 - O que é Fernet e como funciona
-- Implementação no PersonalHub (FieldEncryption)
+- Implementação no MindLedger (FieldEncryption)
 - Padrão de campos criptografados (properties)
 - Uso em modelos e serializers
 - Gerenciamento de chaves (ENCRYPTION_KEY)
@@ -123,7 +123,7 @@ Comandos customizados do Django:
 ```bash
 # 1. Clonar repositório
 git clone <repo-url>
-cd PersonalHub
+cd MindLedger
 
 # 2. Configurar variáveis de ambiente
 cp .env.example .env

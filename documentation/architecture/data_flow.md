@@ -2,11 +2,11 @@
 
 ## Introdução
 
-Este documento detalha como os dados fluem através do PersonalHub, desde a interação do usuário na interface até a persistência no banco de dados e vice-versa. Compreender esses fluxos é essencial para entender o comportamento do sistema, fazer debugging e implementar novas funcionalidades.
+Este documento detalha como os dados fluem através do MindLedger, desde a interação do usuário na interface até a persistência no banco de dados e vice-versa. Compreender esses fluxos é essencial para entender o comportamento do sistema, fazer debugging e implementar novas funcionalidades.
 
 ## Visão Geral dos Fluxos
 
-O PersonalHub possui cinco fluxos principais de dados:
+O MindLedger possui cinco fluxos principais de dados:
 
 1. **Fluxo de Autenticação**: Login, refresh de tokens, logout
 2. **Fluxo CRUD Padrão**: Operações de criação, leitura, atualização e exclusão
@@ -580,7 +580,7 @@ LIMIT 10;
 
 **Operadores pgvector**:
 - `<->`: Distância L2 (Euclidiana)
-- `<=>`: Distância de cosseno (usado no PersonalHub)
+- `<=>`: Distância de cosseno (usado no MindLedger)
 - `<#>`: Produto interno negativo
 
 **Estrutura da Resposta**:

@@ -1,6 +1,6 @@
 # Fluxo de Autenticação JWT
 
-Este documento descreve o sistema completo de autenticação JWT baseado em cookies HttpOnly do PersonalHub.
+Este documento descreve o sistema completo de autenticação JWT baseado em cookies HttpOnly do MindLedger.
 
 ## Sumário
 
@@ -18,7 +18,7 @@ Este documento descreve o sistema completo de autenticação JWT baseado em cook
 
 ## Visão Geral
 
-O PersonalHub utiliza autenticação JWT (JSON Web Tokens) armazenados em **cookies HttpOnly** para máxima segurança contra ataques XSS. Esta abordagem oferece:
+O MindLedger utiliza autenticação JWT (JSON Web Tokens) armazenados em **cookies HttpOnly** para máxima segurança contra ataques XSS. Esta abordagem oferece:
 
 - **Segurança contra XSS**: Tokens inacessíveis via JavaScript
 - **Transparência**: Navegador gerencia cookies automaticamente
@@ -68,7 +68,7 @@ graph TB
 | **localStorage** | ❌ Vulnerável | ❌ Manual | ✅ Seguro | ❌ Manual |
 | **HttpOnly Cookie** | ✅ Protegido | ✅ Automático | ⚠️ Requer proteção | ✅ Transparente |
 
-O PersonalHub protege contra CSRF usando:
+O MindLedger protege contra CSRF usando:
 - `SameSite=Lax` nos cookies
 - CORS restritivo
 - CSRF tokens do Django (para formulários)

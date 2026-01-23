@@ -1,12 +1,12 @@
-# Introdução ao PersonalHub
+# Introdução ao MindLedger
 
-## O que é o PersonalHub?
+## O que é o MindLedger?
 
-PersonalHub é um sistema completo de gerenciamento pessoal que integra três módulos principais: **Finanças**, **Segurança** e **Biblioteca**. O sistema foi projetado para oferecer controle total sobre diferentes aspectos da vida pessoal através de uma plataforma unificada, segura e intuitiva.
+MindLedger é um sistema completo de gerenciamento pessoal que integra três módulos principais: **Finanças**, **Segurança** e **Biblioteca**. O sistema foi projetado para oferecer controle total sobre diferentes aspectos da vida pessoal através de uma plataforma unificada, segura e intuitiva.
 
 ## Visão Geral
 
-O PersonalHub é construído como uma aplicação full-stack moderna, combinando:
+O MindLedger é construído como uma aplicação full-stack moderna, combinando:
 
 - **Backend robusto** em Django REST Framework
 - **Frontend responsivo** em React com TypeScript
@@ -170,7 +170,7 @@ graph TB
 
 ## Público-Alvo
 
-O PersonalHub é ideal para:
+O MindLedger é ideal para:
 
 - Indivíduos que buscam controle financeiro detalhado
 - Profissionais que necessitam gerenciar múltiplas credenciais
@@ -180,7 +180,7 @@ O PersonalHub é ideal para:
 
 ## Próximos Passos
 
-Para começar a usar o PersonalHub, consulte:
+Para começar a usar o MindLedger, consulte:
 
 - [Guia de Instalação](../08-development/instalacao.md)
 - [Configuração Inicial](../08-development/configuracao.md)
@@ -189,7 +189,7 @@ Para começar a usar o PersonalHub, consulte:
 ## Suporte e Comunidade
 
 - **Documentação**: Este repositório de documentação
-- **Issues**: [GitHub Issues](https://github.com/tarcisioribeiro/personalhub/issues)
+- **Issues**: [GitHub Issues](https://github.com/tarcisioribeiro/mindledger/issues)
 - **Email**: tarcisio.ribeiro.1840@hotmail.com
 
 ## Licença

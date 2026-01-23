@@ -1,6 +1,6 @@
 # Documentação do Frontend
 
-Esta pasta contém a documentação completa do frontend do PersonalHub - uma aplicação React + TypeScript moderna com TailwindCSS e Zustand.
+Esta pasta contém a documentação completa do frontend do MindLedger - uma aplicação React + TypeScript moderna com TailwindCSS e Zustand.
 
 ## Conteúdo
 

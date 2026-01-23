@@ -1,6 +1,6 @@
 # Boas Práticas de Segurança
 
-Guia completo de segurança do PersonalHub baseado em OWASP Top 10 e melhores práticas da indústria.
+Guia completo de segurança do MindLedger baseado em OWASP Top 10 e melhores práticas da indústria.
 
 ## Sumário
 
@@ -19,7 +19,7 @@ Guia completo de segurança do PersonalHub baseado em OWASP Top 10 e melhores pr
 
 ## Visão Geral
 
-O PersonalHub implementa múltiplas camadas de segurança para proteger dados financeiros sensíveis. Este documento descreve todas as medidas de segurança implementadas e recomendações para manter o sistema seguro.
+O MindLedger implementa múltiplas camadas de segurança para proteger dados financeiros sensíveis. Este documento descreve todas as medidas de segurança implementadas e recomendações para manter o sistema seguro.
 
 ### Princípios de Segurança
 
@@ -33,7 +33,7 @@ O PersonalHub implementa múltiplas camadas de segurança para proteger dados fi
 
 ```mermaid
 graph TB
-    A[Segurança PersonalHub] --> B[Autenticação]
+    A[Segurança MindLedger] --> B[Autenticação]
     A --> C[Autorização]
     A --> D[Criptografia]
     A --> E[Auditoria]
@@ -312,7 +312,7 @@ graph TB
 1. **Backups Regulares**
    ```bash
    # Backup diário automatizado
-   docker-compose exec db pg_dump -U $DB_USER personalhub_db > backup.sql
+   docker-compose exec db pg_dump -U $DB_USER mindledger_db > backup.sql
    ```
 
 2. **Validação de Integridade**
@@ -364,7 +364,7 @@ graph TB
 
 ### SecurityHeadersMiddleware
 
-**Arquivo**: `/home/tarcisio/Development/PersonalHub/api/app/middleware.py`
+**Arquivo**: `/home/tarcisio/Development/MindLedger/api/app/middleware.py`
 
 ```python
 class SecurityHeadersMiddleware(MiddlewareMixin):
@@ -537,7 +537,7 @@ Permissions-Policy: geolocation=(), microphone=(), camera=()
 
 ### CORS (Cross-Origin Resource Sharing)
 
-**Arquivo**: `/home/tarcisio/Development/PersonalHub/api/app/settings.py`
+**Arquivo**: `/home/tarcisio/Development/MindLedger/api/app/settings.py`
 
 ```python
 # CORS Configuration
@@ -717,7 +717,7 @@ cursor.execute('SELECT * FROM accounts WHERE balance > %s', [min_balance])
 
 ### AuditLoggingMiddleware
 
-**Arquivo**: `/home/tarcisio/Development/PersonalHub/api/app/middleware.py`
+**Arquivo**: `/home/tarcisio/Development/MindLedger/api/app/middleware.py`
 
 ```python
 class AuditLoggingMiddleware(MiddlewareMixin):
@@ -1032,7 +1032,7 @@ def get_secret(secret_name):
     return json.loads(response['SecretString'])
 
 if not DEBUG:
-    secrets = get_secret('prod/personalhub')
+    secrets = get_secret('prod/mindledger')
     SECRET_KEY = secrets['SECRET_KEY']
     ENCRYPTION_KEY = secrets['ENCRYPTION_KEY']
     DB_PASSWORD = secrets['DB_PASSWORD']
@@ -1044,7 +1044,7 @@ if not DEBUG:
 import hvac
 
 client = hvac.Client(url='http://vault:8200', token=os.getenv('VAULT_TOKEN'))
-secrets = client.secrets.kv.v2.read_secret_version(path='personalhub')
+secrets = client.secrets.kv.v2.read_secret_version(path='mindledger')
 
 SECRET_KEY = secrets['data']['data']['SECRET_KEY']
 ENCRYPTION_KEY = secrets['data']['data']['ENCRYPTION_KEY']

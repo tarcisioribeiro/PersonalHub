@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api
-  namespace: personalhub
+  namespace: mindledger
   labels:
-    app.kubernetes.io/name: personalhub
+    app.kubernetes.io/name: mindledger
     app.kubernetes.io/component: api
 spec:
   replicas: 1
@@ -15,7 +15,7 @@ spec:
     metadata:
       labels:
         app: api
-        app.kubernetes.io/name: personalhub
+        app.kubernetes.io/name: mindledger
         app.kubernetes.io/component: api
     spec:
       initContainers:
@@ -43,15 +43,15 @@ spec:
               echo "Redis is ready!"
       containers:
         - name: api
-          image: localhost:5000/personalhub-api:latest
+          image: localhost:5000/mindledger-api:latest
           ports:
             - containerPort: 8002
               name: http
           envFrom:
             - configMapRef:
-                name: personalhub-config
+                name: mindledger-config
             - secretRef:
-                name: personalhub-secrets
+                name: mindledger-secrets
           volumeMounts:
             - name: media
               mountPath: /app/media

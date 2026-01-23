@@ -1,6 +1,6 @@
 # Workflow de Desenvolvimento
 
-Este guia detalha os comandos e práticas do dia a dia no desenvolvimento do PersonalHub.
+Este guia detalha os comandos e práticas do dia a dia no desenvolvimento do MindLedger.
 
 ## Índice
 
@@ -68,7 +68,7 @@ docker-compose exec api bash
 docker-compose exec api python manage.py shell
 
 # Shell do PostgreSQL
-docker-compose exec db psql -U personalhub_user -d personalhub_db
+docker-compose exec db psql -U mindledger_user -d mindledger_db
 
 # Shell do Redis
 docker-compose exec redis redis-cli
@@ -89,12 +89,12 @@ docker-compose logs -f db
 docker-compose logs --tail=50 api
 
 # Verificar uso de recursos
-docker stats personalhub-api personalhub-db personalhub-redis
+docker stats mindledger-api mindledger-db mindledger-redis
 ```
 
 ## Hot Reload e Desenvolvimento Iterativo
 
-O PersonalHub está configurado para hot reload automático em desenvolvimento.
+O MindLedger está configurado para hot reload automático em desenvolvimento.
 
 ### Backend (Django)
 
@@ -304,10 +304,10 @@ debugger; // Para aqui quando DevTools está aberto
 
 ```bash
 # Uso de CPU e memória
-docker stats personalhub-api personalhub-db personalhub-redis
+docker stats mindledger-api mindledger-db mindledger-redis
 
 # Queries lentas no PostgreSQL
-docker-compose exec db psql -U personalhub_user -d personalhub_db -c "
+docker-compose exec db psql -U mindledger_user -d mindledger_db -c "
   SELECT query, calls, total_time, mean_time
   FROM pg_stat_statements
   ORDER BY total_time DESC
@@ -448,10 +448,10 @@ docker-compose exec api python manage.py migrate --fake
 
 ```bash
 # Criar backup
-docker-compose exec db pg_dump -U personalhub_user personalhub_db > backups/backup_$(date +%Y%m%d_%H%M%S).sql
+docker-compose exec db pg_dump -U mindledger_user mindledger_db > backups/backup_$(date +%Y%m%d_%H%M%S).sql
 
 # Restaurar backup
-docker-compose exec -T db psql -U personalhub_user personalhub_db < backups/backup_20260112_103045.sql
+docker-compose exec -T db psql -U mindledger_user mindledger_db < backups/backup_20260112_103045.sql
 
 # Backup de um app específico (apenas dados)
 docker-compose exec api python manage.py dumpdata accounts --indent 2 > backups/accounts_data.json
@@ -464,7 +464,7 @@ docker-compose exec -T api python manage.py loaddata < backups/accounts_data.jso
 
 ```bash
 # Acessar psql
-docker-compose exec db psql -U personalhub_user -d personalhub_db
+docker-compose exec db psql -U mindledger_user -d mindledger_db
 
 # Exemplos de queries úteis
 \dt                           # Listar tabelas
@@ -482,8 +482,8 @@ SELECT * FROM auth_user WHERE is_superuser = true;
 # ⚠️ ATENÇÃO: Apaga TODOS os dados!
 
 # Método 1: Dropar e recriar banco
-docker-compose exec db psql -U personalhub_user -d postgres -c "DROP DATABASE personalhub_db;"
-docker-compose exec db psql -U personalhub_user -d postgres -c "CREATE DATABASE personalhub_db OWNER personalhub_user;"
+docker-compose exec db psql -U mindledger_user -d postgres -c "DROP DATABASE mindledger_db;"
+docker-compose exec db psql -U mindledger_user -d postgres -c "CREATE DATABASE mindledger_db OWNER mindledger_user;"
 docker-compose exec api python manage.py migrate
 
 # Método 2: Flush (limpa dados, mantém estrutura)
@@ -497,7 +497,7 @@ docker-compose exec api python manage.py migrate
 
 ## Comandos Personalizados do Django
 
-O PersonalHub possui comandos personalizados:
+O MindLedger possui comandos personalizados:
 
 ```bash
 # Atualizar saldos das contas

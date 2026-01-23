@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# PersonalHub - Kubernetes Deployment Script
+# MindLedger - Kubernetes Deployment Script
 # =============================================================================
 # This script:
 # 1. Validates/creates local Docker registry
@@ -22,7 +22,7 @@ NC='\033[0m' # No Color
 # Configuration
 REGISTRY_NAME="kind-registry"
 REGISTRY_PORT="5000"
-CLUSTER_NAME="personalhub"
+CLUSTER_NAME="mindledger"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 K8S_DIR="${SCRIPT_DIR}/k8s"
 
@@ -191,34 +191,34 @@ tag_and_push_images() {
 
 <<<<<<< HEAD
     # Tag images for local registry
-    docker tag personalhub-api:latest "localhost:${REGISTRY_PORT}/personalhub-api:latest"
-    docker tag personalhub-frontend:latest "localhost:${REGISTRY_PORT}/personalhub-frontend:latest"
+    docker tag mindledger-api:latest "localhost:${REGISTRY_PORT}/mindledger-api:latest"
+    docker tag mindledger-frontend:latest "localhost:${REGISTRY_PORT}/mindledger-frontend:latest"
 ||||||| 18a80e2
     # Tag images for local registry
-    docker tag personalhub-api:latest "localhost:${REGISTRY_PORT}/personalhub-api:latest"
-    docker tag personalhub-frontend:latest "localhost:${REGISTRY_PORT}/personalhub-frontend:latest"
-    docker tag personalhub-embeddings:latest "localhost:${REGISTRY_PORT}/personalhub-embeddings:latest"
+    docker tag mindledger-api:latest "localhost:${REGISTRY_PORT}/mindledger-api:latest"
+    docker tag mindledger-frontend:latest "localhost:${REGISTRY_PORT}/mindledger-frontend:latest"
+    docker tag mindledger-embeddings:latest "localhost:${REGISTRY_PORT}/mindledger-embeddings:latest"
 =======
   # Tag images for local registry
-  docker tag personalhub-api:latest "localhost:${REGISTRY_PORT}/personalhub-api:latest"
-  docker tag personalhub-frontend:latest "localhost:${REGISTRY_PORT}/personalhub-frontend:latest"
-  docker tag personalhub-embeddings:latest "localhost:${REGISTRY_PORT}/personalhub-embeddings:latest"
+  docker tag mindledger-api:latest "localhost:${REGISTRY_PORT}/mindledger-api:latest"
+  docker tag mindledger-frontend:latest "localhost:${REGISTRY_PORT}/mindledger-frontend:latest"
+  docker tag mindledger-embeddings:latest "localhost:${REGISTRY_PORT}/mindledger-embeddings:latest"
 >>>>>>> 27ed8c383b4c47d087f3d7604af2bbb621aa7ffc
 
 <<<<<<< HEAD
     # Push to local registry
-    docker push "localhost:${REGISTRY_PORT}/personalhub-api:latest"
-    docker push "localhost:${REGISTRY_PORT}/personalhub-frontend:latest"
+    docker push "localhost:${REGISTRY_PORT}/mindledger-api:latest"
+    docker push "localhost:${REGISTRY_PORT}/mindledger-frontend:latest"
 ||||||| 18a80e2
     # Push to local registry
-    docker push "localhost:${REGISTRY_PORT}/personalhub-api:latest"
-    docker push "localhost:${REGISTRY_PORT}/personalhub-frontend:latest"
-    docker push "localhost:${REGISTRY_PORT}/personalhub-embeddings:latest"
+    docker push "localhost:${REGISTRY_PORT}/mindledger-api:latest"
+    docker push "localhost:${REGISTRY_PORT}/mindledger-frontend:latest"
+    docker push "localhost:${REGISTRY_PORT}/mindledger-embeddings:latest"
 =======
   # Push to local registry
-  docker push "localhost:${REGISTRY_PORT}/personalhub-api:latest"
-  docker push "localhost:${REGISTRY_PORT}/personalhub-frontend:latest"
-  docker push "localhost:${REGISTRY_PORT}/personalhub-embeddings:latest"
+  docker push "localhost:${REGISTRY_PORT}/mindledger-api:latest"
+  docker push "localhost:${REGISTRY_PORT}/mindledger-frontend:latest"
+  docker push "localhost:${REGISTRY_PORT}/mindledger-embeddings:latest"
 >>>>>>> 27ed8c383b4c47d087f3d7604af2bbb621aa7ffc
 
   log_success "Images pushed to local registry."
@@ -298,22 +298,22 @@ wait_for_deployments() {
   log_info "Waiting for deployments to be ready..."
 
 <<<<<<< HEAD
-    kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/postgres || true
-    kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/redis || true
-    kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/api || true
-    kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/frontend || true
+    kubectl -n mindledger wait --for=condition=available --timeout=300s deployment/postgres || true
+    kubectl -n mindledger wait --for=condition=available --timeout=300s deployment/redis || true
+    kubectl -n mindledger wait --for=condition=available --timeout=300s deployment/api || true
+    kubectl -n mindledger wait --for=condition=available --timeout=300s deployment/frontend || true
 ||||||| 18a80e2
-    kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/postgres || true
-    kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/redis || true
-    kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/embeddings || true
-    kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/api || true
-    kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/frontend || true
+    kubectl -n mindledger wait --for=condition=available --timeout=300s deployment/postgres || true
+    kubectl -n mindledger wait --for=condition=available --timeout=300s deployment/redis || true
+    kubectl -n mindledger wait --for=condition=available --timeout=300s deployment/embeddings || true
+    kubectl -n mindledger wait --for=condition=available --timeout=300s deployment/api || true
+    kubectl -n mindledger wait --for=condition=available --timeout=300s deployment/frontend || true
 =======
-  kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/postgres || true
-  kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/redis || true
-  kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/embeddings || true
-  kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/api || true
-  kubectl -n personalhub wait --for=condition=available --timeout=300s deployment/frontend || true
+  kubectl -n mindledger wait --for=condition=available --timeout=300s deployment/postgres || true
+  kubectl -n mindledger wait --for=condition=available --timeout=300s deployment/redis || true
+  kubectl -n mindledger wait --for=condition=available --timeout=300s deployment/embeddings || true
+  kubectl -n mindledger wait --for=condition=available --timeout=300s deployment/api || true
+  kubectl -n mindledger wait --for=condition=available --timeout=300s deployment/frontend || true
 >>>>>>> 27ed8c383b4c47d087f3d7604af2bbb621aa7ffc
 
   log_success "All deployments are ready."
@@ -324,12 +324,12 @@ show_status() {
   log_info "=== Deployment Status ==="
   echo ""
 
-  kubectl -n personalhub get pods
+  kubectl -n mindledger get pods
   echo ""
-  kubectl -n personalhub get services
+  kubectl -n mindledger get services
   echo ""
 
-  log_success "PersonalHub deployed successfully!"
+  log_success "MindLedger deployed successfully!"
   echo ""
   echo -e "${GREEN}Access the application:${NC}"
   echo -e "  Frontend: ${BLUE}http://localhost:39101${NC}"
@@ -337,10 +337,10 @@ show_status() {
   echo -e "  API Docs: ${BLUE}http://localhost:39100/api/v1/docs/${NC}"
   echo ""
   echo -e "${YELLOW}Useful commands:${NC}"
-  echo "  kubectl -n personalhub get pods          # List pods"
-  echo "  kubectl -n personalhub logs -f <pod>     # View pod logs"
-  echo "  kubectl -n personalhub describe pod <pod> # Describe pod"
-  echo "  kind delete cluster --name personalhub   # Delete cluster"
+  echo "  kubectl -n mindledger get pods          # List pods"
+  echo "  kubectl -n mindledger logs -f <pod>     # View pod logs"
+  echo "  kubectl -n mindledger describe pod <pod> # Describe pod"
+  echo "  kind delete cluster --name mindledger   # Delete cluster"
   echo ""
 }
 
@@ -349,7 +349,7 @@ show_status() {
 # =============================================================================
 
 cleanup() {
-  log_warn "Cleaning up PersonalHub Kubernetes resources..."
+  log_warn "Cleaning up MindLedger Kubernetes resources..."
 
   read -p "Are you sure you want to delete the cluster? (y/N) " -n 1 -r
   echo
@@ -373,7 +373,7 @@ cleanup() {
 main() {
   echo ""
   echo "============================================="
-  echo "  PersonalHub - Kubernetes Deployment"
+  echo "  MindLedger - Kubernetes Deployment"
   echo "============================================="
   echo ""
 
@@ -403,15 +403,15 @@ main() {
     show_status
     ;;
   status)
-    kubectl -n personalhub get pods,services,pvc
+    kubectl -n mindledger get pods,services,pvc
     ;;
   logs)
     if [[ -n "$2" ]]; then
-      kubectl -n personalhub logs -f "$2"
+      kubectl -n mindledger logs -f "$2"
     else
       echo "Usage: $0 logs <pod-name>"
       echo "Available pods:"
-      kubectl -n personalhub get pods -o name
+      kubectl -n mindledger get pods -o name
     fi
     ;;
   cleanup | delete)

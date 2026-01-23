@@ -1,13 +1,13 @@
-# Documentação Oficial do PersonalHub
+# Documentação Oficial do MindLedger
 
-Bem-vindo à documentação oficial do PersonalHub! Esta documentação completa cobre todos os aspectos do sistema, desde a visão geral até detalhes técnicos de implementação.
+Bem-vindo à documentação oficial do MindLedger! Esta documentação completa cobre todos os aspectos do sistema, desde a visão geral até detalhes técnicos de implementação.
 
 ## 📚 Índice Geral
 
 ### [1. Visão Geral](overview/)
 Introdução ao sistema e seus recursos principais.
 
-- **[Introdução](overview/introduction.md)** - O que é o PersonalHub, módulos, tecnologias e arquitetura de alto nível
+- **[Introdução](overview/introduction.md)** - O que é o MindLedger, módulos, tecnologias e arquitetura de alto nível
 - **[Recursos e Funcionalidades](overview/resources.md)** - Detalhamento completo de todas as funcionalidades por módulo
 
 ### [2. Arquitetura](architecture/)
@@ -74,7 +74,7 @@ Guias para desenvolvedores.
 ## 🚀 Início Rápido
 
 ### Para Novos Usuários
-1. Leia a [Introdução](overview/introduction.md) para entender o que é o PersonalHub
+1. Leia a [Introdução](overview/introduction.md) para entender o que é o MindLedger
 2. Consulte [Recursos e Funcionalidades](overview/resources.md) para ver tudo que pode fazer
 3. Siga o [Guia de Instalação](development/installation.md) para começar a usar
 
@@ -241,6 +241,6 @@ Este projeto está sob a licença MIT. Consulte o arquivo LICENSE na raiz do rep
 ---
 
 **Última atualização**: Janeiro de 2026
-**Mantido por**: Equipe PersonalHub
+**Mantido por**: Equipe MindLedger
 
 💜 Feito com atenção aos detalhes e amor pelo código limpo.

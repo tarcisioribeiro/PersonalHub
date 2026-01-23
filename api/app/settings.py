@@ -184,7 +184,7 @@ CACHES = {
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         },
-        'KEY_PREFIX': 'personalhub',
+        'KEY_PREFIX': 'mindledger',
         'TIMEOUT': 3600,  # 1 hour default
     }
 }

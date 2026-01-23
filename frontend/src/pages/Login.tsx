@@ -78,7 +78,7 @@ export default function Login() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-4 text-center">
           <div className="mx-auto flex items-center justify-center">
-            <img src={logo} alt="PersonalHub" className="w-64 h-auto" />
+            <img src={logo} alt="MindLedger" className="w-64 h-auto" />
           </div>
           <CardDescription>
             Entre com suas credenciais para acessar o sistema

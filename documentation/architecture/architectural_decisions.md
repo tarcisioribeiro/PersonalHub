@@ -2,7 +2,7 @@
 
 ## Introdução
 
-Este documento registra as principais decisões arquiteturais tomadas durante o desenvolvimento do PersonalHub, suas justificativas, alternativas consideradas e trade-offs. Compreender essas decisões é fundamental para manter a coerência do sistema e tomar decisões futuras alinhadas com a filosofia do projeto.
+Este documento registra as principais decisões arquiteturais tomadas durante o desenvolvimento do MindLedger, suas justificativas, alternativas consideradas e trade-offs. Compreender essas decisões é fundamental para manter a coerência do sistema e tomar decisões futuras alinhadas com a filosofia do projeto.
 
 ## Índice de Decisões
 
@@ -32,7 +32,7 @@ Este documento registra as principais decisões arquiteturais tomadas durante o 
 
 ### Contexto
 
-O PersonalHub possui backend e frontend fortemente acoplados, com contratos de API que precisam evoluir em sincronia.
+O MindLedger possui backend e frontend fortemente acoplados, com contratos de API que precisam evoluir em sincronia.
 
 ### Alternativas Consideradas
 

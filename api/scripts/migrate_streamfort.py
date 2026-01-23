@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-Script de Migração: StreamFort (MySQL) → PersonalHub (PostgreSQL)
+Script de Migração: StreamFort (MySQL) → MindLedger (PostgreSQL)
 
-Este script migra todos os dados do StreamFort para o módulo Security do PersonalHub.
+Este script migra todos os dados do StreamFort para o módulo Security do MindLedger.
 
 Migrações:
 1. usuarios → Django User + Member
@@ -93,7 +93,7 @@ def migrate_users(cursor):
             # Nota: senha já está em bcrypt, Django aceita
             user = User.objects.create(
                 username=login,
-                email=f"{login}@personalhub.local",  # Email fake
+                email=f"{login}@mindledger.local",  # Email fake
                 first_name=nome.split()[0] if nome else login,
                 last_name=' '.join(nome.split()[1:]) if len(nome.split()) > 1 else ''
             )
@@ -102,7 +102,7 @@ def migrate_users(cursor):
             # Django aceita bcrypt com prefixo 'bcrypt$'
             # Mas como a senha do StreamFort já está em bytes bcrypt,
             # vamos definir uma senha temporária e pedir ao usuário para trocar
-            user.set_password('PersonalHub2024!')  # Senha temporária
+            user.set_password('MindLedger2024!')  # Senha temporária
             user.save()
 
             # Criar Member
@@ -119,7 +119,7 @@ def migrate_users(cursor):
             )
 
             migrated += 1
-            print(f"  ✓ Usuário '{login}' migrado (senha temporária: PersonalHub2024!)")
+            print(f"  ✓ Usuário '{login}' migrado (senha temporária: MindLedger2024!)")
 
         except Exception as e:
             errors += 1
@@ -453,7 +453,7 @@ def migrate_activity_logs(cursor):
 def main():
     """Executa a migração completa."""
     print("=" * 60)
-    print("MIGRAÇÃO: StreamFort → PersonalHub Security Module")
+    print("MIGRAÇÃO: StreamFort → MindLedger Security Module")
     print("=" * 60)
 
     # Conectar ao MySQL
@@ -483,7 +483,7 @@ def main():
         print("=" * 60)
         print("\n✓ Migração concluída com sucesso!")
         print("\nNOTA: Todos os usuários foram criados com senha temporária:")
-        print("      Senha: PersonalHub2024!")
+        print("      Senha: MindLedger2024!")
         print("      Os usuários devem trocar a senha no primeiro login.")
 
     except Exception as e:
@@ -499,7 +499,7 @@ def main():
 
 if __name__ == '__main__':
     # Confirmação antes de executar
-    print("\n⚠ ATENÇÃO: Este script irá migrar dados do StreamFort para o PersonalHub.")
+    print("\n⚠ ATENÇÃO: Este script irá migrar dados do StreamFort para o MindLedger.")
     print("  Certifique-se de ter um backup antes de continuar.")
     confirm = input("\nDeseja continuar? (sim/não): ")
 

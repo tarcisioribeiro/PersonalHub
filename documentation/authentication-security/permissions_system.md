@@ -1,4 +1,4 @@
-# Sistema de Permissões do PersonalHub
+# Sistema de Permissões do MindLedger
 
 Documentação completa do sistema de permissões baseado em grupos Django e controle de acesso granular por modelo e ação.
 
@@ -16,7 +16,7 @@ Documentação completa do sistema de permissões baseado em grupos Django e con
 
 ## Visão Geral
 
-O PersonalHub implementa um sistema de permissões robusto baseado no sistema nativo de permissões do Django, estendido para trabalhar perfeitamente com Django REST Framework (DRF).
+O MindLedger implementa um sistema de permissões robusto baseado no sistema nativo de permissões do Django, estendido para trabalhar perfeitamente com Django REST Framework (DRF).
 
 ### Características Principais
 
@@ -94,7 +94,7 @@ Cada modelo Django automaticamente gera 4 permissões:
 ## GlobalDefaultPermission
 
 ### Arquivo
-`/home/tarcisio/Development/PersonalHub/api/app/permissions.py`
+`/home/tarcisio/Development/MindLedger/api/app/permissions.py`
 
 ### Código Completo
 

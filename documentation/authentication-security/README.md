@@ -1,6 +1,6 @@
-# Autenticação e Segurança do PersonalHub
+# Autenticação e Segurança do MindLedger
 
-Documentação completa do sistema de autenticação e segurança do PersonalHub, incluindo JWT em cookies HttpOnly, sistema de permissões Django e criptografia de dados sensíveis.
+Documentação completa do sistema de autenticação e segurança do MindLedger, incluindo JWT em cookies HttpOnly, sistema de permissões Django e criptografia de dados sensíveis.
 
 ## Índice da Documentação
 
@@ -41,7 +41,7 @@ Guia completo de segurança baseado em OWASP Top 10:
 
 ### Arquitetura de Segurança
 
-O PersonalHub implementa múltiplas camadas de segurança:
+O MindLedger implementa múltiplas camadas de segurança:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -129,7 +129,7 @@ ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
 CORS_ALLOWED_ORIGINS=https://yourdomain.com
 
 # Database (PostgreSQL recomendado)
-DB_NAME=personalhub_db
+DB_NAME=mindledger_db
 DB_USER=postgres
 DB_PASSWORD=your-secure-password
 DB_HOST=db

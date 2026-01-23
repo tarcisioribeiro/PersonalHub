@@ -25,9 +25,9 @@ pgvector é uma extensão open-source do PostgreSQL que adiciona suporte nativo 
 - Operações de similaridade (cosine, L2, inner product)
 - Índices otimizados para busca aproximada (IVFFlat, HNSW)
 
-### Por que pgvector no PersonalHub?
+### Por que pgvector no MindLedger?
 
-O PersonalHub usa pgvector para implementar RAG (Retrieval Augmented Generation) que permite:
+O MindLedger usa pgvector para implementar RAG (Retrieval Augmented Generation) que permite:
 
 1. **Busca semântica**: Encontrar despesas/livros/tarefas por significado, não apenas palavras-chave
 2. **Contexto para LLM**: Enviar informações relevantes para Groq gerar respostas precisas
@@ -103,8 +103,8 @@ brew install pgvector
 ### 2. Habilitar Extensão no Banco
 
 ```sql
--- Conectar ao banco PersonalHub
-\c personalhub_db
+-- Conectar ao banco MindLedger
+\c mindledger_db
 
 -- Habilitar extensão
 CREATE EXTENSION IF NOT EXISTS vector;
@@ -147,7 +147,7 @@ INSTALLED_APPS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'personalhub_db',
+        'NAME': 'mindledger_db',
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST', 'db'),
@@ -358,7 +358,7 @@ CONTENT_SENSITIVITY_MAP = {
 
 ### 1. Modelo all-MiniLM-L6-v2
 
-O PersonalHub usa o modelo **all-MiniLM-L6-v2** da biblioteca sentence-transformers:
+O MindLedger usa o modelo **all-MiniLM-L6-v2** da biblioteca sentence-transformers:
 
 **Características**:
 - **384 dimensões** (menor que BERT-768, mais rápido)
@@ -812,13 +812,13 @@ results = ContentEmbedding.objects.filter(
 
 ---
 
-### 2. IVFFlat (Recomendado para PersonalHub)
+### 2. IVFFlat (Recomendado para MindLedger)
 
 Índice baseado em clustering (k-means):
 
 ```sql
 -- Conectar ao banco
-docker-compose exec db psql -U $DB_USER personalhub_db
+docker-compose exec db psql -U $DB_USER mindledger_db
 
 -- Criar índice IVFFlat para cosine similarity
 CREATE INDEX idx_contentembedding_cosine ON ai_assistant_contentembedding
@@ -900,7 +900,7 @@ SET hnsw.ef_search = 100;
 - ❌ Consome mais memória (~10x IVFFlat)
 - ❌ Construção mais lenta
 
-**Recomendação PersonalHub**: Usar IVFFlat (datasets pequenos por usuário).
+**Recomendação MindLedger**: Usar IVFFlat (datasets pequenos por usuário).
 
 ---
 

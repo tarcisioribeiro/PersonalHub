@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-O PersonalHub utiliza **JWT (JSON Web Tokens)** armazenados em **cookies httpOnly** para autenticação segura, protegendo contra ataques XSS.
+O MindLedger utiliza **JWT (JSON Web Tokens)** armazenados em **cookies httpOnly** para autenticação segura, protegendo contra ataques XSS.
 
 ## Arquitetura de Autenticação
 

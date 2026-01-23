@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-A API do PersonalHub suporta filtros via query parameters para facilitar buscas específicas e ordenação de resultados.
+A API do MindLedger suporta filtros via query parameters para facilitar buscas específicas e ordenação de resultados.
 
 ## Query Parameters
 

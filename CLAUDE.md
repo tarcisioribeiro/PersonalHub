@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PersonalHub is a full-stack financial management system with Django REST Framework backend and React + TypeScript frontend. The system manages bank accounts, credit cards, expenses, revenues, loans, and includes additional modules for security (password management), library (book tracking), and personal planning.
+MindLedger is a full-stack financial management system with Django REST Framework backend and React + TypeScript frontend. The system manages bank accounts, credit cards, expenses, revenues, loans, and includes additional modules for security (password management), library (book tracking), and personal planning.
 
 ## Architecture
 
 ### Monorepo Structure
 ```
-PersonalHub/
+MindLedger/
 ├── api/              # Django backend (port 8002)
 ├── frontend/         # React frontend (port 3000)
 ├── docker-compose.yml
@@ -130,13 +130,13 @@ docker-compose exec api python manage.py migrate
 docker-compose exec api python manage.py showmigrations
 
 # Backup
-docker-compose exec db pg_dump -U $DB_USER personalhub_db > backups/backup_$(date +%Y%m%d_%H%M%S).sql
+docker-compose exec db pg_dump -U $DB_USER mindledger_db > backups/backup_$(date +%Y%m%d_%H%M%S).sql
 
 # Restore
-docker-compose exec -T db psql -U $DB_USER personalhub_db < backups/your_backup.sql
+docker-compose exec -T db psql -U $DB_USER mindledger_db < backups/your_backup.sql
 
 # Access PostgreSQL shell
-docker-compose exec db psql -U $DB_USER -d personalhub_db
+docker-compose exec db psql -U $DB_USER -d mindledger_db
 ```
 
 ### Testing

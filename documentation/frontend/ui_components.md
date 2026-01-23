@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-O PersonalHub utiliza **shadcn/ui** como base para seus componentes de interface, construídos sobre **Radix UI** (componentes headless acessíveis) e estilizados com **TailwindCSS**.
+O MindLedger utiliza **shadcn/ui** como base para seus componentes de interface, construídos sobre **Radix UI** (componentes headless acessíveis) e estilizados com **TailwindCSS**.
 
 ## Filosofia
 

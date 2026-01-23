@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-A API do PersonalHub segue padrões REST para códigos de status HTTP e retorna erros em formato JSON estruturado, compatível com Django REST Framework.
+A API do MindLedger segue padrões REST para códigos de status HTTP e retorna erros em formato JSON estruturado, compatível com Django REST Framework.
 
 ## Códigos de Status HTTP
 

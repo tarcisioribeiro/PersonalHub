@@ -167,7 +167,7 @@ export default function Permissions() {
           Gerenciamento de Permissões
         </h1>
         <p className="mt-2">
-          Controle o acesso dos membros aos diferentes módulos do PersonalHub
+          Controle o acesso dos membros aos diferentes módulos do MindLedger
         </p>
       </div>
 

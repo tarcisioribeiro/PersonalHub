@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# PersonalHub - Script de Configuração do Ambiente
+# MindLedger - Script de Configuração do Ambiente
 # ============================================================================
 # Este script cria o arquivo .env interativamente ou automaticamente
 # Uso:
@@ -47,7 +47,7 @@ print_header() {
 # Função de ajuda
 show_help() {
     cat << EOF
-PersonalHub - Script de Configuração do Ambiente
+MindLedger - Script de Configuração do Ambiente
 
 Uso: ./setup-env.sh [OPÇÃO]
 
@@ -80,7 +80,7 @@ elif [ "$1" == "--auto" ] || [ "$1" == "-a" ]; then
 fi
 
 # Banner
-print_header "PersonalHub - Configuração do Ambiente"
+print_header "MindLedger - Configuração do Ambiente"
 
 # Verificar se .env já existe
 if [ -f ".env" ]; then
@@ -140,12 +140,12 @@ if [ "$MODE" == "auto" ]; then
 
     DB_HOST="db"
     DB_PORT="39102"
-    DB_NAME="personalhub_db"
-    DB_USER="personalhub_user"
+    DB_NAME="mindledger_db"
+    DB_USER="mindledger_user"
     DB_PASSWORD="$(openssl rand -base64 32 | tr -d /=+ | cut -c1-25)"
 
     DJANGO_SUPERUSER_USERNAME="admin"
-    DJANGO_SUPERUSER_EMAIL="admin@personalhub.local"
+    DJANGO_SUPERUSER_EMAIL="admin@mindledger.local"
     DJANGO_SUPERUSER_PASSWORD="$(openssl rand -base64 32 | tr -d /=+ | cut -c1-20)"
 
     SECRET_KEY="$(generate_secret_key)"
@@ -178,11 +178,11 @@ else
     read -p "Porta do banco de dados [39102]: " DB_PORT
     DB_PORT=${DB_PORT:-39102}
 
-    read -p "Nome do banco de dados [personalhub_db]: " DB_NAME
-    DB_NAME=${DB_NAME:-personalhub_db}
+    read -p "Nome do banco de dados [mindledger_db]: " DB_NAME
+    DB_NAME=${DB_NAME:-mindledger_db}
 
-    read -p "Usuário do banco de dados [personalhub_user]: " DB_USER
-    DB_USER=${DB_USER:-personalhub_user}
+    read -p "Usuário do banco de dados [mindledger_user]: " DB_USER
+    DB_USER=${DB_USER:-mindledger_user}
 
     read -sp "Senha do banco de dados: " DB_PASSWORD
     echo
@@ -196,8 +196,8 @@ else
     read -p "Username do superusuário [admin]: " DJANGO_SUPERUSER_USERNAME
     DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME:-admin}
 
-    read -p "Email do superusuário [admin@personalhub.local]: " DJANGO_SUPERUSER_EMAIL
-    DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL:-admin@personalhub.local}
+    read -p "Email do superusuário [admin@mindledger.local]: " DJANGO_SUPERUSER_EMAIL
+    DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL:-admin@mindledger.local}
 
     read -sp "Senha do superusuário: " DJANGO_SUPERUSER_PASSWORD
     echo
@@ -250,7 +250,7 @@ print_header "Criando arquivo .env"
 
 cat > .env << EOF
 # ============================================================================
-# PERSONALHUB - Variáveis de Ambiente
+# MINDLEDGER - Variáveis de Ambiente
 # ============================================================================
 # Gerado automaticamente em $(date)
 # ============================================================================

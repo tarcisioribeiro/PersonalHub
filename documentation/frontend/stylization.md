@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-O PersonalHub utiliza **TailwindCSS** como framework CSS principal, com tema customizado baseado no **Dracula color scheme**, proporcionando uma interface moderna, escura e visualmente agradável.
+O MindLedger utiliza **TailwindCSS** como framework CSS principal, com tema customizado baseado no **Dracula color scheme**, proporcionando uma interface moderna, escura e visualmente agradável.
 
 ## Stack de Estilização
 

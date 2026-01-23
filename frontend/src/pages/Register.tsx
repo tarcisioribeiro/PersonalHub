@@ -70,7 +70,7 @@ export default function Register() {
         <div className="bg-card border rounded-2xl shadow-2xl p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold gradient-primary bg-clip-text text-transparent">
-              PersonalHub
+              MindLedger
             </h1>
             <p className="mt-2">Crie sua conta</p>
           </div>

@@ -1,5 +1,5 @@
 # =============================================================================
-# PersonalHub - Docker Compose
+# MindLedger - Docker Compose
 # =============================================================================
 # Serviços:
 # - db: PostgreSQL para armazenamento de dados
@@ -12,10 +12,10 @@ services:
   # PostgreSQL Database
   db:
     image: postgres:16-alpine
-    container_name: personalhub-db
+    container_name: mindledger-db
     environment:
       TZ: America/Sao_Paulo
-      POSTGRES_DB: ${DB_NAME:-personalhub_db}
+      POSTGRES_DB: ${DB_NAME:-mindledger_db}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
@@ -26,18 +26,18 @@ services:
       - "${DB_PORT:-39102}:5432"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME:-personalhub_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME:-mindledger_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
     networks:
-      - personalhub-network
+      - mindledger-network
 
   # Redis for caching
   redis:
     image: redis:7-alpine
-    container_name: personalhub-redis
+    container_name: mindledger-redis
     environment:
       TZ: America/Sao_Paulo
     ports:
@@ -52,14 +52,14 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - personalhub-network
+      - mindledger-network
 
   # Django API Backend
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
-    container_name: personalhub-api
+    container_name: mindledger-api
     ports:
       - "${API_PORT:-39100}:${API_PORT:-39100}"
     env_file:
@@ -94,7 +94,7 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - personalhub-network
+      - mindledger-network
 
   # React Frontend
   frontend:
@@ -103,7 +103,7 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:39100}
-    container_name: personalhub-frontend
+    container_name: mindledger-frontend
     environment:
       TZ: America/Sao_Paulo
     ports:
@@ -118,7 +118,7 @@ services:
       retries: 3
       start_period: 20s
     networks:
-      - personalhub-network
+      - mindledger-network
 
 volumes:
   postgres_data:
@@ -127,5 +127,5 @@ volumes:
     driver: local
 
 networks:
-  personalhub-network:
+  mindledger-network:
     driver: bridge

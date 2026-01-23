@@ -1,6 +1,6 @@
 # Configuração do Ambiente
 
-Este guia detalha todas as configurações necessárias para executar o PersonalHub.
+Este guia detalha todas as configurações necessárias para executar o MindLedger.
 
 ## Índice
 
@@ -14,7 +14,7 @@ Este guia detalha todas as configurações necessárias para executar o Personal
 
 ## Visão Geral
 
-O PersonalHub utiliza variáveis de ambiente para configuração. Existem dois níveis:
+O MindLedger utiliza variáveis de ambiente para configuração. Existem dois níveis:
 
 1. **Raiz do projeto** (`.env`): Configurações compartilhadas (backend, banco de dados, portas)
 2. **Frontend** (`frontend/.env`): Configurações específicas do frontend
@@ -31,13 +31,13 @@ Este arquivo contém todas as configurações críticas do sistema.
 # ============================================
 
 # Usuário do banco de dados PostgreSQL
-DB_USER=personalhub_user
+DB_USER=mindledger_user
 
 # Senha do banco de dados (use uma senha forte!)
 DB_PASSWORD=sua_senha_segura_aqui
 
 # Nome do banco de dados
-DB_NAME=personalhub_db
+DB_NAME=mindledger_db
 
 # Host do banco de dados
 # Use "db" para Docker, "localhost" para instalação local
@@ -53,7 +53,7 @@ DB_PORT=5432
 
 # Superuser criado automaticamente pelo entrypoint.sh
 DJANGO_SUPERUSER_USERNAME=admin
-DJANGO_SUPERUSER_EMAIL=admin@personalhub.com
+DJANGO_SUPERUSER_EMAIL=admin@mindledger.com
 DJANGO_SUPERUSER_PASSWORD=admin123
 
 # ⚠️ IMPORTANTE: Mude estas credenciais em produção!
@@ -145,7 +145,7 @@ VITE_API_BASE_URL=http://localhost:39100
 VITE_API_BASE_URL=http://localhost:39100
 
 # Para produção, use a URL pública:
-# VITE_API_BASE_URL=https://api.personalhub.com
+# VITE_API_BASE_URL=https://api.mindledger.com
 ```
 
 ## Gerando Chaves de Segurança
@@ -231,7 +231,7 @@ gsk_1234567890abcdefghijklmnopqrstuvwxyzABCDEF
 
 ## Configuração de Portas
 
-O PersonalHub usa as seguintes portas por padrão:
+O MindLedger usa as seguintes portas por padrão:
 
 | Serviço | Porta Padrão | Variável | Customizável |
 |---------|--------------|----------|--------------|
@@ -274,7 +274,7 @@ netstat -ano | findstr :39100
 
 ## Configuração de Logging
 
-O PersonalHub suporta dois formatos de logging:
+O MindLedger suporta dois formatos de logging:
 
 ### JSON (Estruturado)
 
@@ -422,7 +422,7 @@ Para permitir requisições do frontend:
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",      # Vite dev server
     "http://localhost:39101",     # Frontend Docker
-    "https://personalhub.com",    # Produção
+    "https://mindledger.com",    # Produção
 ]
 
 CORS_ALLOW_CREDENTIALS = True  # Necessário para cookies HttpOnly
@@ -478,8 +478,8 @@ GROQ_API_KEY=chave_de_producao
 AUTH_COOKIE_SECURE=True
 
 # Domínios permitidos
-ALLOWED_HOSTS=personalhub.com,www.personalhub.com
-CORS_ALLOWED_ORIGINS=https://personalhub.com
+ALLOWED_HOSTS=mindledger.com,www.mindledger.com
+CORS_ALLOWED_ORIGINS=https://mindledger.com
 
 # Banco robusto
 DB_HOST=banco-producao.rds.amazonaws.com
@@ -489,7 +489,7 @@ DB_PORT=5432
 ```python
 # api/app/settings.py (produção)
 
-ALLOWED_HOSTS = ['personalhub.com', 'www.personalhub.com']
+ALLOWED_HOSTS = ['mindledger.com', 'www.mindledger.com']
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True

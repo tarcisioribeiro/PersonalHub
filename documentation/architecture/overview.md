@@ -2,7 +2,7 @@
 
 ## Introdução
 
-O PersonalHub é construído sobre uma arquitetura full-stack moderna, utilizando um monorepo que combina backend Django REST Framework e frontend React com TypeScript. A arquitetura foi projetada para ser modular, escalável e segura, com separação clara de responsabilidades entre as camadas.
+O MindLedger é construído sobre uma arquitetura full-stack moderna, utilizando um monorepo que combina backend Django REST Framework e frontend React com TypeScript. A arquitetura foi projetada para ser modular, escalável e segura, com separação clara de responsabilidades entre as camadas.
 
 Este documento apresenta a visão geral da arquitetura do sistema, suas camadas principais, padrões arquiteturais adotados e como os componentes se comunicam entre si.
 
@@ -91,7 +91,7 @@ graph TB
 O projeto utiliza uma estrutura de monorepo que organiza o código em dois diretórios principais:
 
 ```
-PersonalHub/
+MindLedger/
 ├── api/                    # Backend Django
 │   ├── accounts/          # Gestão de contas bancárias
 │   ├── credit_cards/      # Gestão de cartões de crédito

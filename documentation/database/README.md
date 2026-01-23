@@ -1,6 +1,6 @@
 # Documentação de Banco de Dados
 
-Esta seção contém a documentação completa sobre o banco de dados PostgreSQL do PersonalHub, incluindo schema, otimizações e recursos avançados.
+Esta seção contém a documentação completa sobre o banco de dados PostgreSQL do MindLedger, incluindo schema, otimizações e recursos avançados.
 
 ## Arquivos Disponíveis
 
@@ -187,10 +187,10 @@ graph TB
 ### Acesso ao PostgreSQL
 ```bash
 # Via Docker
-docker-compose exec db psql -U personalhub_user -d personalhub_db
+docker-compose exec db psql -U mindledger_user -d mindledger_db
 
 # Local
-psql -h localhost -p 5435 -U personalhub_user -d personalhub_db
+psql -h localhost -p 5435 -U mindledger_user -d mindledger_db
 ```
 
 ### Inspeção do Schema
@@ -211,10 +211,10 @@ psql -h localhost -p 5435 -U personalhub_user -d personalhub_db
 ### Backup e Restore
 ```bash
 # Backup
-docker-compose exec db pg_dump -U personalhub_user personalhub_db > backup.sql
+docker-compose exec db pg_dump -U mindledger_user mindledger_db > backup.sql
 
 # Restore
-docker-compose exec -T db psql -U personalhub_user personalhub_db < backup.sql
+docker-compose exec -T db psql -U mindledger_user mindledger_db < backup.sql
 ```
 
 ## Links Relacionados

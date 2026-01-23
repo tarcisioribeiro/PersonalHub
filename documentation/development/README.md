@@ -1,6 +1,6 @@
 # Documentação de Desenvolvimento
 
-Bem-vindo à documentação de desenvolvimento do PersonalHub! Esta seção contém guias completos para configurar, desenvolver e contribuir para o projeto.
+Bem-vindo à documentação de desenvolvimento do MindLedger! Esta seção contém guias completos para configurar, desenvolver e contribuir para o projeto.
 
 ## Conteúdo
 
@@ -60,7 +60,7 @@ Se você está começando agora, siga esta sequência:
 ## Arquitetura do Projeto
 
 ```
-PersonalHub/
+MindLedger/
 ├── api/                    # Backend Django REST Framework
 │   ├── accounts/          # Contas bancárias
 │   ├── authentication/    # Autenticação JWT
@@ -126,7 +126,7 @@ PersonalHub/
 
 ## Links Úteis
 
-- **Repositório**: [GitHub PersonalHub](https://github.com/seu-usuario/PersonalHub)
+- **Repositório**: [GitHub MindLedger](https://github.com/seu-usuario/MindLedger)
 - **Frontend**: http://localhost:39101
 - **Backend API**: http://localhost:39100
 - **Django Admin**: http://localhost:39100/admin
@@ -153,4 +153,4 @@ Esta documentação também é código! Se você encontrar erros, informações 
 ---
 
 **Última atualização**: Janeiro 2026
-**Mantenedor**: Equipe PersonalHub
+**Mantenedor**: Equipe MindLedger

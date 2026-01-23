@@ -1,6 +1,6 @@
 # Recursos e Funcionalidades
 
-Este documento detalha todos os recursos e funcionalidades disponíveis no PersonalHub, organizados por módulo.
+Este documento detalha todos os recursos e funcionalidades disponíveis no MindLedger, organizados por módulo.
 
 ## Módulo Finance (ExpenseLit)
 

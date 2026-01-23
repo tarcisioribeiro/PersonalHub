@@ -256,10 +256,10 @@ export const Sidebar = () => {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden">
-              <img src={icon} alt="PersonalHub" className="w-10 h-10 object-contain" />
+              <img src={icon} alt="MindLedger" className="w-10 h-10 object-contain" />
             </div>
             <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              PersonalHub
+              MindLedger
             </span>
           </Link>
 

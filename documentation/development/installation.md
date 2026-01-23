@@ -1,6 +1,6 @@
 # Guia de Instalação
 
-Este guia detalha como configurar o ambiente de desenvolvimento do PersonalHub.
+Este guia detalha como configurar o ambiente de desenvolvimento do MindLedger.
 
 ## Índice
 
@@ -63,16 +63,16 @@ git --version
 
 ## Instalação com Docker (Recomendado)
 
-A instalação com Docker é a forma mais simples e consistente de executar o PersonalHub em qualquer ambiente.
+A instalação com Docker é a forma mais simples e consistente de executar o MindLedger em qualquer ambiente.
 
 ### Passo 1: Clonar o Repositório
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/PersonalHub.git
+git clone https://github.com/seu-usuario/MindLedger.git
 
 # Entre no diretório do projeto
-cd PersonalHub
+cd MindLedger
 ```
 
 ### Passo 2: Configurar Variáveis de Ambiente
@@ -89,15 +89,15 @@ Edite o arquivo `.env` e adicione as seguintes variáveis:
 
 ```bash
 # Database Configuration
-DB_USER=personalhub_user
+DB_USER=mindledger_user
 DB_PASSWORD=sua_senha_segura_aqui
-DB_NAME=personalhub_db
+DB_NAME=mindledger_db
 DB_HOST=db
 DB_PORT=5432
 
 # Django Superuser (criado automaticamente)
 DJANGO_SUPERUSER_USERNAME=admin
-DJANGO_SUPERUSER_EMAIL=admin@personalhub.com
+DJANGO_SUPERUSER_EMAIL=admin@mindledger.com
 DJANGO_SUPERUSER_PASSWORD=admin123
 
 # Django Secret Key (gere usando o comando abaixo)
@@ -196,8 +196,8 @@ A instalação local é útil para desenvolvimento com debugging avançado ou qu
 ### Passo 1: Clonar o Repositório
 
 ```bash
-git clone https://github.com/seu-usuario/PersonalHub.git
-cd PersonalHub
+git clone https://github.com/seu-usuario/MindLedger.git
+cd MindLedger
 ```
 
 ### Passo 2: Instalar e Configurar PostgreSQL
@@ -222,16 +222,16 @@ No shell do PostgreSQL:
 
 ```sql
 -- Criar usuário
-CREATE USER personalhub_user WITH PASSWORD 'sua_senha_aqui';
+CREATE USER mindledger_user WITH PASSWORD 'sua_senha_aqui';
 
 -- Criar banco de dados
-CREATE DATABASE personalhub_db OWNER personalhub_user;
+CREATE DATABASE mindledger_db OWNER mindledger_user;
 
 -- Dar privilégios
-GRANT ALL PRIVILEGES ON DATABASE personalhub_db TO personalhub_user;
+GRANT ALL PRIVILEGES ON DATABASE mindledger_db TO mindledger_user;
 
 -- Instalar extensão pgvector
-\c personalhub_db
+\c mindledger_db
 CREATE EXTENSION IF NOT EXISTS vector;
 
 -- Sair
@@ -280,15 +280,15 @@ Crie um arquivo `.env` na raiz do projeto (não dentro de `api/`):
 
 ```bash
 # Database Configuration
-DB_USER=personalhub_user
+DB_USER=mindledger_user
 DB_PASSWORD=sua_senha_aqui
-DB_NAME=personalhub_db
+DB_NAME=mindledger_db
 DB_HOST=localhost
 DB_PORT=5432
 
 # Django Superuser
 DJANGO_SUPERUSER_USERNAME=admin
-DJANGO_SUPERUSER_EMAIL=admin@personalhub.com
+DJANGO_SUPERUSER_EMAIL=admin@mindledger.com
 DJANGO_SUPERUSER_PASSWORD=admin123
 
 # Django Secret Key
@@ -431,10 +431,10 @@ docker-compose logs -f db
 
 ```bash
 # Docker
-docker-compose exec db psql -U personalhub_user -d personalhub_db
+docker-compose exec db psql -U mindledger_user -d mindledger_db
 
 # Local
-psql -U personalhub_user -d personalhub_db
+psql -U mindledger_user -d mindledger_db
 
 # No psql, verifique as tabelas
 \dt
