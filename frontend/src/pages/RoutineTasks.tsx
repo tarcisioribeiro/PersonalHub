@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, CheckSquare, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { getIconByName } from '@/components/ui/icon-picker';
 import {
   Dialog,
   DialogContent,
@@ -132,18 +133,50 @@ export default function RoutineTasks() {
     return 'bg-destructive';
   };
 
+  const getCategoryColor = (category: string) => {
+    const colors: Record<string, string> = {
+      health: 'bg-category-health',
+      studies: 'bg-category-studies',
+      spiritual: 'bg-category-spiritual',
+      exercise: 'bg-category-exercise',
+      nutrition: 'bg-category-nutrition',
+      meditation: 'bg-category-spiritual',
+      reading: 'bg-category-studies',
+      writing: 'bg-category-work',
+      work: 'bg-category-work',
+      leisure: 'bg-category-leisure',
+      family: 'bg-accent',
+      social: 'bg-category-leisure',
+      finance: 'bg-category-finance',
+      household: 'bg-category-nutrition',
+      personal_care: 'bg-category-health',
+      other: 'bg-muted',
+    };
+    return colors[category] || 'bg-muted';
+  };
+
   // Define table columns
   const columns: Column<RoutineTask>[] = [
     {
       key: 'name',
       label: 'Nome',
-      render: (task) => <div className="font-medium">{task.name}</div>,
+      render: (task) => {
+        const TaskIcon = getIconByName(task.icon);
+        return (
+          <div className="flex items-center gap-2 font-medium">
+            {TaskIcon && <TaskIcon className="h-4 w-4 shrink-0 text-muted-foreground" />}
+            <span>{task.name}</span>
+          </div>
+        );
+      },
     },
     {
       key: 'category',
       label: 'Categoria',
       render: (task) => (
-        <Badge variant="secondary">{task.category_display}</Badge>
+        <Badge className={getCategoryColor(task.category)}>
+          {task.category_display}
+        </Badge>
       ),
     },
     {

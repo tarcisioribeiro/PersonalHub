@@ -261,8 +261,8 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
             className="h-8"
           />
         </div>
-        <ScrollArea className="h-72">
-          <div className="p-2">
+        <ScrollArea className="h-[320px]">
+          <div className="p-2 pr-4">
             {/* Clear option */}
             <Button
               variant="ghost"
