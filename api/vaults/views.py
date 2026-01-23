@@ -117,22 +117,22 @@ class VaultDepositView(APIView):
                 description=description,
                 user=request.user
             )
-            return Response({
-                'message': 'Depósito realizado com sucesso',
-                'transaction': VaultTransactionSerializer(vault_transaction).data,
-                'vault': VaultSerializer(vault).data
-            }, status=status.HTTP_200_OK)
         except ValueError as e:
             return Response(
                 {'error': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        except Exception as e:
-            logger.exception(f"Erro inesperado ao depositar no cofre {pk}: {e}")
-            return Response(
-                {'error': 'Erro interno ao processar o depósito. Por favor, tente novamente.'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+
+        # Refresh objects from database to ensure consistent state for serialization
+        vault.refresh_from_db()
+        vault.account.refresh_from_db()
+        vault_transaction.refresh_from_db()
+
+        return Response({
+            'message': 'Depósito realizado com sucesso',
+            'transaction': VaultTransactionSerializer(vault_transaction).data,
+            'vault': VaultSerializer(vault).data
+        }, status=status.HTTP_200_OK)
 
 
 class VaultWithdrawView(APIView):
@@ -182,22 +182,22 @@ class VaultWithdrawView(APIView):
                 description=description,
                 user=request.user
             )
-            return Response({
-                'message': 'Saque realizado com sucesso',
-                'transaction': VaultTransactionSerializer(vault_transaction).data,
-                'vault': VaultSerializer(vault).data
-            }, status=status.HTTP_200_OK)
         except ValueError as e:
             return Response(
                 {'error': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        except Exception as e:
-            logger.exception(f"Erro inesperado ao sacar do cofre {pk}: {e}")
-            return Response(
-                {'error': 'Erro interno ao processar o saque. Por favor, tente novamente.'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+
+        # Refresh objects from database to ensure consistent state for serialization
+        vault.refresh_from_db()
+        vault.account.refresh_from_db()
+        vault_transaction.refresh_from_db()
+
+        return Response({
+            'message': 'Saque realizado com sucesso',
+            'transaction': VaultTransactionSerializer(vault_transaction).data,
+            'vault': VaultSerializer(vault).data
+        }, status=status.HTTP_200_OK)
 
 
 class VaultApplyYieldView(APIView):
@@ -322,6 +322,7 @@ class VaultTransactionListView(generics.ListAPIView):
     """
     permission_classes = (IsAuthenticated, GlobalDefaultPermission,)
     serializer_class = VaultTransactionSerializer
+    queryset = VaultTransaction.objects.filter(is_deleted=False)  # Required for GlobalDefaultPermission
 
     def get_queryset(self):
         vault_id = self.kwargs.get('pk')

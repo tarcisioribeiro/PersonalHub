@@ -80,6 +80,9 @@ docker-compose exec api python manage.py migrate
 
 # 4. Create superuser (optional - entrypoint.sh creates one from .env)
 docker-compose exec api python manage.py createsuperuser
+
+# 5. Download Ollama model for AI Assistant (first time only)
+docker-compose exec ollama ollama pull llama3.2
 ```
 
 ### Daily Development

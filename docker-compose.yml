@@ -4,6 +4,7 @@
 # Serviços:
 # - db: PostgreSQL para armazenamento de dados
 # - redis: Cache para sessões
+# - ollama: Servidor de IA local (LLM)
 # - api: Django REST Framework backend
 # - frontend: React frontend
 # =============================================================================
@@ -54,6 +55,35 @@ services:
     networks:
       - mindledger-network
 
+  # Ollama - Local LLM Server
+  ollama:
+    image: ollama/ollama:latest
+    container_name: mindledger-ollama
+    environment:
+      TZ: America/Sao_Paulo
+      OLLAMA_HOST: 0.0.0.0
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    # GPU support - uncomment the following lines if you have NVIDIA GPU
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    networks:
+      - mindledger-network
+
   # Django API Backend
   api:
     build:
@@ -72,10 +102,13 @@ services:
       - PYTHONUNBUFFERED=1
       - DJANGO_SETTINGS_MODULE=app.settings
       - REDIS_URL=redis://redis:6379/0
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://ollama:11434}
     depends_on:
       db:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      ollama:
         condition: service_healthy
     volumes:
       - ./api:/app
@@ -124,6 +157,8 @@ volumes:
   postgres_data:
     driver: local
   redis_data:
+    driver: local
+  ollama_data:
     driver: local
 
 networks:

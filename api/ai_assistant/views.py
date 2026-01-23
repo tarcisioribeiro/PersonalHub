@@ -227,7 +227,9 @@ def health(request: Request) -> Response:
     Endpoint: GET /api/v1/ai/health/
 
     Returns:
-        Status do Ollama e do banco de dados
+        Status do Ollama e do banco de dados.
+        Sempre retorna 200 para evitar erros no frontend.
+        O status real está no body da resposta.
     """
     ollama = OllamaClient()
     ollama_ok = ollama.check_health()
@@ -242,13 +244,14 @@ def health(request: Request) -> Response:
     except Exception:
         pass
 
-    status_code = status.HTTP_200_OK if (ollama_ok and db_ok) else status.HTTP_503_SERVICE_UNAVAILABLE
-
+    # Sempre retorna 200 - o status real está no body
+    # Isso evita erros no console do navegador
     return Response({
         'ollama': 'healthy' if ollama_ok else 'unavailable',
         'database': 'healthy' if db_ok else 'unavailable',
         'model': ollama.model,
-    }, status=status_code)
+        'healthy': ollama_ok and db_ok,
+    }, status=status.HTTP_200_OK)
 
 
 def _save_history(
