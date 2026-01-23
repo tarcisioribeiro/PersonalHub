@@ -101,13 +101,13 @@ export default function FinancialGoals() {
   const handleDelete = async (id: number) => {
     const confirmed = await showConfirm({
       title: 'Excluir meta',
-      description: 'Tem certeza que deseja excluir esta meta? Esta acao nao pode ser desfeita.',
+      description: 'Tem certeza que deseja excluir esta meta? Esta ação não pode ser desfeita.',
     });
 
     if (confirmed) {
       try {
         await financialGoalsService.delete(id);
-        toast({ title: 'Meta excluida', description: 'A meta foi excluida com sucesso.' });
+        toast({ title: 'Meta excluída', description: 'A meta foi excluída com sucesso.' });
         loadData();
       } catch (error: any) {
         toast({ title: 'Erro ao excluir', description: error.message, variant: 'destructive' });
@@ -117,7 +117,7 @@ export default function FinancialGoals() {
 
   const handleSubmit = async () => {
     if (!formData.description || formData.target_value <= 0) {
-      toast({ title: 'Dados invalidos', description: 'Preencha todos os campos obrigatorios.', variant: 'destructive' });
+      toast({ title: 'Dados inválidos', description: 'Preencha todos os campos obrigatórios.', variant: 'destructive' });
       return;
     }
 
@@ -183,7 +183,7 @@ export default function FinancialGoals() {
     try {
       const response = await financialGoalsService.checkCompletion(goal.id);
       if (response.is_completed) {
-        toast({ title: 'Meta concluida!', description: 'Parabens! Voce atingiu sua meta.' });
+        toast({ title: 'Meta concluída!', description: 'Parabéns! Você atingiu sua meta.' });
       } else {
         toast({
           title: 'Meta em andamento',
@@ -213,7 +213,7 @@ export default function FinancialGoals() {
   const columns: Column<FinancialGoalListItem>[] = [
     {
       key: 'description',
-      label: 'Descricao',
+      label: 'Descrição',
       render: (goal) => (
         <div>
           <div className="font-medium">{goal.description}</div>
@@ -256,13 +256,13 @@ export default function FinancialGoals() {
       label: 'Status',
       render: (goal) => (
         <Badge variant={goal.is_completed ? 'default' : goal.is_active ? 'secondary' : 'outline'}>
-          {goal.is_completed ? 'Concluida' : goal.is_active ? 'Ativa' : 'Inativa'}
+          {goal.is_completed ? 'Concluída' : goal.is_active ? 'Ativa' : 'Inativa'}
         </Badge>
       ),
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (goal) => (
         <div className="flex items-center gap-1">
           <Button
@@ -277,7 +277,7 @@ export default function FinancialGoals() {
             variant="ghost"
             size="icon"
             onClick={() => handleCheckCompletion(goal)}
-            title="Verificar Conclusao"
+            title="Verificar Conclusão"
             disabled={goal.is_completed}
           >
             <CheckCircle2 className="h-4 w-4 text-success" />
@@ -327,7 +327,7 @@ export default function FinancialGoals() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Metas Concluidas</CardTitle>
+            <CardTitle className="text-sm font-medium">Metas Concluídas</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success">{completedGoals.length}</div>
@@ -372,7 +372,7 @@ export default function FinancialGoals() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="description">Descricao *</Label>
+              <Label htmlFor="description">Descrição *</Label>
               <Input
                 id="description"
                 value={formData.description}
@@ -423,7 +423,7 @@ export default function FinancialGoals() {
               <Label>Cofres Associados</Label>
               <div className="border rounded-md p-3 max-h-[150px] overflow-y-auto space-y-2 mt-1">
                 {vaults.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Nenhum cofre disponivel</p>
+                  <p className="text-sm text-muted-foreground">Nenhum cofre disponível</p>
                 ) : (
                   vaults.map((vault) => (
                     <div key={vault.id} className="flex items-center gap-2">
@@ -450,12 +450,12 @@ export default function FinancialGoals() {
               </div>
             </div>
             <div>
-              <Label htmlFor="notes">Observacoes</Label>
+              <Label htmlFor="notes">Observações</Label>
               <Textarea
                 id="notes"
                 value={formData.notes || ''}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                placeholder="Anotacoes sobre a meta..."
+                placeholder="Anotações sobre a meta..."
               />
             </div>
             <div className="flex items-center gap-2">
@@ -491,7 +491,7 @@ export default function FinancialGoals() {
           </DialogHeader>
           <div className="border rounded-md p-3 max-h-[300px] overflow-y-auto space-y-2">
             {vaults.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Nenhum cofre disponivel</p>
+              <p className="text-sm text-muted-foreground">Nenhum cofre disponível</p>
             ) : (
               vaults.map((vault) => (
                 <div key={vault.id} className="flex items-center gap-2 p-2 hover:bg-muted/50 rounded">

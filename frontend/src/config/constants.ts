@@ -186,7 +186,6 @@ export const TRANSLATIONS = {
     award: 'Prêmio',
     bonus: 'Bônus',
     salary: 'Salário',
-    wage: 'Salário',
     ticket: 'Vale',
     income: 'Rendimentos',
     interest: 'Juros',

@@ -66,8 +66,8 @@ export default function Vaults() {
   const handleCreate = () => {
     if (accounts.length === 0) {
       toast({
-        title: 'Acao nao permitida',
-        description: 'E necessario ter pelo menos uma conta cadastrada antes de criar um cofre.',
+        title: 'Ação não permitida',
+        description: 'É necessário ter pelo menos uma conta cadastrada antes de criar um cofre.',
         variant: 'destructive',
       });
       return;
@@ -99,8 +99,8 @@ export default function Vaults() {
     const vault = vaults.find(v => v.id === id);
     if (vault && parseFloat(vault.current_balance) > 0) {
       toast({
-        title: 'Acao nao permitida',
-        description: 'Nao e possivel excluir um cofre com saldo. Realize um saque completo primeiro.',
+        title: 'Ação não permitida',
+        description: 'Não é possível excluir um cofre com saldo. Realize um saque completo primeiro.',
         variant: 'destructive',
       });
       return;
@@ -108,13 +108,13 @@ export default function Vaults() {
 
     const confirmed = await showConfirm({
       title: 'Excluir cofre',
-      description: 'Tem certeza que deseja excluir este cofre? Esta acao nao pode ser desfeita.',
+      description: 'Tem certeza que deseja excluir este cofre? Esta ação não pode ser desfeita.',
     });
 
     if (confirmed) {
       try {
         await vaultsService.delete(id);
-        toast({ title: 'Cofre excluido', description: 'O cofre foi excluido com sucesso.' });
+        toast({ title: 'Cofre excluído', description: 'O cofre foi excluído com sucesso.' });
         loadData();
       } catch (error: any) {
         toast({ title: 'Erro ao excluir', description: error.message, variant: 'destructive' });
@@ -150,7 +150,7 @@ export default function Vaults() {
     if (!selectedVault) return;
     const amount = parseFloat(operationAmount);
     if (isNaN(amount) || amount <= 0) {
-      toast({ title: 'Valor invalido', description: 'Informe um valor valido para o deposito.', variant: 'destructive' });
+      toast({ title: 'Valor inválido', description: 'Informe um valor válido para o depósito.', variant: 'destructive' });
       return;
     }
 
@@ -160,13 +160,13 @@ export default function Vaults() {
         amount,
         description: operationDescription || undefined,
       });
-      toast({ title: 'Deposito realizado', description: `Deposito de ${formatCurrency(amount)} realizado com sucesso.` });
+      toast({ title: 'Depósito realizado', description: `Depósito de ${formatCurrency(amount)} realizado com sucesso.` });
       setIsDepositDialogOpen(false);
       setOperationAmount('');
       setOperationDescription('');
       loadData();
     } catch (error: any) {
-      toast({ title: 'Erro no deposito', description: error.message, variant: 'destructive' });
+      toast({ title: 'Erro no depósito', description: error.message, variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
@@ -176,7 +176,7 @@ export default function Vaults() {
     if (!selectedVault) return;
     const amount = parseFloat(operationAmount);
     if (isNaN(amount) || amount <= 0) {
-      toast({ title: 'Valor invalido', description: 'Informe um valor valido para o saque.', variant: 'destructive' });
+      toast({ title: 'Valor inválido', description: 'Informe um valor válido para o saque.', variant: 'destructive' });
       return;
     }
 
@@ -209,7 +209,7 @@ export default function Vaults() {
       } else {
         toast({
           title: 'Sem rendimento',
-          description: 'Nao ha rendimento pendente para aplicar.',
+          description: 'Não há rendimento pendente para aplicar.',
         });
       }
       loadData();
@@ -240,7 +240,7 @@ export default function Vaults() {
   const columns: Column<VaultType>[] = [
     {
       key: 'description',
-      label: 'Descricao',
+      label: 'Descrição',
       render: (vault) => (
         <div>
           <div className="font-medium">{vault.description}</div>
@@ -292,7 +292,7 @@ export default function Vaults() {
     },
     {
       key: 'actions',
-      label: 'Acoes',
+      label: 'Ações',
       render: (vault) => (
         <div className="flex items-center gap-1">
           <Button
@@ -404,12 +404,12 @@ export default function Vaults() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="description">Descricao *</Label>
+              <Label htmlFor="description">Descrição *</Label>
               <Input
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Ex: Reserva de Emergencia"
+                placeholder="Ex: Reserva de Emergência"
               />
             </div>
             <div>
@@ -447,12 +447,12 @@ export default function Vaults() {
               </p>
             </div>
             <div>
-              <Label htmlFor="notes">Observacoes</Label>
+              <Label htmlFor="notes">Observações</Label>
               <Textarea
                 id="notes"
                 value={formData.notes || ''}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                placeholder="Anotacoes sobre o cofre..."
+                placeholder="Anotações sobre o cofre..."
               />
             </div>
             <div className="flex items-center gap-2">
@@ -486,14 +486,14 @@ export default function Vaults() {
                 <>
                   Depositar no cofre "{selectedVault.description}".
                   <br />
-                  Saldo disponivel na conta: {formatCurrency(parseFloat(selectedVault.account_balance))}
+                  Saldo disponível na conta: {formatCurrency(parseFloat(selectedVault.account_balance))}
                 </>
               )}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="deposit_amount">Valor do Deposito *</Label>
+              <Label htmlFor="deposit_amount">Valor do Depósito *</Label>
               <Input
                 id="deposit_amount"
                 type="number"
@@ -506,12 +506,12 @@ export default function Vaults() {
               />
             </div>
             <div>
-              <Label htmlFor="deposit_description">Descricao</Label>
+              <Label htmlFor="deposit_description">Descrição</Label>
               <Input
                 id="deposit_description"
                 value={operationDescription}
                 onChange={(e) => setOperationDescription(e.target.value)}
-                placeholder="Ex: Deposito mensal"
+                placeholder="Ex: Depósito mensal"
               />
             </div>
           </div>
@@ -536,7 +536,7 @@ export default function Vaults() {
                 <>
                   Sacar do cofre "{selectedVault.description}".
                   <br />
-                  Saldo disponivel no cofre: {formatCurrency(parseFloat(selectedVault.current_balance))}
+                  Saldo disponível no cofre: {formatCurrency(parseFloat(selectedVault.current_balance))}
                 </>
               )}
             </DialogDescription>
@@ -556,12 +556,12 @@ export default function Vaults() {
               />
             </div>
             <div>
-              <Label htmlFor="withdraw_description">Descricao</Label>
+              <Label htmlFor="withdraw_description">Descrição</Label>
               <Input
                 id="withdraw_description"
                 value={operationDescription}
                 onChange={(e) => setOperationDescription(e.target.value)}
-                placeholder="Ex: Saque para emergencia"
+                placeholder="Ex: Saque para emergência"
               />
             </div>
           </div>
