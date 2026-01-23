@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db import models
 from decimal import Decimal
 from .models import Vault, VaultTransaction, FinancialGoal
 
@@ -112,7 +113,7 @@ class VaultSerializer(serializers.ModelSerializer):
             transaction_type='deposit',
             is_deleted=False
         ).aggregate(
-            total=serializers.models.Sum('amount')
+            total=models.Sum('amount')
         )['total']
         return float(total or 0)
 
@@ -122,7 +123,7 @@ class VaultSerializer(serializers.ModelSerializer):
             transaction_type='withdrawal',
             is_deleted=False
         ).aggregate(
-            total=serializers.models.Sum('amount')
+            total=models.Sum('amount')
         )['total']
         return float(total or 0)
 

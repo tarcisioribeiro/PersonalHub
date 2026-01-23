@@ -36,7 +36,7 @@ class Command(BaseCommand):
             'members': ['member'],
             'library': ['author', 'publisher', 'book', 'summary', 'reading'],
             'security': ['password', 'storedcreditcard', 'storedbankaccount', 'archive', 'activitylog'],
-            'personal_planning': ['routinetask', 'dailytaskrecord', 'goal', 'dailyreflection'],
+            'personal_planning': ['routinetask', 'taskinstance', 'goal', 'dailyreflection'],
             'vaults': ['vault', 'vaulttransaction', 'financialgoal'],
         }
 
