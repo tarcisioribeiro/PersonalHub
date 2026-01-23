@@ -34,61 +34,194 @@ class QueryInterpreter:
     Usa mapeamento de palavras-chave para identificar intenção e módulo.
     """
 
-    # Mapeamento de palavras-chave para módulos
+    # Mapeamento de palavras-chave para módulos (expandido)
     MODULE_KEYWORDS: Dict[str, List[str]] = {
         'revenues': [
+            # Termos principais
             'faturamento', 'receita', 'receitas', 'ganho', 'ganhos',
-            'entrada', 'entradas', 'salário', 'salario', 'rendimento',
-            'rendimentos', 'recebido', 'recebidos', 'quanto ganhei',
-            'quanto recebi', 'renda', 'reembolso', 'cashback'
+            'entrada', 'entradas', 'renda', 'rendas',
+            # Tipos de receita
+            'salário', 'salario', 'salários', 'salarios',
+            'rendimento', 'rendimentos', 'dividendo', 'dividendos',
+            'reembolso', 'reembolsos', 'cashback',
+            'bônus', 'bonus', 'prêmio', 'premio', 'prêmios', 'premios',
+            'freelance', 'comissão', 'comissao', 'comissões', 'comissoes',
+            'aluguel recebido', 'pensão', 'pensao', 'aposentadoria',
+            # Verbos e expressões
+            'quanto ganhei', 'quanto recebi', 'recebido', 'recebidos',
+            'entrou na conta', 'recebi de', 'ganhei de',
+            'quanto entrou', 'valor recebido', 'valores recebidos',
+            'meus ganhos', 'minhas receitas', 'minha renda',
         ],
         'expenses': [
-            'despesa', 'despesas', 'gasto', 'gastos', 'conta', 'contas a pagar',
-            'quanto gastei', 'pagamento', 'pagamentos', 'compra', 'compras',
-            'débito', 'debito', 'saída', 'saida', 'custo', 'custos'
+            # Termos principais
+            'despesa', 'despesas', 'gasto', 'gastos',
+            'conta', 'contas a pagar', 'custo', 'custos',
+            # Tipos de despesa
+            'pagamento', 'pagamentos', 'compra', 'compras',
+            'débito', 'debito', 'débitos', 'debitos',
+            'saída', 'saida', 'saídas', 'saidas',
+            'boleto', 'boletos', 'fatura', 'parcela', 'parcelas',
+            # Verbos e expressões
+            'quanto gastei', 'gastei com', 'paguei', 'comprei',
+            'saiu da conta', 'descontou', 'debitou',
+            'quanto paguei', 'valor pago', 'valores pagos',
+            'meus gastos', 'minhas despesas', 'meus custos',
+            # Categorias comuns (peso extra)
+            'alimentação', 'alimentacao', 'comida', 'restaurante',
+            'supermercado', 'mercado', 'transporte', 'uber', 'gasolina',
+            'combustível', 'combustivel', 'luz', 'água', 'agua',
+            'internet', 'telefone', 'celular', 'streaming',
+            'assinatura', 'assinaturas', 'mensalidade', 'mensalidades',
         ],
         'accounts': [
-            'saldo', 'saldos', 'conta bancária', 'conta bancaria', 'banco',
-            'nubank', 'sicoob', 'mercado pago', 'caixa', 'bradesco', 'itaú',
-            'itau', 'santander', 'inter', 'c6', 'picpay', 'dinheiro disponível',
-            'quanto tenho', 'minha conta', 'minhas contas'
+            # Termos principais
+            'saldo', 'saldos', 'conta bancária', 'conta bancaria',
+            'conta corrente', 'conta poupança', 'conta poupanca',
+            'minha conta', 'minhas contas', 'contas bancárias',
+            # Bancos
+            'banco', 'bancos', 'nubank', 'sicoob', 'mercado pago',
+            'caixa', 'bradesco', 'itaú', 'itau', 'santander',
+            'inter', 'c6', 'c6 bank', 'picpay', 'banco do brasil', 'bb',
+            'original', 'next', 'neon', 'pagbank', 'pagseguro',
+            # Expressões
+            'dinheiro disponível', 'dinheiro disponivel',
+            'quanto tenho', 'tenho na conta', 'tenho no banco',
+            'dinheiro em conta', 'valor em conta', 'extrato',
+            'posição bancária', 'posicao bancaria',
         ],
         'credit_cards': [
-            'cartão', 'cartao', 'cartões', 'cartoes', 'fatura', 'faturas',
-            'limite', 'crédito disponível', 'credito disponivel',
-            'cartão de crédito', 'cartao de credito', 'visa', 'mastercard',
-            'elo', 'american express', 'hipercard'
+            # Termos principais
+            'cartão', 'cartao', 'cartões', 'cartoes',
+            'cartão de crédito', 'cartao de credito',
+            'cartões de crédito', 'cartoes de credito',
+            # Fatura e limite
+            'fatura', 'faturas', 'fatura do cartão', 'fatura do cartao',
+            'limite', 'limites', 'limite disponível', 'limite disponivel',
+            'crédito disponível', 'credito disponivel',
+            'limite do cartão', 'limite do cartao',
+            # Bandeiras
+            'visa', 'mastercard', 'master card', 'master',
+            'elo', 'american express', 'amex', 'hipercard', 'hiper',
+            'diners', 'diners club',
+            # Expressões
+            'dia de fechamento', 'dia do fechamento',
+            'dia de vencimento', 'dia do vencimento',
+            'quanto devo no cartão', 'quanto devo no cartao',
+            'gastei no cartão', 'gastei no cartao',
+            'compras no cartão', 'compras no cartao',
         ],
         'loans': [
+            # Termos principais
             'empréstimo', 'emprestimo', 'empréstimos', 'emprestimos',
-            'dívida', 'divida', 'dívidas', 'dividas', 'devo', 'devendo',
-            'me devem', 'emprestei', 'peguei emprestado'
+            'dívida', 'divida', 'dívidas', 'dividas',
+            'financiamento', 'financiamentos',
+            # Tipos
+            'devo', 'devendo', 'me devem', 'devem pra mim', 'devem para mim',
+            'emprestei', 'peguei emprestado', 'tomei emprestado',
+            'emprestar', 'emprestado',
+            # Expressões
+            'quanto devo', 'quanto me devem', 'quem me deve',
+            'para quem devo', 'pra quem devo',
+            'valor emprestado', 'valor devido',
+            'parcela do empréstimo', 'parcela do emprestimo',
+            'quitação', 'quitacao', 'quitar',
         ],
         'library': [
-            'livro', 'livros', 'leitura', 'leituras', 'lendo', 'li',
-            'autor', 'autores', 'editora', 'editoras', 'resumo', 'resumos',
-            'biblioteca', 'páginas', 'paginas', 'obra', 'obras', 'título'
+            # Termos principais
+            'livro', 'livros', 'leitura', 'leituras',
+            'biblioteca', 'acervo', 'estante',
+            # Status de leitura
+            'lendo', 'estou lendo', 'leio', 'li', 'lido', 'lidos',
+            'para ler', 'quero ler', 'vou ler',
+            'abandonei', 'abandonado', 'pausado',
+            # Componentes
+            'autor', 'autores', 'escritor', 'escritores',
+            'editora', 'editoras', 'publicação', 'publicacao',
+            'resumo', 'resumos', 'sinopse',
+            'páginas', 'paginas', 'página', 'pagina',
+            'obra', 'obras', 'título', 'titulo',
+            'gênero', 'genero', 'gêneros', 'generos',
+            # Expressões
+            'quantos livros', 'meus livros', 'minhas leituras',
+            'tempo de leitura', 'minutos lendo', 'horas lendo',
+            'livros lidos', 'livros que li',
         ],
         'personal_planning': [
-            'tarefa', 'tarefas', 'rotina', 'hábito', 'habito', 'hábitos',
-            'habitos', 'objetivo', 'objetivos', 'meta', 'metas', 'hoje',
-            'agenda', 'checklist', 'planejamento', 'afazer', 'afazeres',
-            'pendente', 'pendentes', 'concluído', 'concluido'
+            # Termos principais
+            'tarefa', 'tarefas', 'rotina', 'rotinas',
+            'hábito', 'habito', 'hábitos', 'habitos',
+            'objetivo', 'objetivos', 'meta', 'metas', 'goal', 'goals',
+            # Planejamento
+            'agenda', 'checklist', 'planejamento',
+            'afazer', 'afazeres', 'to-do', 'todo', 'to do',
+            # Status
+            'pendente', 'pendentes', 'concluído', 'concluido',
+            'concluída', 'concluida', 'concluídas', 'concluidas',
+            'em andamento', 'em progresso', 'fazendo',
+            'atrasado', 'atrasada', 'atrasados', 'atrasadas',
+            # Tempo
+            'hoje', 'amanhã', 'amanha', 'semana',
+            'diário', 'diario', 'diária', 'diaria',
+            'semanal', 'mensal',
+            # Expressões
+            'minhas tarefas', 'meus objetivos', 'minhas metas',
+            'o que fazer', 'o que tenho que fazer',
+            'taxa de conclusão', 'taxa de conclusao',
+            'quantas tarefas', 'tarefas do dia',
         ],
         'security': [
-            'senha', 'senhas', 'password', 'credencial', 'credenciais',
-            'login', 'acesso', 'site', 'sites', 'netflix', 'spotify',
-            'amazon', 'google', 'facebook', 'instagram', 'twitter',
-            'linkedin', 'github', 'email'
+            # Termos principais
+            'senha', 'senhas', 'password', 'passwords',
+            'credencial', 'credenciais', 'credential', 'credentials',
+            # Acesso
+            'login', 'logins', 'acesso', 'acessos',
+            'usuário', 'usuario', 'username',
+            # Sites e serviços comuns
+            'site', 'sites', 'serviço', 'servico', 'serviços', 'servicos',
+            'netflix', 'spotify', 'amazon', 'prime', 'disney',
+            'google', 'gmail', 'youtube',
+            'facebook', 'instagram', 'twitter', 'x', 'tiktok',
+            'linkedin', 'github', 'gitlab', 'microsoft', 'outlook',
+            'apple', 'icloud', 'adobe', 'dropbox', 'onedrive',
+            'whatsapp', 'telegram', 'discord', 'slack', 'zoom',
+            # Bancos
+            'nubank login', 'itau login', 'bradesco login',
+            # Expressões
+            'qual a senha', 'minha senha', 'minhas senhas',
+            'senha do', 'senha da', 'credencial do', 'credencial da',
+            'login do', 'login da', 'acesso ao', 'acesso à',
         ],
         'vaults': [
-            'cofre', 'cofres', 'reserva', 'reservas', 'poupança', 'poupanca',
-            'guardado', 'guardei', 'investimento', 'investimentos', 'rendimento',
-            'aplicação', 'aplicacao', 'aplicações', 'aplicacoes'
+            # Termos principais
+            'cofre', 'cofres', 'reserva', 'reservas',
+            'poupança', 'poupanca', 'poupanças', 'poupancas',
+            # Investimentos
+            'guardado', 'guardei', 'guardar', 'economizar',
+            'investimento', 'investimentos', 'investido',
+            'aplicação', 'aplicacao', 'aplicações', 'aplicacoes',
+            'rendimento', 'rendimentos', 'juros',
+            # Expressões
+            'quanto tenho guardado', 'quanto economizei',
+            'meu cofre', 'meus cofres', 'minhas reservas',
+            'dinheiro guardado', 'valor guardado',
+            'taxa de rendimento', 'quanto rendeu',
         ],
         'transfers': [
+            # Termos principais
             'transferência', 'transferencia', 'transferências', 'transferencias',
-            'pix', 'ted', 'doc', 'transferi', 'enviei', 'mandei dinheiro'
+            'transfer', 'transfers',
+            # Tipos
+            'pix', 'ted', 'doc', 'débito automático', 'debito automatico',
+            # Verbos
+            'transferi', 'transferir', 'enviei', 'enviar',
+            'mandei dinheiro', 'mandar dinheiro',
+            'recebi transferência', 'recebi transferencia',
+            # Expressões
+            'transferência entre contas', 'transferencia entre contas',
+            'mover dinheiro', 'movimentação', 'movimentacao',
+            'quanto transferi', 'para onde transferi',
+            'de onde recebi', 'origem e destino',
         ],
     }
 
@@ -107,58 +240,175 @@ class QueryInterpreter:
         question_lower = question.lower()
 
         # Hoje
-        if any(w in question_lower for w in ['hoje', 'dia de hoje', 'neste dia']):
+        if any(w in question_lower for w in ['hoje', 'dia de hoje', 'neste dia', 'no dia de hoje']):
             return today, today, 'hoje'
 
         # Ontem
-        if 'ontem' in question_lower:
+        if any(w in question_lower for w in ['ontem', 'dia de ontem']):
             yesterday = today - timedelta(days=1)
             return yesterday, yesterday, 'ontem'
 
+        # Anteontem
+        if any(w in question_lower for w in ['anteontem', 'antes de ontem']):
+            day_before = today - timedelta(days=2)
+            return day_before, day_before, 'anteontem'
+
         # Esta semana
-        if any(w in question_lower for w in ['esta semana', 'essa semana', 'semana atual']):
+        if any(w in question_lower for w in ['esta semana', 'essa semana', 'semana atual', 'nesta semana']):
             start = today - timedelta(days=today.weekday())
             return start, today, 'esta semana'
 
         # Semana passada
-        if any(w in question_lower for w in ['semana passada', 'última semana', 'ultima semana']):
+        if any(w in question_lower for w in ['semana passada', 'última semana', 'ultima semana', 'semana anterior']):
             start = today - timedelta(days=today.weekday() + 7)
             end = start + timedelta(days=6)
             return start, end, 'semana passada'
 
+        # Últimas X semanas
+        match = re.search(r'[uú]ltimas?\s+(\d+)\s+semanas?', question_lower)
+        if match:
+            weeks = int(match.group(1))
+            start = today - timedelta(weeks=weeks)
+            return start, today, f'últimas {weeks} semanas'
+
         # Este mês
-        if any(w in question_lower for w in ['este mês', 'este mes', 'mês atual', 'mes atual', 'neste mês', 'neste mes']):
+        if any(w in question_lower for w in [
+            'este mês', 'este mes', 'mês atual', 'mes atual',
+            'neste mês', 'neste mes', 'esse mês', 'esse mes',
+            'mês corrente', 'mes corrente'
+        ]):
             start = today.replace(day=1)
             return start, today, 'este mês'
 
         # Mês passado / último mês
-        if any(w in question_lower for w in ['mês passado', 'mes passado', 'último mês', 'ultimo mes']):
+        if any(w in question_lower for w in [
+            'mês passado', 'mes passado', 'último mês', 'ultimo mes',
+            'mês anterior', 'mes anterior'
+        ]):
             first_day_this_month = today.replace(day=1)
             last_day_last_month = first_day_this_month - timedelta(days=1)
             first_day_last_month = last_day_last_month.replace(day=1)
             return first_day_last_month, last_day_last_month, 'mês passado'
 
+        # Últimos X meses
+        match = re.search(r'[uú]ltimos?\s+(\d+)\s+m[eê]s(?:es)?', question_lower)
+        if match:
+            months_count = int(match.group(1))
+            # Calcula a data de início (X meses atrás)
+            year = today.year
+            month = today.month - months_count
+            while month <= 0:
+                month += 12
+                year -= 1
+            start = date(year, month, 1)
+            return start, today, f'últimos {months_count} meses'
+
         # Últimos X dias
-        match = re.search(r'últimos?\s+(\d+)\s+dias?', question_lower)
-        if not match:
-            match = re.search(r'ultimos?\s+(\d+)\s+dias?', question_lower)
+        match = re.search(r'[uú]ltimos?\s+(\d+)\s+dias?', question_lower)
         if match:
             days = int(match.group(1))
             start = today - timedelta(days=days)
             return start, today, f'últimos {days} dias'
 
+        # Este trimestre
+        if any(w in question_lower for w in ['este trimestre', 'trimestre atual', 'neste trimestre']):
+            quarter = (today.month - 1) // 3
+            start = date(today.year, quarter * 3 + 1, 1)
+            return start, today, 'este trimestre'
+
+        # Trimestre passado
+        if any(w in question_lower for w in ['trimestre passado', 'último trimestre', 'ultimo trimestre']):
+            quarter = (today.month - 1) // 3
+            if quarter == 0:
+                start = date(today.year - 1, 10, 1)
+                end = date(today.year - 1, 12, 31)
+            else:
+                start = date(today.year, (quarter - 1) * 3 + 1, 1)
+                end = date(today.year, quarter * 3, 1) - timedelta(days=1)
+            return start, end, 'trimestre passado'
+
+        # Este semestre
+        if any(w in question_lower for w in ['este semestre', 'semestre atual', 'neste semestre']):
+            if today.month <= 6:
+                start = date(today.year, 1, 1)
+            else:
+                start = date(today.year, 7, 1)
+            return start, today, 'este semestre'
+
         # Este ano
-        if any(w in question_lower for w in ['este ano', 'ano atual', 'neste ano']):
+        if any(w in question_lower for w in ['este ano', 'ano atual', 'neste ano', 'esse ano']):
             start = today.replace(month=1, day=1)
             return start, today, 'este ano'
 
         # Ano passado
-        if any(w in question_lower for w in ['ano passado', 'último ano', 'ultimo ano']):
+        if any(w in question_lower for w in ['ano passado', 'último ano', 'ultimo ano', 'ano anterior']):
             start = today.replace(year=today.year - 1, month=1, day=1)
             end = today.replace(year=today.year - 1, month=12, day=31)
             return start, end, 'ano passado'
 
-        # Mês específico (janeiro, fevereiro, etc.)
+        # Últimos X anos
+        match = re.search(r'[uú]ltimos?\s+(\d+)\s+anos?', question_lower)
+        if match:
+            years = int(match.group(1))
+            start = date(today.year - years, today.month, today.day)
+            return start, today, f'últimos {years} anos'
+
+        # Desde + data ou período
+        match = re.search(r'desde\s+(\d{1,2})[/\-](\d{1,2})[/\-](\d{2,4})', question_lower)
+        if match:
+            day, month, year = int(match.group(1)), int(match.group(2)), int(match.group(3))
+            if year < 100:
+                year += 2000
+            try:
+                start = date(year, month, day)
+                return start, today, f'desde {day:02d}/{month:02d}/{year}'
+            except ValueError:
+                pass
+
+        # Entre datas
+        match = re.search(
+            r'entre\s+(\d{1,2})[/\-](\d{1,2})[/\-](\d{2,4})\s+e\s+(\d{1,2})[/\-](\d{1,2})[/\-](\d{2,4})',
+            question_lower
+        )
+        if match:
+            d1, m1, y1 = int(match.group(1)), int(match.group(2)), int(match.group(3))
+            d2, m2, y2 = int(match.group(4)), int(match.group(5)), int(match.group(6))
+            if y1 < 100:
+                y1 += 2000
+            if y2 < 100:
+                y2 += 2000
+            try:
+                start = date(y1, m1, d1)
+                end = date(y2, m2, d2)
+                return start, end, f'{d1:02d}/{m1:02d}/{y1} a {d2:02d}/{m2:02d}/{y2}'
+            except ValueError:
+                pass
+
+        # Mês específico com ano (ex: "janeiro de 2024", "em janeiro/2024")
+        match = re.search(
+            r'(?:em\s+|de\s+)?'
+            r'(janeiro|fevereiro|mar[çc]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)'
+            r'(?:\s+de\s+|\s*/\s*|\s+)(\d{4})',
+            question_lower
+        )
+        if match:
+            month_name = match.group(1).replace('ç', 'c')
+            year = int(match.group(2))
+            months = {
+                'janeiro': 1, 'fevereiro': 2, 'marco': 3,
+                'abril': 4, 'maio': 5, 'junho': 6, 'julho': 7,
+                'agosto': 8, 'setembro': 9, 'outubro': 10,
+                'novembro': 11, 'dezembro': 12
+            }
+            month_num = months.get(month_name, 1)
+            start = date(year, month_num, 1)
+            if month_num == 12:
+                end = date(year, 12, 31)
+            else:
+                end = date(year, month_num + 1, 1) - timedelta(days=1)
+            return start, end, f'{month_name.capitalize()} de {year}'
+
+        # Mês específico (janeiro, fevereiro, etc.) - sem ano
         months = {
             'janeiro': 1, 'fevereiro': 2, 'março': 3, 'marco': 3,
             'abril': 4, 'maio': 5, 'junho': 6, 'julho': 7,
@@ -166,7 +416,9 @@ class QueryInterpreter:
             'novembro': 11, 'dezembro': 12
         }
         for month_name, month_num in months.items():
-            if month_name in question_lower:
+            # Verifica se o mês aparece isolado (não como parte de outra palavra)
+            pattern = rf'\b{month_name}\b'
+            if re.search(pattern, question_lower):
                 year = today.year
                 # Se o mês mencionado é posterior ao atual, assume ano anterior
                 if month_num > today.month:
@@ -177,6 +429,14 @@ class QueryInterpreter:
                 else:
                     end = date(year, month_num + 1, 1) - timedelta(days=1)
                 return start, end, month_name.capitalize()
+
+        # Ano específico (ex: "em 2024", "no ano de 2023")
+        match = re.search(r'(?:em|no\s+ano\s+de|ano\s+de)\s+(\d{4})', question_lower)
+        if match:
+            year = int(match.group(1))
+            start = date(year, 1, 1)
+            end = date(year, 12, 31)
+            return start, end, f'ano de {year}'
 
         # Sem período específico - retorna None para usar todos os dados
         return None, None, 'todo o período'
@@ -204,16 +464,63 @@ class QueryInterpreter:
         """Detecta tipo de agregação desejada."""
         question_lower = question.lower()
 
-        if any(w in question_lower for w in ['total', 'soma', 'somado', 'somar']):
+        # Soma/Total
+        if any(w in question_lower for w in [
+            'total', 'soma', 'somado', 'somar', 'somando',
+            'quanto foi', 'quanto gastei', 'quanto ganhei',
+            'quanto paguei', 'quanto recebi', 'quanto entrou',
+            'quanto saiu', 'valor total', 'montante',
+            'no total', 'ao todo', 'tudo junto'
+        ]):
             return 'sum'
-        if any(w in question_lower for w in ['média', 'media', 'médio', 'medio']):
+
+        # Média
+        if any(w in question_lower for w in [
+            'média', 'media', 'médio', 'medio',
+            'em média', 'em media', 'por dia', 'por mês',
+            'valor médio', 'gasto médio', 'receita média',
+            'média de', 'media de'
+        ]):
             return 'avg'
-        if any(w in question_lower for w in ['máximo', 'maximo', 'maior', 'mais alto']):
+
+        # Máximo
+        if any(w in question_lower for w in [
+            'máximo', 'maximo', 'máxima', 'maxima',
+            'maior', 'mais alto', 'mais alta', 'mais caro', 'mais cara',
+            'o maior', 'a maior', 'maior valor', 'maior gasto',
+            'mais gastei', 'mais recebi', 'top', 'recorde'
+        ]):
             return 'max'
-        if any(w in question_lower for w in ['mínimo', 'minimo', 'menor', 'mais baixo']):
+
+        # Mínimo
+        if any(w in question_lower for w in [
+            'mínimo', 'minimo', 'mínima', 'minima',
+            'menor', 'mais baixo', 'mais baixa', 'mais barato', 'mais barata',
+            'o menor', 'a menor', 'menor valor', 'menor gasto',
+            'menos gastei', 'menos recebi'
+        ]):
             return 'min'
-        if any(w in question_lower for w in ['quantos', 'quantas', 'quantidade', 'contagem']):
+
+        # Contagem
+        if any(w in question_lower for w in [
+            'quantos', 'quantas', 'quantidade', 'contagem',
+            'número de', 'numero de', 'conta de', 'total de',
+            'quantas vezes', 'quantos registros',
+            'quantas despesas', 'quantas receitas',
+            'quantos livros', 'quantas tarefas',
+            'quantos pagamentos', 'quantas compras'
+        ]):
             return 'count'
+
+        # Agrupamento por categoria
+        if any(w in question_lower for w in [
+            'por categoria', 'por categorias',
+            'categorizado', 'categorizada',
+            'agrupado por', 'agrupada por',
+            'dividido por', 'separado por',
+            'em cada categoria', 'de cada categoria'
+        ]):
+            return 'group_by_category'
 
         return 'list'  # Padrão: listar registros
 
@@ -222,49 +529,214 @@ class QueryInterpreter:
         """Detecta filtro de categoria baseado no módulo."""
         question_lower = question.lower()
 
-        # Categorias de despesas
+        # Categorias de despesas (expandido)
         expense_categories = {
-            'alimentação': 'food and drink', 'comida': 'food and drink',
-            'restaurante': 'food and drink', 'supermercado': 'supermarket',
-            'mercado': 'supermarket', 'transporte': 'transport',
-            'uber': 'transport', '99': 'transport', 'ônibus': 'transport',
-            'metrô': 'transport', 'saúde': 'health and care',
-            'farmácia': 'health and care', 'médico': 'health and care',
-            'educação': 'education', 'curso': 'education',
-            'streaming': 'digital signs', 'netflix': 'digital signs',
-            'spotify': 'digital signs', 'amazon': 'digital signs',
+            # Alimentação
+            'alimentação': 'food and drink', 'alimentacao': 'food and drink',
+            'comida': 'food and drink', 'refeição': 'food and drink',
+            'refeicao': 'food and drink', 'lanche': 'food and drink',
+            'almoço': 'food and drink', 'almoco': 'food and drink',
+            'jantar': 'food and drink', 'café': 'food and drink',
+            'restaurante': 'food and drink', 'delivery': 'food and drink',
+            'ifood': 'food and drink', 'rappi': 'food and drink',
+            # Supermercado
+            'supermercado': 'supermarket', 'mercado': 'supermarket',
+            'feira': 'supermarket', 'hortifruti': 'supermarket',
+            'compras do mês': 'supermarket', 'compras do mes': 'supermarket',
+            # Transporte
+            'transporte': 'transport', 'uber': 'transport', '99': 'transport',
+            'ônibus': 'transport', 'onibus': 'transport',
+            'metrô': 'transport', 'metro': 'transport',
+            'gasolina': 'transport', 'combustível': 'transport',
+            'combustivel': 'transport', 'estacionamento': 'transport',
+            'pedágio': 'transport', 'pedagio': 'transport',
+            'manutenção carro': 'transport', 'manutencao carro': 'transport',
+            # Saúde
+            'saúde': 'health and care', 'saude': 'health and care',
+            'farmácia': 'health and care', 'farmacia': 'health and care',
+            'remédio': 'health and care', 'remedio': 'health and care',
+            'médico': 'health and care', 'medico': 'health and care',
+            'consulta': 'health and care', 'exame': 'health and care',
+            'dentista': 'health and care', 'hospital': 'health and care',
+            'plano de saúde': 'health and care', 'plano de saude': 'health and care',
+            # Educação
+            'educação': 'education', 'educacao': 'education',
+            'curso': 'education', 'faculdade': 'education',
+            'escola': 'education', 'livro': 'education',
+            'material escolar': 'education', 'mensalidade': 'education',
+            # Assinaturas digitais
+            'streaming': 'digital signs', 'assinatura': 'digital signs',
+            'netflix': 'digital signs', 'spotify': 'digital signs',
+            'amazon prime': 'digital signs', 'disney': 'digital signs',
+            'hbo': 'digital signs', 'youtube premium': 'digital signs',
+            'apple': 'digital signs', 'google one': 'digital signs',
+            'deezer': 'digital signs', 'globoplay': 'digital signs',
+            # Entretenimento
             'entretenimento': 'entertainment', 'lazer': 'entertainment',
-            'viagem': 'travels', 'hotel': 'travels', 'passagem': 'travels',
-            'roupa': 'vestuary', 'vestuário': 'vestuary', 'casa': 'house',
-            'aluguel': 'house', 'condomínio': 'bills and services',
-            'luz': 'bills and services', 'água': 'bills and services',
-            'internet': 'bills and services', 'telefone': 'bills and services'
+            'cinema': 'entertainment', 'teatro': 'entertainment',
+            'show': 'entertainment', 'festa': 'entertainment',
+            'bar': 'entertainment', 'balada': 'entertainment',
+            'jogo': 'entertainment', 'game': 'entertainment',
+            # Viagens
+            'viagem': 'travels', 'viagens': 'travels',
+            'hotel': 'travels', 'pousada': 'travels',
+            'passagem': 'travels', 'aéreo': 'travels', 'aereo': 'travels',
+            'hospedagem': 'travels', 'airbnb': 'travels',
+            # Vestuário
+            'roupa': 'vestuary', 'roupas': 'vestuary',
+            'vestuário': 'vestuary', 'vestuario': 'vestuary',
+            'calçado': 'vestuary', 'calcado': 'vestuary',
+            'tênis': 'vestuary', 'tenis': 'vestuary',
+            'sapato': 'vestuary', 'acessório': 'vestuary',
+            # Casa
+            'casa': 'house', 'moradia': 'house',
+            'aluguel': 'house', 'móveis': 'house', 'moveis': 'house',
+            'decoração': 'house', 'decoracao': 'house',
+            'reforma': 'house', 'eletrodoméstico': 'house',
+            # Contas e serviços
+            'condomínio': 'bills and services', 'condominio': 'bills and services',
+            'luz': 'bills and services', 'energia': 'bills and services',
+            'água': 'bills and services', 'agua': 'bills and services',
+            'gás': 'bills and services', 'gas': 'bills and services',
+            'internet': 'bills and services', 'telefone': 'bills and services',
+            'celular': 'bills and services', 'iptu': 'bills and services',
+            'ipva': 'bills and services', 'seguro': 'bills and services',
+            # Eletrônicos
+            'eletrônico': 'electronics', 'eletronico': 'electronics',
+            'celular novo': 'electronics', 'computador': 'electronics',
+            'notebook': 'electronics', 'tablet': 'electronics',
+            # Pet
+            'pet': 'pets', 'cachorro': 'pets', 'gato': 'pets',
+            'ração': 'pets', 'racao': 'pets', 'veterinário': 'pets',
+            # Doações
+            'doação': 'donate', 'doacao': 'donate',
+            'caridade': 'donate', 'ajuda': 'donate',
+            # Impostos
+            'imposto': 'taxes', 'impostos': 'taxes',
+            'tributo': 'taxes', 'taxa': 'rates',
         }
 
-        # Categorias de receitas
+        # Categorias de receitas (expandido)
         revenue_categories = {
-            'salário': 'salary', 'pagamento': 'salary',
-            'freelance': 'income', 'rendimento': 'income',
-            'dividendo': 'income', 'reembolso': 'refund',
-            'cashback': 'cashback', 'prêmio': 'award',
-            'bônus': 'award', 'vale': 'ticket'
+            # Salário
+            'salário': 'salary', 'salario': 'salary',
+            'pagamento': 'salary', 'holerite': 'salary',
+            'contracheque': 'salary', 'décimo': 'salary',
+            'decimo': 'salary', '13º': 'salary', '13o': 'salary',
+            'férias': 'salary', 'ferias': 'salary',
+            # Rendimentos
+            'freelance': 'income', 'freela': 'income',
+            'rendimento': 'income', 'dividendo': 'income',
+            'juros': 'income', 'investimento': 'income',
+            'lucro': 'income', 'ganho': 'income',
+            # Reembolso
+            'reembolso': 'refund', 'devolução': 'refund',
+            'devolvido': 'refund', 'estorno': 'refund',
+            # Cashback
+            'cashback': 'cashback', 'cash back': 'cashback',
+            # Prêmios e bônus
+            'prêmio': 'award', 'premio': 'award',
+            'bônus': 'award', 'bonus': 'award',
+            'gratificação': 'award', 'gratificacao': 'award',
+            # Vale
+            'vale': 'ticket', 'vale alimentação': 'ticket',
+            'vale refeição': 'ticket', 'vale transporte': 'ticket',
+            'vr': 'ticket', 'va': 'ticket', 'vt': 'ticket',
+            # Outros
+            'comissão': 'income', 'comissao': 'income',
+            'aluguel recebido': 'income', 'pensão': 'income',
+            'aposentadoria': 'income', 'herança': 'income',
         }
 
-        # Categorias de livros
+        # Categorias de livros (expandido)
         book_genres = {
-            'filosofia': 'Philosophy', 'história': 'History',
-            'psicologia': 'Psychology', 'ficção': 'Fiction',
-            'política': 'Policy', 'tecnologia': 'Technology',
-            'teologia': 'Theology'
+            # Filosofia e pensamento
+            'filosofia': 'philosophy', 'filosófico': 'philosophy',
+            'estoicismo': 'philosophy', 'ética': 'philosophy',
+            # História
+            'história': 'history', 'historia': 'history',
+            'histórico': 'history', 'historico': 'history',
+            # Psicologia
+            'psicologia': 'psychology', 'psicológico': 'psychology',
+            'autoajuda': 'self_help', 'auto ajuda': 'self_help',
+            'desenvolvimento pessoal': 'self_help',
+            # Ficção
+            'ficção': 'fiction', 'ficcao': 'fiction',
+            'romance': 'romance', 'fantasia': 'fantasy',
+            'ficção científica': 'science_fiction',
+            'sci-fi': 'science_fiction', 'scifi': 'science_fiction',
+            'terror': 'horror', 'suspense': 'thriller',
+            'mistério': 'mystery', 'misterio': 'mystery',
+            # Não-ficção
+            'biografia': 'biography', 'autobiografia': 'autobiography',
+            # Política e economia
+            'política': 'political', 'politica': 'political',
+            'economia': 'economics', 'negócios': 'business',
+            'negocios': 'business', 'empreendedorismo': 'business',
+            # Tecnologia
+            'tecnologia': 'technology', 'programação': 'programming',
+            'programacao': 'programming', 'computação': 'technology',
+            # Religião e espiritualidade
+            'teologia': 'religion', 'religião': 'religion',
+            'religiao': 'religion', 'espiritual': 'spirituality',
+            'espiritualidade': 'spirituality',
+            # Outros
+            'poesia': 'poetry', 'clássico': 'classic',
+            'classico': 'classic', 'infantil': 'children',
+            'quadrinhos': 'comics', 'mangá': 'manga', 'manga': 'manga',
         }
 
-        # Categorias de tarefas
+        # Categorias de tarefas (expandido)
         task_categories = {
-            'saúde': 'health', 'estudos': 'studies', 'estudo': 'studies',
-            'espiritual': 'spiritual', 'exercício': 'exercise',
-            'academia': 'exercise', 'meditação': 'meditation',
-            'leitura': 'reading', 'trabalho': 'work',
-            'família': 'family', 'casa': 'household'
+            # Saúde
+            'saúde': 'health', 'saude': 'health',
+            'médico': 'health', 'medico': 'health',
+            # Estudos
+            'estudos': 'studies', 'estudo': 'studies',
+            'estudar': 'studies', 'aprender': 'learning',
+            'aprendizado': 'learning', 'curso': 'studies',
+            # Espiritual
+            'espiritual': 'spiritual', 'oração': 'spiritual',
+            'oracao': 'spiritual', 'meditação': 'meditation',
+            'meditacao': 'meditation', 'mindfulness': 'mindfulness',
+            # Exercício
+            'exercício': 'exercise', 'exercicio': 'exercise',
+            'academia': 'exercise', 'treino': 'exercise',
+            'corrida': 'exercise', 'caminhada': 'exercise',
+            'yoga': 'exercise', 'esporte': 'exercise',
+            # Leitura
+            'leitura': 'reading', 'ler': 'reading',
+            # Trabalho
+            'trabalho': 'work', 'profissional': 'work',
+            'carreira': 'career', 'projeto': 'work',
+            # Família e casa
+            'família': 'family', 'familia': 'family',
+            'casa': 'household', 'doméstico': 'household',
+            'domestico': 'household', 'limpeza': 'household',
+            # Outros
+            'social': 'social', 'lazer': 'leisure',
+            'finanças': 'finance', 'financas': 'finance',
+            'criatividade': 'creativity', 'hobby': 'leisure',
+            'sono': 'sleep', 'descanso': 'sleep',
+            'hidratação': 'hydration', 'hidratacao': 'hydration',
+            'gratidão': 'gratitude', 'gratidao': 'gratitude',
+        }
+
+        # Categorias de senhas (para módulo security)
+        password_categories = {
+            'banco': 'banking', 'bancário': 'banking', 'bancario': 'banking',
+            'financeiro': 'finance', 'finanças': 'finance',
+            'rede social': 'social', 'redes sociais': 'social',
+            'email': 'email', 'e-mail': 'email',
+            'streaming': 'streaming', 'música': 'streaming',
+            'trabalho': 'work', 'empresa': 'work',
+            'jogos': 'gaming', 'games': 'gaming',
+            'compras': 'shopping', 'loja': 'shopping',
+            'governo': 'government', 'gov': 'government',
+            'saúde': 'healthcare', 'saude': 'healthcare',
+            'educação': 'education', 'educacao': 'education',
+            'desenvolvimento': 'development', 'programação': 'development',
+            'cloud': 'cloud', 'nuvem': 'cloud',
         }
 
         categories = {}
@@ -276,6 +748,8 @@ class QueryInterpreter:
             categories = book_genres
         elif module == 'personal_planning':
             categories = task_categories
+        elif module == 'security':
+            categories = password_categories
 
         for keyword, category in categories.items():
             if keyword in question_lower:
@@ -358,13 +832,55 @@ class QueryInterpreter:
             """
             display_type = 'text'
             description = f"Quantidade de receitas {period_desc}"
+        elif aggregation == 'max':
+            sql = f"""
+                SELECT
+                    description as descricao,
+                    value as valor,
+                    date as data,
+                    category as categoria
+                FROM revenues_revenue
+                WHERE {base_conditions}
+                ORDER BY value DESC
+                LIMIT 5
+            """
+            display_type = 'table'
+            description = f"Maiores receitas {period_desc}"
+        elif aggregation == 'min':
+            sql = f"""
+                SELECT
+                    description as descricao,
+                    value as valor,
+                    date as data,
+                    category as categoria
+                FROM revenues_revenue
+                WHERE {base_conditions}
+                ORDER BY value ASC
+                LIMIT 5
+            """
+            display_type = 'table'
+            description = f"Menores receitas {period_desc}"
+        elif aggregation == 'group_by_category' or 'categoria' in question.lower() or 'categorias' in question.lower():
+            sql = f"""
+                SELECT
+                    category as categoria,
+                    COUNT(*) as quantidade,
+                    SUM(value) as total,
+                    AVG(value) as media
+                FROM revenues_revenue
+                WHERE {base_conditions}
+                GROUP BY category
+                ORDER BY total DESC
+            """
+            display_type = 'table'
+            description = f"Receitas por categoria {period_desc}"
         else:
             sql = f"""
                 SELECT
-                    description,
-                    value,
-                    date,
-                    category
+                    description as descricao,
+                    value as valor,
+                    date as data,
+                    category as categoria
                 FROM revenues_revenue
                 WHERE {base_conditions}
                 ORDER BY date DESC
@@ -429,35 +945,63 @@ class QueryInterpreter:
             """
             display_type = 'text'
             description = f"Quantidade de despesas {period_desc}"
+        elif aggregation == 'max':
+            sql = f"""
+                SELECT
+                    description as descricao,
+                    value as valor,
+                    date as data,
+                    category as categoria
+                FROM expenses_expense
+                WHERE {base_conditions}
+                ORDER BY value DESC
+                LIMIT 5
+            """
+            display_type = 'table'
+            description = f"Maiores despesas {period_desc}"
+        elif aggregation == 'min':
+            sql = f"""
+                SELECT
+                    description as descricao,
+                    value as valor,
+                    date as data,
+                    category as categoria
+                FROM expenses_expense
+                WHERE {base_conditions}
+                ORDER BY value ASC
+                LIMIT 5
+            """
+            display_type = 'table'
+            description = f"Menores despesas {period_desc}"
+        elif aggregation == 'group_by_category' or 'categoria' in question.lower() or 'categorias' in question.lower():
+            sql = f"""
+                SELECT
+                    category as categoria,
+                    COUNT(*) as quantidade,
+                    SUM(value) as total,
+                    AVG(value) as media
+                FROM expenses_expense
+                WHERE {base_conditions}
+                GROUP BY category
+                ORDER BY total DESC
+            """
+            display_type = 'table'
+            description = f"Despesas por categoria {period_desc}"
         else:
-            # Listar por categoria
-            if 'categoria' in question.lower() or 'categorias' in question.lower():
-                sql = f"""
-                    SELECT
-                        category as categoria,
-                        COUNT(*) as quantidade,
-                        SUM(value) as total
-                    FROM expenses_expense
-                    WHERE {base_conditions}
-                    GROUP BY category
-                    ORDER BY total DESC
-                """
-                display_type = 'table'
-                description = f"Despesas por categoria {period_desc}"
-            else:
-                sql = f"""
-                    SELECT
-                        description as descricao,
-                        value as valor,
-                        date as data,
-                        category as categoria
-                    FROM expenses_expense
-                    WHERE {base_conditions}
-                    ORDER BY date DESC
-                    LIMIT 10
-                """
-                display_type = 'table'
-                description = f"Últimas despesas {period_desc}"
+            # Listar despesas recentes
+            sql = f"""
+                SELECT
+                    description as descricao,
+                    value as valor,
+                    date as data,
+                    category as categoria
+                FROM expenses_expense
+                WHERE {base_conditions}
+                ORDER BY date DESC
+                LIMIT 10
+            """
+            display_type = 'table'
+            description = f"Últimas despesas {period_desc}"
 
         return QueryResult(
             module='expenses',
