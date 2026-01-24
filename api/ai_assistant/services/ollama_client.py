@@ -1,7 +1,8 @@
 """
-Cliente HTTP para comunicação com Ollama.
+Cliente HTTP para comunicacao com Ollama.
 
 Envia prompts estruturados e recebe respostas em linguagem natural.
+Integrado com ResponseFormatter para garantir respostas limpas.
 """
 import os
 import logging
@@ -12,6 +13,8 @@ from typing import Dict, Any, List, Optional, Union
 
 import requests
 from requests.exceptions import RequestException, Timeout
+
+from .response_formatter import ResponseFormatter
 
 
 logger = logging.getLogger(__name__)
@@ -630,14 +633,17 @@ class OllamaClient:
         """
         Gera resposta em linguagem natural usando Ollama.
 
+        Pos-processa a resposta para remover caracteres especiais
+        e garantir formatacao limpa.
+
         Args:
-            query_description: Descrição do que foi consultado
+            query_description: Descricao do que foi consultado
             data: Dados retornados pela query
-            display_type: Tipo de exibição (text, table, list, currency, password)
-            module: Módulo consultado
+            display_type: Tipo de exibicao (text, table, list, currency, password)
+            module: Modulo consultado
 
         Returns:
-            Resposta em português brasileiro
+            Resposta em portugues brasileiro, limpa e formatada
         """
         prompt = self._build_prompt(query_description, data, display_type, module)
 
@@ -667,7 +673,18 @@ class OllamaClient:
             response.raise_for_status()
             result = response.json()
 
-            return result.get('message', {}).get('content', 'Não foi possível gerar uma resposta.')
+            raw_response = result.get('message', {}).get('content', 'Nao foi possivel gerar uma resposta.')
+
+            # Pos-processa a resposta para remover caracteres especiais
+            clean_response = ResponseFormatter.format_response(raw_response)
+
+            # Sanitiza para exibicao segura
+            clean_response = ResponseFormatter.sanitize_for_display(clean_response)
+
+            # Trunca se muito longa
+            clean_response = ResponseFormatter.truncate(clean_response, max_length=2000)
+
+            return clean_response
 
         except Timeout:
             logger.error(f"Ollama timeout after {self.timeout}s")
@@ -681,29 +698,34 @@ class OllamaClient:
 
     def _get_system_prompt(self) -> str:
         """Retorna o prompt de sistema para o Ollama."""
-        return """Você é um assistente financeiro pessoal amigável e prestativo.
+        return """Voce e um assistente financeiro pessoal amigavel e prestativo.
+
+REGRAS IMPORTANTES DE FORMATACAO:
+- NAO use caracteres especiais de formatacao como asteriscos (*), underscores (_), hashtags (#), crases (`) ou til (~~)
+- NAO use formatacao markdown
+- Escreva texto puro e simples
+- Use apenas pontuacao normal: ponto, virgula, exclamacao, interrogacao, dois pontos
+
 Suas respostas devem ser:
-- Em português brasileiro
+- Em portugues brasileiro
 - Naturais e conversacionais
 - Concisas mas informativas
-- Formatadas de forma clara
+- Texto simples sem formatacao especial
 
-Para valores monetários:
-- Use o formato R$ X.XXX,XX
+Para valores monetarios:
+- Use o formato R$ X.XXX,XX (exemplo: R$ 1.234,56)
 - Arredonde para 2 casas decimais
-- Destaque valores importantes
 
 Para datas:
-- Use formato brasileiro (DD/MM/AAAA)
+- Use formato brasileiro DD/MM/AAAA (exemplo: 23/01/2025)
 - Mencione "hoje", "ontem", "esta semana" quando apropriado
 
-Para listas e tabelas:
-- Organize de forma clara
-- Use bullet points quando apropriado
-- Destaque itens importantes
+Para listas:
+- Use numeracao simples (1. 2. 3.) ou travessao (-)
+- NAO use asteriscos ou outros simbolos
 
-Nunca invente dados. Use apenas as informações fornecidas.
-Se não houver dados, diga que não encontrou registros."""
+Nunca invente dados. Use apenas as informacoes fornecidas.
+Se nao houver dados, diga que nao encontrou registros."""
 
     def _build_prompt(
         self,
@@ -727,7 +749,7 @@ Se não houver dados, diga que não encontrou registros."""
             data_str = self._format_general_data(data)
 
         return f"""<context>
-O usuário fez uma pergunta sobre {self._get_module_description(module)}.
+O usuario fez uma pergunta sobre {self._get_module_description(module)}.
 Consulta realizada: {query_description}
 </context>
 
@@ -736,10 +758,12 @@ Consulta realizada: {query_description}
 </data>
 
 <instruction>
-Transforme os dados acima em uma resposta natural e amigável em português.
-{"Formate valores monetários como R$ X.XXX,XX." if display_type == 'currency' else ""}
-{"IMPORTANTE: Não revele senhas completas diretamente. Apenas confirme que encontrou a credencial." if display_type == 'password' else ""}
-Se não houver dados, informe educadamente que não encontrou registros.
+Transforme os dados acima em uma resposta natural e amigavel em portugues.
+{"Formate valores monetarios como R$ X.XXX,XX." if display_type == 'currency' else ""}
+{"IMPORTANTE: Nao revele senhas completas diretamente. Apenas confirme que encontrou a credencial." if display_type == 'password' else ""}
+Se nao houver dados, informe educadamente que nao encontrou registros.
+
+LEMBRE-SE: NAO use formatacao markdown (asteriscos, underscores, hashtags). Escreva texto puro e simples.
 </instruction>"""
 
     def _get_module_description(self, module: str) -> str:

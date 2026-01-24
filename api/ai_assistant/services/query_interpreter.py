@@ -1,19 +1,26 @@
 """
 Interpretador de perguntas em linguagem natural para SQL.
 
-Usa regras baseadas em palavras-chave para identificar módulos e gerar queries.
-Expansível: adicione novas regras conforme necessário.
+Usa regras baseadas em palavras-chave para identificar modulos e gerar queries.
+Integrado com camadas de inteligencia para melhor interpretacao.
 """
 import re
+import logging
 from dataclasses import dataclass
 from typing import Optional, Tuple, List, Dict, Any
 from datetime import date, timedelta
 from django.utils import timezone
 
+from .question_processor import QuestionProcessor, ProcessedQuestion
+from .entity_extractor import DateRange
+
+
+logger = logging.getLogger(__name__)
+
 
 @dataclass
 class QueryResult:
-    """Resultado da interpretação de uma pergunta."""
+    """Resultado da interpretacao de uma pergunta."""
     module: str
     sql: str
     params: Tuple
@@ -21,17 +28,27 @@ class QueryResult:
     description: str
     requires_decryption: bool = False
     decryption_fields: List[str] = None
+    # Novos campos para rastreabilidade
+    confidence: float = 1.0
+    detected_intent: str = ''
+    processing_metadata: Dict[str, Any] = None
 
     def __post_init__(self):
         if self.decryption_fields is None:
             self.decryption_fields = []
+        if self.processing_metadata is None:
+            self.processing_metadata = {}
 
 
 class QueryInterpreter:
     """
-    Interpreta perguntas em português e gera SQL correspondente.
+    Interpreta perguntas em portugues e gera SQL correspondente.
 
-    Usa mapeamento de palavras-chave para identificar intenção e módulo.
+    Integrado com camadas de inteligencia:
+    - TextPreprocessor: Normalizacao de texto
+    - IntentClassifier: Classificacao de intencao
+    - EntityExtractor: Extracao de entidades
+    - QuestionProcessor: Orquestracao
     """
 
     # Mapeamento de palavras-chave para módulos (expandido)
@@ -762,27 +779,94 @@ class QueryInterpreter:
         """
         Interpreta uma pergunta e retorna a query SQL correspondente.
 
+        Usa as camadas de inteligencia para melhor interpretacao:
+        1. Pre-processamento de texto
+        2. Classificacao de intencao
+        3. Extracao de entidades
+
         Args:
-            question: Pergunta em português
+            question: Pergunta em portugues
             member_id: ID do membro para filtrar dados
 
         Returns:
-            QueryResult com SQL, parâmetros e metadados
+            QueryResult com SQL, parametros e metadados
         """
-        module = cls._detect_module(question)
-        start_date, end_date, period_desc = cls._get_time_range(question)
-        aggregation = cls._detect_aggregation(question)
-        category = cls._detect_category_filter(question, module)
+        # Processa a pergunta atraves das camadas de inteligencia
+        processed = QuestionProcessor.process(question)
+        logger.debug(f"Pergunta processada: modulo={processed.detected_module}, "
+                    f"intencao={processed.intent.intent.value}, "
+                    f"confianca={processed.confidence:.2f}")
 
-        # Delega para o método específico do módulo
+        # Verifica casos especiais (saudacao, ajuda)
+        if QuestionProcessor.is_greeting(processed.intent):
+            return QueryResult(
+                module='greeting',
+                sql='',
+                params=(),
+                display_type='text',
+                description=QuestionProcessor.get_greeting_response(),
+                confidence=processed.confidence,
+                detected_intent=processed.intent.intent.value,
+                processing_metadata=processed.metadata
+            )
+
+        if QuestionProcessor.is_help_request(processed.intent):
+            return QueryResult(
+                module='help',
+                sql='',
+                params=(),
+                display_type='text',
+                description=QuestionProcessor.get_help_response(),
+                confidence=processed.confidence,
+                detected_intent=processed.intent.intent.value,
+                processing_metadata=processed.metadata
+            )
+
+        # Usa o modulo detectado pelas camadas de inteligencia
+        module = processed.detected_module
+
+        # Usa as entidades extraidas
+        date_range = processed.entities.date_range
+        start_date = date_range.start
+        end_date = date_range.end
+        period_desc = date_range.description
+
+        # Usa agregacao sugerida pela intencao
+        aggregation = processed.suggested_aggregation
+
+        # Fallback para deteccao tradicional se confianca baixa
+        if processed.confidence < 0.4:
+            logger.debug("Confianca baixa, usando deteccao tradicional")
+            aggregation = cls._detect_aggregation(question)
+            if module == 'unknown':
+                module = cls._detect_module(question)
+
+        # Usa categorias extraidas ou fallback para deteccao tradicional
+        category = None
+        if processed.entities.categories:
+            category = processed.entities.categories[0]
+        else:
+            category = cls._detect_category_filter(question, module)
+
+        # Delega para o metodo especifico do modulo
         method_name = f'_query_{module}'
         if hasattr(cls, method_name):
-            return getattr(cls, method_name)(
+            result = getattr(cls, method_name)(
                 question, member_id, start_date, end_date,
                 period_desc, aggregation, category
             )
+            # Adiciona metadados de processamento
+            result.confidence = processed.confidence
+            result.detected_intent = processed.intent.intent.value
+            result.processing_metadata = processed.metadata
+            return result
 
-        return cls._query_unknown(question, member_id)
+        # Se modulo desconhecido, tenta resposta generica
+        result = cls._query_unknown(question, member_id)
+        result.confidence = processed.confidence
+        result.detected_intent = processed.intent.intent.value
+        result.processing_metadata = processed.metadata
+        return result
 
     @classmethod
     def _query_revenues(

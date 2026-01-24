@@ -23,3 +23,7 @@ requests>=2.31.0
 
 # Redis cache
 django-redis==5.4.0
+
+# AI Assistant - NLP and text processing
+rapidfuzz>=3.6.0
+dateparser>=1.2.0

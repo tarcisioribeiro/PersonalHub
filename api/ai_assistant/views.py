@@ -16,7 +16,7 @@ from rest_framework.response import Response
 
 from members.models import Member
 from .models import ConversationHistory
-from .services import QueryInterpreter, DatabaseExecutor, OllamaClient
+from .services import QueryInterpreter, DatabaseExecutor, OllamaClient, ResponseFormatter
 from .services.database_executor import DatabaseError
 
 
@@ -89,25 +89,26 @@ def pergunta(request: Request) -> Response:
         # 1. Interpreta a pergunta e gera SQL
         query_result = QueryInterpreter.interpret(pergunta_texto, member.id)
 
-        # 2. Se não identificou o módulo, retorna mensagem amigável
-        if query_result.module == 'unknown':
+        # 2. Trata casos especiais (saudacao, ajuda, desconhecido)
+        if query_result.module in ('greeting', 'help', 'unknown'):
+            # Formata a resposta removendo caracteres especiais
+            resposta = ResponseFormatter.format_response(query_result.description)
+
+            # Mensagem padrao para modulo desconhecido
+            if query_result.module == 'unknown':
+                resposta = (
+                    'Desculpe, nao consegui entender sua pergunta. '
+                    'Tente perguntar sobre: receitas e faturamento, '
+                    'despesas e gastos, saldo das contas, cartoes de credito, '
+                    'emprestimos, livros e leituras, tarefas e objetivos, '
+                    'senhas armazenadas, cofres e reservas.'
+                )
+
             response_data = {
-                'resposta': (
-                    'Desculpe, não consegui entender sua pergunta. '
-                    'Tente perguntar sobre:\n'
-                    '- Receitas e faturamento\n'
-                    '- Despesas e gastos\n'
-                    '- Saldo das contas\n'
-                    '- Cartões de crédito\n'
-                    '- Empréstimos\n'
-                    '- Livros e leituras\n'
-                    '- Tarefas e objetivos\n'
-                    '- Senhas armazenadas\n'
-                    '- Cofres e reservas'
-                ),
+                'resposta': resposta,
                 'display_type': 'text',
                 'data': [],
-                'module': 'unknown',
+                'module': query_result.module,
                 'success': True
             }
             _save_history(
@@ -132,16 +133,20 @@ def pergunta(request: Request) -> Response:
         # 5. Calcula tempo de resposta
         response_time_ms = int((time.time() - start_time) * 1000)
 
-        # 6. Salva histórico
+        # 6. Garante que a resposta esta limpa e formatada
+        resposta_limpa = ResponseFormatter.format_response(resposta)
+        resposta_limpa = ResponseFormatter.sanitize_for_display(resposta_limpa)
+
+        # 7. Salva historico
         _save_history(
             member, pergunta_texto, query_result,
-            db_result['data'], resposta, db_result['display_type'],
+            db_result['data'], resposta_limpa, db_result['display_type'],
             response_time_ms, True
         )
 
-        # 7. Retorna resposta
+        # 8. Retorna resposta
         return Response({
-            'resposta': resposta,
+            'resposta': resposta_limpa,
             'display_type': db_result['display_type'],
             'data': db_result['data'],
             'module': db_result['module'],
