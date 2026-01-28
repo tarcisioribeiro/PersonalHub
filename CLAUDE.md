@@ -11,16 +11,16 @@ MindLedger is a full-stack financial management system with Django REST Framewor
 ### Monorepo Structure
 ```
 MindLedger/
-├── api/              # Django backend (port 8002)
-├── frontend/         # React frontend (port 3000)
+├── api/              # Django backend (port 39100)
+├── frontend/         # React frontend (port 39101)
 ├── docker-compose.yml
 └── .env              # Root environment variables
 ```
 
 ### Backend Apps (Django)
-- **Core Financial**: accounts, credit_cards, expenses, revenues, loans, transfers, dashboard
+- **Core Financial**: accounts, credit_cards, expenses, revenues, loans, transfers, payables, vaults, dashboard
 - **System**: authentication, members, app (core config)
-- **Extended**: security (passwords), library (books), personal_planning (tasks, goals)
+- **Extended**: security (passwords), library (books), personal_planning (tasks, goals), ai_assistant (Ollama-powered)
 
 ### Key Backend Architecture Patterns
 
@@ -42,6 +42,8 @@ MindLedger/
 - `update_balances`: Recalculate account balances
 - `setup_permissions`: Configure user groups and permissions
 - `process_existing_transfers`: Process transfer records
+- `fix_installments_paid_status`: Fix credit card installment payment status
+- `close_overdue_bills`: Close overdue credit card bills
 
 ### Frontend Architecture
 
@@ -60,6 +62,8 @@ MindLedger/
 - HttpOnly cookies managed by backend
 - Frontend checks `hasValidToken()` with 5-second cache
 - Auto-refresh on 401 except for auth endpoints
+- JWT access token lifetime: 15 minutes
+- JWT refresh token lifetime: 1 hour
 
 ## Development Commands
 
@@ -145,7 +149,7 @@ docker-compose exec db psql -U $DB_USER -d mindledger_db
 ### Testing
 
 ```bash
-# Backend tests
+# Backend tests (uses SQLite in-memory database automatically)
 docker-compose exec api python manage.py test           # all tests
 docker-compose exec api python manage.py test accounts  # specific app
 docker-compose exec api pytest                          # with pytest
@@ -153,7 +157,6 @@ docker-compose exec api pytest --cov                    # with coverage
 
 # Frontend tests
 cd frontend
-npm run test         # unit tests
 npm run lint         # linting
 npm run build        # production build (checks TypeScript)
 ```
@@ -216,15 +219,23 @@ now = datetime.now()  # DON'T DO THIS
 
 ### Frontend
 
-**Service Pattern**: Each service exports functions using apiClient:
+**Service Pattern**: Each service is a class singleton using apiClient:
 ```typescript
 import { apiClient } from './api-client';
+import { API_CONFIG } from '@/config/constants';
 
-export const resourceService = {
-  getAll: () => apiClient.get<Resource[]>('/api/v1/resources/'),
-  create: (data: CreateData) => apiClient.post('/api/v1/resources/', data),
-  // ...
-};
+class ResourceService {
+  async getAll(): Promise<Resource[]> {
+    const response = await apiClient.get<PaginatedResponse<Resource>>(API_CONFIG.ENDPOINTS.RESOURCES);
+    return response.results;
+  }
+
+  async create(data: CreateData): Promise<Resource> {
+    return apiClient.post<Resource>(API_CONFIG.ENDPOINTS.RESOURCES, data);
+  }
+}
+
+export const resourceService = new ResourceService();
 ```
 
 **Component Organization**:
@@ -254,7 +265,13 @@ export const resourceService = {
 - `DEBUG=True`: Development mode (MUST be False in production)
 - `DB_HOST=db`: Use 'db' for Docker, 'localhost' for local
 - `DB_PORT=39102`: External port (internal is 5432)
+- `REDIS_URL`: Redis connection (default: redis://redis:6379/0)
 - `LOG_FORMAT=json`: Structured logging format
+
+### Caching
+- Redis configured for caching with 1-hour default timeout
+- Key prefix: `mindledger`
+- Local memory cache also available as default fallback
 
 ## Health and Debugging
 

@@ -10,15 +10,18 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ChevronDown } from 'lucide-react';
 import { ExpenseForm } from '@/components/expenses/ExpenseForm';
+import { ReceiptButton } from '@/components/receipts';
 import { expensesService } from '@/services/expenses-service';
 import { accountsService } from '@/services/accounts-service';
 import { loansService } from '@/services/loans-service';
 import { payablesService } from '@/services/payables-service';
 import { useToast } from '@/hooks/use-toast';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
+import { useAuthStore } from '@/stores/auth-store';
 import { translate, TRANSLATIONS } from '@/config/constants';
 import { formatCurrency, formatDateTime } from '@/lib/formatters';
 import { sumByProperty } from '@/lib/helpers';
+import { getMemberDisplayName } from '@/lib/receipt-utils';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable, type Column } from '@/components/common/DataTable';
 import type { Expense, ExpenseFormData, Account, Loan, Payable } from '@/types';
@@ -42,6 +45,7 @@ export default function Expenses() {
   const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
   const { toast } = useToast();
   const { showConfirm } = useAlertDialog();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     loadData();
@@ -352,6 +356,10 @@ export default function Expenses() {
         }}
         actions={(expense) => (
           <div className="flex items-center justify-end gap-2">
+            <ReceiptButton
+              source={{ type: 'expense', data: expense }}
+              memberName={getMemberDisplayName(expense.member_name, user)}
+            />
             <Button variant="ghost" size="icon" onClick={() => handleEdit(expense)}>
               <Pencil className="w-4 h-4" />
             </Button>

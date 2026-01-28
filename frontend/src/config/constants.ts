@@ -183,6 +183,7 @@ export const TRANSLATIONS = {
     flight: 'Passagem Aérea',
     hotel: 'Hotel',
     accommodation: 'Hospedagem',
+    fatura_cartao: 'Fatura de Cartão',
   },
 
   // Revenue Categories

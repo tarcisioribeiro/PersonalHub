@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { User, Permission, LoginCredentials } from '@/types';
 import { authService } from '@/services/auth-service';
+import { membersService } from '@/services/members-service';
 
 // Variável para evitar múltiplas chamadas simultâneas de loadUserData
 let loadUserDataPromise: Promise<void> | null = null;
@@ -45,15 +46,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       authService.savePermissions(permissionsResponse);
 
       // Construct user object with data from permissions endpoint
-      // TODO: Create a proper /me endpoint to get full user data
-      const user: User = {
-        id: 1, // This should come from a proper /me endpoint
+      let user: User = {
+        id: 1,
         username: credentials.username,
         email: '',
         first_name: '',
         last_name: '',
         groups: ['Membros'], // Default group for all non-superuser users
       };
+
+      // Fetch member data to get full name
+      try {
+        const memberData = await membersService.getCurrentUserMember();
+        if (memberData && memberData.name) {
+          // Parse the member name into first_name and last_name
+          const nameParts = memberData.name.trim().split(' ');
+          user = {
+            ...user,
+            first_name: nameParts[0] || '',
+            last_name: nameParts.slice(1).join(' ') || '',
+          };
+        }
+      } catch (memberError) {
+        console.log('[AuthStore] Could not fetch member data:', memberError);
+        // Continue with empty first_name/last_name
+      }
 
       authService.saveUserData(user);
 
@@ -100,7 +117,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       try {
         set({ isInitializing: true });
 
-        const user = authService.getUserData();
+        let user = authService.getUserData();
         const permissions = authService.getPermissions();
 
         // Se não há dados do usuário nos cookies, não está autenticado
@@ -118,6 +135,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         // Verifica se o token ainda é válido
         try {
           const isAuthenticated = await authService.isAuthenticated();
+
+          // If authenticated and user has empty first_name, try to fetch member data
+          if (isAuthenticated && user && !user.first_name) {
+            try {
+              const memberData = await membersService.getCurrentUserMember();
+              if (memberData && memberData.name) {
+                const nameParts = memberData.name.trim().split(' ');
+                user = {
+                  ...user,
+                  first_name: nameParts[0] || '',
+                  last_name: nameParts.slice(1).join(' ') || '',
+                };
+                authService.saveUserData(user);
+              }
+            } catch (memberError) {
+              console.log('[AuthStore] Could not fetch member data on reload:', memberError);
+            }
+          }
 
           set({
             user: isAuthenticated ? user : null,

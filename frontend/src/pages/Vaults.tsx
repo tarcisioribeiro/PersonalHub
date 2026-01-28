@@ -8,11 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ReceiptButton } from '@/components/receipts';
 import { vaultsService } from '@/services/vaults-service';
 import { accountsService } from '@/services/accounts-service';
 import { useToast } from '@/hooks/use-toast';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
+import { useAuthStore } from '@/stores/auth-store';
 import { formatCurrency } from '@/lib/formatters';
+import { getMemberDisplayName } from '@/lib/receipt-utils';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable, type Column } from '@/components/common/DataTable';
 import type { Vault as VaultType, VaultFormData, Account, VaultTransaction } from '@/types';
@@ -51,6 +54,7 @@ export default function Vaults() {
 
   const { toast } = useToast();
   const { showConfirm } = useAlertDialog();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     loadData();
@@ -679,7 +683,7 @@ export default function Vaults() {
 
       {/* Transactions Dialog */}
       <Dialog open={isTransactionsDialogOpen} onOpenChange={setIsTransactionsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto custom-scrollbar">
           <DialogHeader>
             <DialogTitle>Transações do Cofre</DialogTitle>
             <DialogDescription>
@@ -791,48 +795,59 @@ export default function Vaults() {
                         </TableCell>
                         <TableCell>{formatCurrency(parseFloat(transaction.balance_after))}</TableCell>
                         <TableCell className="text-right">
-                          {transaction.transaction_type === 'yield' && (
-                            <>
-                              {editingTransaction?.id === transaction.id ? (
-                                <div className="flex items-center justify-end gap-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={handleUpdateTransaction}
-                                    disabled={isSubmitting}
-                                  >
-                                    Salvar
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={cancelEditTransaction}
-                                  >
-                                    Cancelar
-                                  </Button>
-                                </div>
-                              ) : (
-                                <div className="flex items-center justify-end gap-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => startEditTransaction(transaction)}
-                                    title="Editar"
-                                  >
-                                    <Pencil className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => handleDeleteTransaction(transaction)}
-                                    title="Excluir"
-                                  >
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                  </Button>
-                                </div>
-                              )}
-                            </>
-                          )}
+                          <div className="flex items-center justify-end gap-1">
+                            {(transaction.transaction_type === 'deposit' || transaction.transaction_type === 'withdrawal') && selectedVault && (
+                              <ReceiptButton
+                                source={{
+                                  type: transaction.transaction_type === 'deposit' ? 'vault_deposit' : 'vault_withdrawal',
+                                  data: { vault: selectedVault, transaction },
+                                }}
+                                memberName={getMemberDisplayName(null, user)}
+                              />
+                            )}
+                            {transaction.transaction_type === 'yield' && (
+                              <>
+                                {editingTransaction?.id === transaction.id ? (
+                                  <>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={handleUpdateTransaction}
+                                      disabled={isSubmitting}
+                                    >
+                                      Salvar
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={cancelEditTransaction}
+                                    >
+                                      Cancelar
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => startEditTransaction(transaction)}
+                                      title="Editar"
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleDeleteTransaction(transaction)}
+                                      title="Excluir"
+                                    >
+                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                  </>
+                                )}
+                              </>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))

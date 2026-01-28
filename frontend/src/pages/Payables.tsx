@@ -20,12 +20,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { ReceiptButton } from '@/components/receipts';
 import { payablesService } from '@/services/payables-service';
 import { membersService } from '@/services/members-service';
 import { useToast } from '@/hooks/use-toast';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
+import { useAuthStore } from '@/stores/auth-store';
 import { translate } from '@/config/constants';
 import { formatCurrency, formatDate } from '@/lib/formatters';
+import { getMemberDisplayName } from '@/lib/receipt-utils';
 import { PageHeader } from '@/components/common/PageHeader';
 import { LoadingState } from '@/components/common/LoadingState';
 import { SearchInput } from '@/components/common/SearchInput';
@@ -53,6 +56,7 @@ export default function Payables() {
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
   const { showConfirm } = useAlertDialog();
+  const { user } = useAuthStore();
 
   const [formData, setFormData] = useState<PayableFormData>({
     description: '',
@@ -275,6 +279,12 @@ export default function Payables() {
               </div>
 
               <div className="flex gap-2 pt-2 border-t">
+                <ReceiptButton
+                  source={{ type: 'payable', data: payable }}
+                  memberName={getMemberDisplayName(payable.member_name, user)}
+                  variant="outline"
+                  size="sm"
+                />
                 <Button variant="outline" size="sm" onClick={() => handleEdit(payable)} className="flex-1">
                   <Pencil className="w-3 h-3 mr-1" />
                   Editar

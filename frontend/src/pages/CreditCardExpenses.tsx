@@ -7,14 +7,17 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CreditCardPurchaseForm } from '@/components/credit-cards/CreditCardPurchaseForm';
 import { CreditCardInstallmentForm } from '@/components/credit-cards/CreditCardInstallmentForm';
+import { ReceiptButton } from '@/components/receipts';
 import { creditCardPurchasesService } from '@/services/credit-card-purchases-service';
 import { creditCardInstallmentsService } from '@/services/credit-card-installments-service';
 import { creditCardsService } from '@/services/credit-cards-service';
 import { creditCardBillsService } from '@/services/credit-card-bills-service';
 import { useToast } from '@/hooks/use-toast';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
+import { useAuthStore } from '@/stores/auth-store';
 import { translate, TRANSLATIONS, EXPENSE_CATEGORIES_CANONICAL } from '@/config/constants';
 import { formatCurrency, formatDate } from '@/lib/formatters';
+import { getMemberDisplayName } from '@/lib/receipt-utils';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable, type Column } from '@/components/common/DataTable';
 import type {
@@ -45,6 +48,7 @@ export default function CreditCardExpenses() {
   const [viewMode, setViewMode] = useState<'list' | 'grouped'>('grouped');
   const { toast } = useToast();
   const { showConfirm } = useAlertDialog();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     loadData();
@@ -568,34 +572,43 @@ export default function CreditCardExpenses() {
                     keyExtractor={(installment) => installment.id}
                     isLoading={false}
                     emptyState={{ message: 'Nenhuma parcela.' }}
-                    actions={(installment) => (
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEditInstallment(installment)}
-                          title="Editar valor da parcela"
-                        >
-                          <DollarSign className="w-4 h-4 text-primary" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEditPurchase(installment.purchase)}
-                          title="Editar compra"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeletePurchase(installment.purchase)}
-                          title="Excluir compra"
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </div>
-                    )}
+                    actions={(installment) => {
+                      const purchase = purchases.find(p => p.id === installment.purchase);
+                      return (
+                        <div className="flex items-center justify-end gap-2">
+                          {purchase && (
+                            <ReceiptButton
+                              source={{ type: 'credit_card_purchase', data: purchase }}
+                              memberName={getMemberDisplayName(installment.member_name, user)}
+                            />
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditInstallment(installment)}
+                            title="Editar valor da parcela"
+                          >
+                            <DollarSign className="w-4 h-4 text-primary" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditPurchase(installment.purchase)}
+                            title="Editar compra"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeletePurchase(installment.purchase)}
+                            title="Excluir compra"
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </div>
+                      );
+                    }}
                   />
                 </CardContent>
               </Card>
@@ -611,34 +624,43 @@ export default function CreditCardExpenses() {
           emptyState={{
             message: 'Nenhuma parcela encontrada.',
           }}
-          actions={(installment) => (
-            <div className="flex items-center justify-end gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleEditInstallment(installment)}
-                title="Editar valor da parcela"
-              >
-                <DollarSign className="w-4 h-4 text-primary" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleEditPurchase(installment.purchase)}
-                title="Editar compra"
-              >
-                <Pencil className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleDeletePurchase(installment.purchase)}
-                title="Excluir compra"
-              >
-                <Trash2 className="w-4 h-4 text-destructive" />
-              </Button>
-            </div>
-          )}
+          actions={(installment) => {
+            const purchase = purchases.find(p => p.id === installment.purchase);
+            return (
+              <div className="flex items-center justify-end gap-2">
+                {purchase && (
+                  <ReceiptButton
+                    source={{ type: 'credit_card_purchase', data: purchase }}
+                    memberName={getMemberDisplayName(installment.member_name, user)}
+                  />
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleEditInstallment(installment)}
+                  title="Editar valor da parcela"
+                >
+                  <DollarSign className="w-4 h-4 text-primary" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleEditPurchase(installment.purchase)}
+                  title="Editar compra"
+                >
+                  <Pencil className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleDeletePurchase(installment.purchase)}
+                  title="Excluir compra"
+                >
+                  <Trash2 className="w-4 h-4 text-destructive" />
+                </Button>
+              </div>
+            );
+          }}
         />
       )}
 

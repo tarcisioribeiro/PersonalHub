@@ -6,12 +6,15 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CreditCardBillForm } from '@/components/credit-cards/CreditCardBillForm';
 import { BillPaymentForm } from '@/components/credit-cards/BillPaymentForm';
+import { ReceiptButton } from '@/components/receipts';
 import { creditCardBillsService } from '@/services/credit-card-bills-service';
 import { creditCardsService } from '@/services/credit-cards-service';
 import { useToast } from '@/hooks/use-toast';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
+import { useAuthStore } from '@/stores/auth-store';
 import { translate, TRANSLATIONS } from '@/config/constants';
 import { formatCurrency, formatDate } from '@/lib/formatters';
+import { getMemberDisplayName } from '@/lib/receipt-utils';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable, type Column } from '@/components/common/DataTable';
 import type { CreditCardBill, CreditCardBillFormData, CreditCard, BillPaymentFormData } from '@/types';
@@ -32,6 +35,7 @@ export default function CreditCardBills() {
   const [yearFilter, setYearFilter] = useState<string>('all');
   const { toast } = useToast();
   const { showConfirm } = useAlertDialog();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     loadData();
@@ -367,6 +371,10 @@ export default function CreditCardBills() {
         }}
         actions={(bill) => (
           <div className="flex items-center justify-end gap-2">
+            <ReceiptButton
+              source={{ type: 'credit_card_bill', data: bill }}
+              memberName={getMemberDisplayName(null, user)}
+            />
             {bill.status !== 'paid' && (
               <Button
                 variant="ghost"

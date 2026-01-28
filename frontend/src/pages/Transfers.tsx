@@ -4,12 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TransferForm } from '@/components/transfers/TransferForm';
+import { ReceiptButton } from '@/components/receipts';
 import { transfersService } from '@/services/transfers-service';
 import { accountsService } from '@/services/accounts-service';
 import { useToast } from '@/hooks/use-toast';
 import { useAlertDialog } from '@/hooks/use-alert-dialog';
+import { useAuthStore } from '@/stores/auth-store';
 import { translate } from '@/config/constants';
 import { formatCurrency, formatDate } from '@/lib/formatters';
+import { getMemberDisplayName } from '@/lib/receipt-utils';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable, type Column } from '@/components/common/DataTable';
 import type { Transfer, TransferFormData, Account } from '@/types';
@@ -24,6 +27,7 @@ export default function Transfers() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { showConfirm } = useAlertDialog();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     loadData();
@@ -164,6 +168,10 @@ export default function Transfers() {
         }}
         actions={(transfer) => (
           <div className="flex items-center justify-end gap-2">
+            <ReceiptButton
+              source={{ type: 'transfer', data: transfer }}
+              memberName={getMemberDisplayName(null, user)}
+            />
             <Button variant="ghost" size="icon" onClick={() => handleEdit(transfer)}>
               <Pencil className="w-4 h-4" />
             </Button>
