@@ -58,10 +58,11 @@ class PasswordListCreateView(generics.ListCreateAPIView):
     queryset = Password.objects.all()
 
     def get_queryset(self):
+        # Usa defer() para excluir campo criptografado na listagem (performance)
         return Password.objects.filter(
             owner__user=self.request.user,
             deleted_at__isnull=True
-        ).select_related('owner')
+        ).select_related('owner').defer('_password')
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -160,10 +161,11 @@ class StoredCreditCardListCreateView(generics.ListCreateAPIView):
     queryset = StoredCreditCard.objects.all()
 
     def get_queryset(self):
+        # Usa defer() para excluir campos criptografados na listagem (performance)
         return StoredCreditCard.objects.filter(
             owner__user=self.request.user,
             deleted_at__isnull=True
-        ).select_related('owner', 'finance_card')
+        ).select_related('owner', 'finance_card').defer('_card_number', '_security_code')
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -260,10 +262,13 @@ class StoredBankAccountListCreateView(generics.ListCreateAPIView):
     queryset = StoredBankAccount.objects.all()
 
     def get_queryset(self):
+        # Usa defer() para excluir campos criptografados na listagem (performance)
         return StoredBankAccount.objects.filter(
             owner__user=self.request.user,
             deleted_at__isnull=True
-        ).select_related('owner', 'finance_account')
+        ).select_related('owner', 'finance_account').defer(
+            '_account_number', '_password', '_digital_password'
+        )
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -361,10 +366,11 @@ class ArchiveListCreateView(generics.ListCreateAPIView):
     queryset = Archive.objects.all()
 
     def get_queryset(self):
+        # Usa defer() para excluir campo criptografado na listagem (performance)
         return Archive.objects.filter(
             owner__user=self.request.user,
             deleted_at__isnull=True
-        ).select_related('owner')
+        ).select_related('owner').defer('_encrypted_text')
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

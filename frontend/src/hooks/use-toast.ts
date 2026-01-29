@@ -1,9 +1,15 @@
 import * as React from 'react';
 import type { ToastActionElement, ToastProps } from '@/components/ui/toast';
 
-const TOAST_LIMIT = 3; // Permite ate 3 toasts simultaneos
-const TOAST_REMOVE_DELAY = 5000; // 5 segundos
+/** Numero maximo de toasts visiveis simultaneamente */
+const TOAST_LIMIT = 3;
 
+/** Tempo em ms para remover toast apos dismiss */
+const TOAST_REMOVE_DELAY = 5000;
+
+/**
+ * Tipo de toast com propriedades adicionais.
+ */
 type ToasterToast = ToastProps & {
   id: string;
   title?: React.ReactNode;
@@ -133,6 +139,33 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, 'id'>;
 
+/**
+ * Exibe um toast de notificacao.
+ *
+ * Funcao imperativa que pode ser usada fora de componentes React.
+ *
+ * @param props - Propriedades do toast
+ * @returns Objeto com id, dismiss e update para controlar o toast
+ *
+ * @example
+ * ```ts
+ * // Toast simples
+ * toast({ title: 'Sucesso!', description: 'Operacao concluida.' });
+ *
+ * // Toast de erro
+ * toast({
+ *   title: 'Erro',
+ *   description: 'Falha ao salvar dados.',
+ *   variant: 'destructive'
+ * });
+ *
+ * // Controlar toast programaticamente
+ * const { dismiss, update } = toast({ title: 'Carregando...' });
+ * // Depois...
+ * update({ title: 'Concluido!' });
+ * dismiss();
+ * ```
+ */
 function toast({ ...props }: Toast) {
   const id = genId();
 
@@ -162,6 +195,36 @@ function toast({ ...props }: Toast) {
   };
 }
 
+/**
+ * Hook para gerenciar toasts de notificacao.
+ *
+ * Permite ate 3 toasts simultaneos (TOAST_LIMIT).
+ * Toasts sao removidos automaticamente apos 5 segundos.
+ *
+ * @returns Objeto com toasts atuais, funcao toast e funcao dismiss
+ *
+ * @example
+ * ```tsx
+ * function MyComponent() {
+ *   const { toast, dismiss } = useToast();
+ *
+ *   const handleSave = async () => {
+ *     try {
+ *       await saveData();
+ *       toast({ title: 'Salvo com sucesso!' });
+ *     } catch (error) {
+ *       toast({
+ *         title: 'Erro ao salvar',
+ *         description: getErrorMessage(error),
+ *         variant: 'destructive'
+ *       });
+ *     }
+ *   };
+ *
+ *   return <button onClick={handleSave}>Salvar</button>;
+ * }
+ * ```
+ */
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState);
 
@@ -178,6 +241,7 @@ function useToast() {
   return {
     ...state,
     toast,
+    /** Dispensa um toast por ID, ou todos se ID nao for fornecido */
     dismiss: (toastId?: string) => dispatch({ type: 'DISMISS_TOAST', toastId }),
   };
 }

@@ -238,3 +238,27 @@ class SecurityHeadersMiddleware(MiddlewareMixin):
         response['X-Frame-Options'] = 'DENY'
 
         return response
+
+
+class DecryptionCacheMiddleware(MiddlewareMixin):
+    """
+    Middleware para limpar o cache de decriptacao no final de cada request.
+
+    O cache de decriptacao evita multiplas decriptacoes do mesmo valor
+    durante um unico request, melhorando a performance quando o mesmo
+    campo criptografado e acessado varias vezes.
+    """
+
+    def process_response(self, request: HttpRequest,
+                         response: HttpResponse) -> HttpResponse:
+        """Limpa o cache de decriptacao no final do request."""
+        from app.encryption import clear_decryption_cache
+        clear_decryption_cache()
+        return response
+
+    def process_exception(self, request: HttpRequest,
+                          exception: Exception) -> None:
+        """Limpa o cache mesmo em caso de excecao."""
+        from app.encryption import clear_decryption_cache
+        clear_decryption_cache()
+        return None

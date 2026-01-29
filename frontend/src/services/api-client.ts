@@ -2,9 +2,9 @@ import axios, { type AxiosInstance, AxiosError, type InternalAxiosRequestConfig 
 import Cookies from 'js-cookie';
 import { API_CONFIG } from '@/config/constants';
 
-// ============================================================================
+// ============================================================================ 
 // Types
-// ============================================================================
+// ============================================================================ 
 
 /**
  * Formato de resposta de erro do Django REST Framework.
@@ -18,17 +18,32 @@ interface DRFErrorResponse {
  * Tipo para dados de requisicao (body).
  * Aceita objetos, FormData, ou valores primitivos.
  */
-type RequestData = Record<string, unknown> | FormData | null | undefined;
+export type RequestData = Record<string, unknown> | FormData | null | undefined;
 
 /**
  * Tipo para parametros de query string.
  */
-type QueryParams = Record<string, string | number | boolean | string[] | number[] | undefined>;
+export type QueryParams = Record<string, string | number | boolean | string[] | number[] | undefined>;
 
 // ============================================================================
 // Custom Error Classes
 // ============================================================================
 
+/**
+ * Erro de autenticacao (HTTP 401).
+ * Lancado quando o usuario nao esta autenticado ou a sessao expirou.
+ *
+ * @example
+ * ```ts
+ * try {
+ *   await apiClient.get('/api/v1/protected/');
+ * } catch (error) {
+ *   if (error instanceof AuthenticationError) {
+ *     // Redirecionar para login
+ *   }
+ * }
+ * ```
+ */
 export class AuthenticationError extends Error {
   constructor(message: string) {
     super(message);
@@ -36,7 +51,23 @@ export class AuthenticationError extends Error {
   }
 }
 
+/**
+ * Erro de validacao (HTTP 400).
+ * Lancado quando os dados enviados falham na validacao do backend.
+ *
+ * @example
+ * ```ts
+ * try {
+ *   await apiClient.post('/api/v1/accounts/', { name: '' });
+ * } catch (error) {
+ *   if (error instanceof ValidationError) {
+ *     console.log(error.errors); // { name: ['Este campo e obrigatorio.'] }
+ *   }
+ * }
+ * ```
+ */
 export class ValidationError extends Error {
+  /** Mapa de campo para lista de mensagens de erro */
   errors: Record<string, string[]>;
 
   constructor(message: string, errors: Record<string, string[]> = {}) {
@@ -46,6 +77,10 @@ export class ValidationError extends Error {
   }
 }
 
+/**
+ * Erro de recurso nao encontrado (HTTP 404).
+ * Lancado quando o recurso solicitado nao existe.
+ */
 export class NotFoundError extends Error {
   constructor(message: string) {
     super(message);
@@ -53,6 +88,10 @@ export class NotFoundError extends Error {
   }
 }
 
+/**
+ * Erro de permissao (HTTP 403).
+ * Lancado quando o usuario nao tem permissao para a acao.
+ */
 export class PermissionError extends Error {
   constructor(message: string) {
     super(message);
@@ -64,6 +103,32 @@ export class PermissionError extends Error {
 // API Client
 // ============================================================================
 
+/**
+ * Cliente HTTP singleton para comunicacao com a API Django REST Framework.
+ *
+ * Funcionalidades:
+ * - Autenticacao via cookies httpOnly (JWT)
+ * - Refresh automatico de token em caso de 401
+ * - Tratamento de erros com classes especificas
+ * - Suporte a FormData para upload de arquivos
+ *
+ * @example
+ * ```ts
+ * // GET request
+ * const accounts = await apiClient.get<Account[]>('/api/v1/accounts/');
+ *
+ * // POST request
+ * const newAccount = await apiClient.post<Account>('/api/v1/accounts/', {
+ *   name: 'Conta Corrente',
+ *   balance: '1000.00'
+ * });
+ *
+ * // Upload de arquivo
+ * const formData = new FormData();
+ * formData.append('file', file);
+ * await apiClient.post('/api/v1/archives/', formData);
+ * ```
+ */
 class ApiClient {
   private client: AxiosInstance;
   private isRefreshing = false;
@@ -142,7 +207,7 @@ class ApiClient {
             // O backend vai lê-lo automaticamente
             await axios.post(
               `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REFRESH_TOKEN}`,
-              {}, // Body vazio - o backend lê o refresh_token do cookie
+              {},
               { withCredentials: true } // Envia cookies
             );
 
@@ -248,24 +313,50 @@ class ApiClient {
   // Token Management
   // ============================================================================
 
-  // NOTA: Os tokens access_token e refresh_token são httpOnly cookies
-  // gerenciados pelo backend. Não podemos (e não devemos) acessá-los via JavaScript.
-  // Eles são enviados automaticamente pelo navegador em cada requisição.
+  // NOTA: Os tokens access_token e refresh_token sao httpOnly cookies
+  // gerenciados pelo backend. Nao podemos (e nao devemos) acessa-los via JavaScript.
+  // Eles sao enviados automaticamente pelo navegador em cada requisicao.
 
   private tokenValidationCache: { isValid: boolean; timestamp: number } | null = null;
   private readonly CACHE_DURATION = 5000; // 5 segundos
 
-  public clearTokens() {
-    // Limpa apenas os cookies que NÃO são httpOnly (user_data, user_permissions)
-    // Os httpOnly cookies (access_token, refresh_token) são removidos pelo backend no logout
+  /**
+   * Limpa os cookies de usuario (nao-httpOnly).
+   *
+   * Os tokens httpOnly (access_token, refresh_token) sao removidos
+   * pelo backend durante o logout.
+   *
+   * @example
+   * ```ts
+   * // No logout
+   * await authService.logout();
+   * apiClient.clearTokens();
+   * ```
+   */
+  public clearTokens(): void {
     Cookies.remove('user_data');
     Cookies.remove('user_permissions');
-    // Limpa o cache de validação
     this.tokenValidationCache = null;
   }
 
+  /**
+   * Verifica se o usuario possui um token valido.
+   *
+   * Usa cache de 5 segundos para evitar multiplas chamadas ao backend.
+   * Util para verificar autenticacao antes de renderizar rotas protegidas.
+   *
+   * @returns Promise<boolean> - true se autenticado, false caso contrario
+   *
+   * @example
+   * ```ts
+   * const isAuthenticated = await apiClient.hasValidToken();
+   * if (!isAuthenticated) {
+   *   navigate('/login');
+   * }
+   * ```
+   */
   public async hasValidToken(): Promise<boolean> {
-    // Usa cache se disponível e recente (menos de 5 segundos)
+    // Usa cache se disponivel e recente (menos de 5 segundos)
     if (this.tokenValidationCache) {
       const age = Date.now() - this.tokenValidationCache.timestamp;
       if (age < this.CACHE_DURATION) {
@@ -274,7 +365,7 @@ class ApiClient {
       }
     }
 
-    // Verifica se há um token válido fazendo uma chamada ao endpoint de verify
+    // Verifica se ha um token valido fazendo uma chamada ao endpoint de verify
     try {
       await this.client.post(API_CONFIG.ENDPOINTS.VERIFY_TOKEN);
       this.tokenValidationCache = { isValid: true, timestamp: Date.now() };
@@ -289,11 +380,33 @@ class ApiClient {
   // HTTP Methods
   // ============================================================================
 
+  /**
+   * Realiza uma requisicao GET.
+   *
+   * @template T - Tipo de retorno esperado
+   * @param url - URL do endpoint (relativo ao BASE_URL)
+   * @param params - Parametros de query string opcionais
+   * @returns Promise com os dados da resposta
+   * @throws {AuthenticationError} Se nao autenticado (401)
+   * @throws {PermissionError} Se sem permissao (403)
+   * @throws {NotFoundError} Se recurso nao encontrado (404)
+   */
   async get<T>(url: string, params?: QueryParams): Promise<T> {
     const response = await this.client.get<T>(url, { params });
     return response.data;
   }
 
+  /**
+   * Realiza uma requisicao POST.
+   *
+   * @template T - Tipo de retorno esperado
+   * @param url - URL do endpoint (relativo ao BASE_URL)
+   * @param data - Dados do corpo da requisicao (objeto ou FormData)
+   * @returns Promise com os dados da resposta
+   * @throws {ValidationError} Se dados invalidos (400)
+   * @throws {AuthenticationError} Se nao autenticado (401)
+   * @throws {PermissionError} Se sem permissao (403)
+   */
   async post<T>(url: string, data?: RequestData): Promise<T> {
     if (import.meta.env.DEV) {
       console.log('POST Request:', { url, data });
@@ -302,16 +415,45 @@ class ApiClient {
     return response.data;
   }
 
+  /**
+   * Realiza uma requisicao PUT (substituicao completa).
+   *
+   * @template T - Tipo de retorno esperado
+   * @param url - URL do endpoint (relativo ao BASE_URL)
+   * @param data - Dados do corpo da requisicao
+   * @returns Promise com os dados da resposta
+   * @throws {ValidationError} Se dados invalidos (400)
+   * @throws {NotFoundError} Se recurso nao encontrado (404)
+   */
   async put<T>(url: string, data?: RequestData): Promise<T> {
     const response = await this.client.put<T>(url, data);
     return response.data;
   }
 
+  /**
+   * Realiza uma requisicao PATCH (atualizacao parcial).
+   *
+   * @template T - Tipo de retorno esperado
+   * @param url - URL do endpoint (relativo ao BASE_URL)
+   * @param data - Dados parciais para atualizar
+   * @returns Promise com os dados da resposta
+   * @throws {ValidationError} Se dados invalidos (400)
+   * @throws {NotFoundError} Se recurso nao encontrado (404)
+   */
   async patch<T>(url: string, data?: RequestData): Promise<T> {
     const response = await this.client.patch<T>(url, data);
     return response.data;
   }
 
+  /**
+   * Realiza uma requisicao DELETE.
+   *
+   * @template T - Tipo de retorno esperado (geralmente void)
+   * @param url - URL do endpoint (relativo ao BASE_URL)
+   * @returns Promise com os dados da resposta (se houver)
+   * @throws {NotFoundError} Se recurso nao encontrado (404)
+   * @throws {PermissionError} Se sem permissao (403)
+   */
   async delete<T>(url: string): Promise<T> {
     const response = await this.client.delete<T>(url);
     return response.data;

@@ -3,10 +3,39 @@ import { apiClient } from './api-client';
 import { API_CONFIG, TOKEN_CONFIG } from '@/config/constants';
 import type { LoginCredentials, User, Permission } from '@/types';
 
+/**
+ * Servico de autenticacao.
+ *
+ * Gerencia login, logout, registro e verificacao de permissoes.
+ * Os tokens JWT sao armazenados como httpOnly cookies pelo backend.
+ *
+ * @example
+ * ```ts
+ * // Login
+ * await authService.login({ username: 'user', password: 'pass' });
+ *
+ * // Verificar autenticacao
+ * const isAuth = await authService.isAuthenticated();
+ *
+ * // Verificar permissao
+ * const canView = authService.hasPermission('accounts', 'view');
+ *
+ * // Logout
+ * authService.logout();
+ * ```
+ */
 class AuthService {
+  /**
+   * Realiza login do usuario.
+   *
+   * O backend define os tokens como httpOnly cookies automaticamente.
+   * Apos o login, use `saveUserData` para armazenar dados do usuario.
+   *
+   * @param credentials - Credenciais de login (username e password)
+   * @returns Promise com mensagem de sucesso e dados basicos do usuario
+   * @throws {AuthenticationError} Se credenciais invalidas
+   */
   async login(credentials: LoginCredentials): Promise<{ message: string; user: { username: string } }> {
-    // O backend define os tokens como httpOnly cookies automaticamente
-    // Não precisamos gerenciar tokens manualmente no frontend
     const response = await apiClient.post<{ message: string; user: { username: string } }>(
       API_CONFIG.ENDPOINTS.LOGIN,
       credentials
@@ -15,6 +44,15 @@ class AuthService {
     return response;
   }
 
+  /**
+   * Registra um novo usuario.
+   *
+   * Usa fetch diretamente pois nao requer autenticacao.
+   *
+   * @param data - Dados do novo usuario
+   * @returns Promise com dados do usuario criado
+   * @throws {Error} Se registro falhar (email/documento duplicado, etc)
+   */
   async register(data: {
     username: string;
     password: string;
@@ -23,7 +61,6 @@ class AuthService {
     phone: string;
     email?: string;
   }): Promise<{ message: string; user_id: number; member_id: number; username: string }> {
-    // Make POST request without authentication
     const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REGISTER}`, {
       method: 'POST',
       headers: {
@@ -34,12 +71,20 @@ class AuthService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Erro ao cadastrar usuário');
+      throw new Error(errorData.error || 'Erro ao cadastrar usuario');
     }
 
     return response.json();
   }
 
+  /**
+   * Busca permissoes do usuario autenticado.
+   *
+   * Transforma permissoes do formato "app_label.codename"
+   * para objetos Permission.
+   *
+   * @returns Promise com lista de permissoes do usuario
+   */
   async getUserPermissions(): Promise<Permission[]> {
     const response = await apiClient.get<{
       username: string;
@@ -48,8 +93,6 @@ class AuthService {
       is_superuser: boolean;
     }>(API_CONFIG.ENDPOINTS.USER_PERMISSIONS);
 
-    // Transform string permissions to Permission objects
-    // Format: "app_label.codename" -> { app_label, codename, name }
     if (!Array.isArray(response.permissions)) {
       console.error('Invalid permissions format received from API:', response.permissions);
       return [];
@@ -60,22 +103,43 @@ class AuthService {
       return {
         app_label,
         codename,
-        name: perm, // Using full permission string as name
+        name: perm,
       };
     });
   }
 
-  logout() {
+  /**
+   * Realiza logout do usuario.
+   *
+   * Limpa cookies locais e redireciona para pagina de login.
+   * Os tokens httpOnly sao removidos pelo backend.
+   */
+  logout(): void {
     apiClient.clearTokens();
     window.location.href = '/login';
   }
 
+  /**
+   * Verifica se o usuario esta autenticado.
+   *
+   * Faz uma chamada ao backend para validar o token.
+   * Resultado e cacheado por 5 segundos.
+   *
+   * @returns Promise<boolean> - true se autenticado
+   */
   async isAuthenticated(): Promise<boolean> {
     return await apiClient.hasValidToken();
   }
 
-  // Save user data to cookies
-  saveUserData(user: User) {
+  /**
+   * Salva dados do usuario em cookie (nao-httpOnly).
+   *
+   * Usado para exibir informacoes do usuario na UI
+   * sem precisar fazer requisicoes ao backend.
+   *
+   * @param user - Dados do usuario
+   */
+  saveUserData(user: User): void {
     Cookies.set('user_data', JSON.stringify(user), {
       expires: TOKEN_CONFIG.COOKIE_EXPIRE_DAYS,
       sameSite: 'Lax',
@@ -83,7 +147,11 @@ class AuthService {
     });
   }
 
-  // Get user data from cookies
+  /**
+   * Recupera dados do usuario do cookie.
+   *
+   * @returns Dados do usuario ou null se nao encontrado
+   */
   getUserData(): User | null {
     const userData = Cookies.get('user_data');
     if (!userData) return null;
@@ -95,8 +163,12 @@ class AuthService {
     }
   }
 
-  // Save permissions to cookies
-  savePermissions(permissions: Permission[]) {
+  /**
+   * Salva permissoes do usuario em cookie.
+   *
+   * @param permissions - Lista de permissoes
+   */
+  savePermissions(permissions: Permission[]): void {
     Cookies.set('user_permissions', JSON.stringify(permissions), {
       expires: TOKEN_CONFIG.COOKIE_EXPIRE_DAYS,
       sameSite: 'Lax',
@@ -104,7 +176,11 @@ class AuthService {
     });
   }
 
-  // Get permissions from cookies
+  /**
+   * Recupera permissoes do usuario do cookie.
+   *
+   * @returns Lista de permissoes ou array vazio
+   */
   getPermissions(): Permission[] {
     const permsData = Cookies.get('user_permissions');
     if (!permsData) return [];
@@ -116,7 +192,21 @@ class AuthService {
     }
   }
 
-  // Check if user has specific permission
+  /**
+   * Verifica se o usuario tem uma permissao especifica.
+   *
+   * @param appName - Nome da app Django (ex: "accounts", "expenses")
+   * @param action - Acao (ex: "view", "add", "change", "delete")
+   * @returns true se o usuario tem a permissao
+   *
+   * @example
+   * ```ts
+   * // Verifica permissao de visualizar contas
+   * if (authService.hasPermission('accounts', 'view')) {
+   *   // Exibir lista de contas
+   * }
+   * ```
+   */
   hasPermission(appName: string, action: string): boolean {
     const permissions = this.getPermissions();
     if (!Array.isArray(permissions)) return false;
@@ -125,7 +215,13 @@ class AuthService {
     return permissions.some((perm) => perm.codename === codename);
   }
 
-  // Check if user has system access (is in 'Membros' group)
+  /**
+   * Verifica se o usuario tem acesso ao sistema.
+   *
+   * Usuarios devem pertencer ao grupo "Membros" para ter acesso.
+   *
+   * @returns true se o usuario esta no grupo "Membros"
+   */
   hasSystemAccess(): boolean {
     const user = this.getUserData();
     if (!user || !Array.isArray(user.groups)) return false;

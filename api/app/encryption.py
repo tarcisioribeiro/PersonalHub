@@ -1,9 +1,13 @@
 import os
 import logging
+import threading
 from cryptography.fernet import Fernet, InvalidToken
 from django.core.exceptions import ValidationError
 
 logger = logging.getLogger('expenselit')
+
+# Thread-local storage para cache de decriptacao
+_decryption_cache = threading.local()
 
 
 class EncryptionError(Exception):
@@ -16,10 +20,26 @@ class DecryptionError(EncryptionError):
     pass
 
 
+def get_decryption_cache() -> dict:
+    """Retorna o cache de decriptacao para a thread atual."""
+    if not hasattr(_decryption_cache, 'cache'):
+        _decryption_cache.cache = {}
+    return _decryption_cache.cache
+
+
+def clear_decryption_cache() -> None:
+    """Limpa o cache de decriptacao da thread atual."""
+    if hasattr(_decryption_cache, 'cache'):
+        _decryption_cache.cache.clear()
+
+
 class FieldEncryption:
     """
     Classe para criptografar/descriptografar campos sensiveis do banco.
     Usa Fernet (AES 128-bit CBC com HMAC).
+
+    Inclui cache de decriptacao por request para evitar multiplas
+    decriptacoes do mesmo valor durante um unico request.
     """
     @staticmethod
     def get_encryption_key():
@@ -71,12 +91,13 @@ class FieldEncryption:
             raise EncryptionError("Tipo de dado invalido para criptografia")
 
     @staticmethod
-    def decrypt_data(encrypted_data):
+    def decrypt_data(encrypted_data, use_cache=True):
         """
         Descriptografa dados sensiveis.
 
         Args:
             encrypted_data (str): Dados criptografados em string base64
+            use_cache (bool): Se True, usa cache para evitar multiplas decriptacoes
 
         Returns:
             str: Dados descriptografados
@@ -87,11 +108,24 @@ class FieldEncryption:
         """
         if not encrypted_data:
             return encrypted_data
+
+        # Verificar cache primeiro
+        if use_cache:
+            cache = get_decryption_cache()
+            if encrypted_data in cache:
+                return cache[encrypted_data]
+
         try:
             key = FieldEncryption.get_encryption_key()
             fernet = Fernet(key)
             decrypted_data = fernet.decrypt(encrypted_data.encode())
-            return decrypted_data.decode()
+            result = decrypted_data.decode()
+
+            # Armazenar no cache
+            if use_cache:
+                cache[encrypted_data] = result
+
+            return result
         except ValidationError:
             raise
         except InvalidToken:

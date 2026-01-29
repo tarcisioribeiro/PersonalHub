@@ -157,9 +157,11 @@
   - Usar django-guardian ou custom permission checks
   - Garantir que usuarios so acessem seus proprios dados
 
-- [ ] **Adicionar audit logging para operacoes sensiveis**
-  - Log especifico quando senhas/cartoes sao revelados
-  - Arquivo: `api/app/middleware.py`
+- [x] **Adicionar audit logging para operacoes sensiveis**
+  - ✅ Ja implementado em `api/security/views.py`
+  - ✅ Log de revelacao: PasswordRevealView, StoredCreditCardRevealView, etc.
+  - ✅ Log de download: ArchiveDownloadView
+  - ✅ Modelo ActivityLog com acoes: create, update, delete, reveal, download
 
 - [ ] **Implementar rotacao de chave de criptografia**
   - Atualmente ENCRYPTION_KEY nao pode ser alterada
@@ -167,21 +169,33 @@
 
 ### Performance
 
-- [ ] **Usar `.only()` e `.defer()` em queries**
-  - Excluir campos nao necessarios (ex: numeros de cartao criptografados em listas)
+- [x] **Usar `.only()` e `.defer()` em queries**
+  - ✅ `accounts/views.py` - defer('_account_number') na listagem
+  - ✅ `credit_cards/views.py` - defer('_card_number') na listagem
+  - ✅ `security/views.py` - defer() em Password, StoredCreditCard, StoredBankAccount, Archive
+  - ✅ Campos criptografados excluidos das listagens para melhor performance
 
 - [x] **Adicionar compression no build do frontend**
   - ✅ Configurado vite-plugin-compression para gzip e brotli
   - ✅ Adicionado terser para minificacao avancada
   - ✅ Configurado code splitting por vendor (react, ui, form)
 
-- [ ] **Cache de decriptacao durante request lifecycle**
-  - Evitar multiplas decriptacoes do mesmo campo
+- [x] **Cache de decriptacao durante request lifecycle**
+  - ✅ Implementado em `api/app/encryption.py` usando threading.local()
+  - ✅ DecryptionCacheMiddleware limpa cache no final de cada request
+  - ✅ decrypt_data() usa cache automaticamente (parametro use_cache=True)
 
 ### Documentacao
 
-- [ ] **Adicionar JSDoc nos componentes TypeScript**
-  - Especialmente em services e hooks
+- [x] **Adicionar JSDoc nos componentes TypeScript**
+  - ✅ `api-client.ts` - Classes de erro, ApiClient e metodos HTTP documentados
+  - ✅ `auth-service.ts` - Todos os metodos documentados
+  - ✅ `base-service.ts` - Classe base e metodos CRUD documentados
+  - ✅ `expenses-service.ts` - Exemplo de service com JSDoc
+  - ✅ `passwords-service.ts` - Service de seguranca documentado
+  - ✅ `use-crud-page.ts` - Hook generico documentado
+  - ✅ `use-alert-dialog.tsx` - Hook de dialogs documentado
+  - ✅ `use-toast.ts` - Hook de toasts documentado
 
 - [x] **Gerar especificacao OpenAPI/Swagger**
   - ✅ Adicionado drf-spectacular ao requirements.txt
@@ -199,8 +213,10 @@
   - ✅ Interface generica `CrudService<T, CreateData, UpdateData>`
   - ✅ Configuravel com mensagens customizadas
 
-- [ ] **Criar classe base para services**
-  - Reduzir duplicacao nos 15+ arquivos de service
+- [x] **Criar classe base para services**
+  - ✅ Criado `frontend/src/services/base-service.ts`
+  - ✅ BaseService<T, CreateData, UpdateData> com metodos CRUD genericos
+  - ✅ Funcao utilitaria createCrudService() para services simples
 
 - [ ] **Aumentar cobertura de testes**
   - Testes de integracao para fluxo de autenticacao
@@ -309,5 +325,20 @@ grep -rn "except Exception" api --include="*.py"
 - `api/app/settings.py` - Configurado drf-spectacular
 - `api/app/urls.py` - Adicionadas rotas /api/docs/ e /api/redoc/
 
-**Tarefas Concluidas:** 25
-**Tarefas Pendentes:** 3
+**Sessao 4 - Arquivos Criados:**
+- `frontend/src/services/base-service.ts` - Classe base generica para services CRUD
+
+**Sessao 4 - Arquivos Modificados:**
+- `api/security/views.py` - Adicionado defer() em todas as listagens (Password, StoredCreditCard, StoredBankAccount, Archive)
+- `api/app/encryption.py` - Cache de decriptacao com threading.local()
+- `api/app/middleware.py` - DecryptionCacheMiddleware para limpar cache por request
+- `api/app/settings.py` - Adicionado DecryptionCacheMiddleware ao MIDDLEWARE
+- `frontend/src/services/api-client.ts` - JSDoc adicionado
+- `frontend/src/services/auth-service.ts` - JSDoc adicionado
+- `frontend/src/services/expenses-service.ts` - JSDoc adicionado, corrigido any para QueryParams
+- `frontend/src/services/passwords-service.ts` - JSDoc adicionado
+- `frontend/src/hooks/use-alert-dialog.tsx` - JSDoc adicionado
+- `frontend/src/hooks/use-toast.ts` - JSDoc adicionado
+
+**Tarefas Concluidas:** 30
+**Tarefas Pendentes:** 4 (object-level permissions, rotacao de chave, traducao, testes)
