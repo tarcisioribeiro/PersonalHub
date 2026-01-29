@@ -31,9 +31,23 @@ export function Toaster() {
 
   return (
     <ToastProvider>
+      {/* ARIA live region para anunciar notificacoes */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {toasts.map(({ id, title, description }) => (
+          <span key={id}>
+            {typeof title === 'string' ? title : ''}
+            {typeof description === 'string' ? ` ${description}` : ''}
+          </span>
+        ))}
+      </div>
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
-          <Toast key={id} {...props}>
+          <Toast key={id} {...props} role="alert" aria-live="assertive">
             <div className="grid gap-1 flex-1">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (
@@ -47,17 +61,18 @@ export function Toaster() {
                   size="icon"
                   className="h-8 w-8"
                   onClick={() => handleCopy(id, title, description)}
+                  aria-label="Copiar mensagem"
                 >
                   {copiedId === id ? (
-                    <Check className="h-4 w-4" />
+                    <Check className="h-4 w-4" aria-hidden="true" />
                   ) : (
-                    <Copy className="h-4 w-4" />
+                    <Copy className="h-4 w-4" aria-hidden="true" />
                   )}
                 </Button>
               )}
               {action}
             </div>
-            <ToastClose />
+            <ToastClose aria-label="Fechar notificacao" />
           </Toast>
         );
       })}

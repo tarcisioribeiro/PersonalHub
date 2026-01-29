@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AnimatePresence } from 'framer-motion';
 import { useAuthStore } from './stores/auth-store';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { Layout } from './components/layout/Layout';
 import { Toaster } from './components/ui/toaster';
 import { AlertDialogProvider } from './components/providers/AlertDialogProvider';
@@ -89,7 +90,9 @@ function AnimatedRoutes() {
         <Route
           element={
             <ProtectedRoute>
-              <Layout />
+              <ErrorBoundary>
+                <Layout />
+              </ErrorBoundary>
             </ProtectedRoute>
           }
         >

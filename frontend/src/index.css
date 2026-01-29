@@ -331,3 +331,36 @@
     color: hsl(var(--muted-foreground));
   }
 }
+
+/* Acessibilidade: Respeita preferencia do usuario por menos animacoes */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Desabilita animacoes do Framer Motion via CSS */
+  [data-framer-motion],
+  [data-framer-component-type] {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  /* Mantem funcionalidade de hover sem animacao */
+  .hover-lift:hover {
+    transform: none;
+  }
+
+  .hover-glow:hover {
+    box-shadow: var(--shadow-medium);
+  }
+
+  /* Remove spin animation de loading */
+  .animate-spin {
+    animation: none !important;
+  }
+}

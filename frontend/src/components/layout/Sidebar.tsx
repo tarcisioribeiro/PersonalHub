@@ -280,7 +280,7 @@ export const Sidebar = () => {
         </div>
       </div>
 
-      <nav className="space-y-2 flex-1 overflow-y-auto custom-scrollbar">
+      <nav className="space-y-2 flex-1 overflow-y-auto custom-scrollbar" aria-label="Menu principal">
         {/* Items principais */}
         {filteredNavItems.map((item) => {
           const isActive = location.pathname === item.href;
@@ -316,6 +316,8 @@ export const Sidebar = () => {
               {/* Cabeçalho do módulo */}
               <button
                 onClick={() => toggleModule(module.title)}
+                aria-expanded={isExpanded}
+                aria-controls={`module-${module.title.replace(/\s+/g, '-').toLowerCase()}`}
                 className={cn(
                   'flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 w-full',
                   hasActiveItem
@@ -335,6 +337,7 @@ export const Sidebar = () => {
 
               {/* Conteúdo expandível com animação */}
               <div
+                id={`module-${module.title.replace(/\s+/g, '-').toLowerCase()}`}
                 className={cn(
                   'grid transition-all duration-200 ease-in-out',
                   isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
@@ -374,6 +377,8 @@ export const Sidebar = () => {
                           {/* Cabeçalho do submódulo */}
                           <button
                             onClick={() => toggleSubModule(subModule.title)}
+                            aria-expanded={isSubExpanded}
+                            aria-controls={`submodule-${subModule.title.replace(/\s+/g, '-').toLowerCase()}`}
                             className={cn(
                               'flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-150 w-full text-sm',
                               isSubExpanded
@@ -400,6 +405,7 @@ export const Sidebar = () => {
 
                           {/* Itens do submódulo com animação */}
                           <div
+                            id={`submodule-${subModule.title.replace(/\s+/g, '-').toLowerCase()}`}
                             className={cn(
                               'grid transition-all duration-200 ease-in-out',
                               isSubExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
