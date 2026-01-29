@@ -206,15 +206,19 @@ class SecurityHeadersMiddleware(MiddlewareMixin):
             # Em produção, descomentar a linha abaixo:
             # response['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
 
-            # Content Security Policy (CSP) - política básica
-            # Pode precisar ajustar conforme necessidades do frontend
+            # Content Security Policy (CSP)
+            # Nota: 'unsafe-inline' mantido em style-src para compatibilidade com CSS-in-JS
+            # Em producao, considerar implementar nonces para scripts
             response['Content-Security-Policy'] = (
                 "default-src 'self'; "
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+                "script-src 'self'; "
                 "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-                "font-src 'self' https://fonts.gstatic.com; "
-                "img-src 'self' data: https:; "
-                "connect-src 'self' http://localhost:* https:;"
+                "font-src 'self' https://fonts.gstatic.com data:; "
+                "img-src 'self' data: https: blob:; "
+                "connect-src 'self' http://localhost:* https:; "
+                "frame-ancestors 'none'; "
+                "base-uri 'self'; "
+                "form-action 'self';"
             )
 
             # Permissions Policy (substitui Feature-Policy)

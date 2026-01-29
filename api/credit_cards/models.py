@@ -2,7 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from accounts.models import Account
 from expenses.models import EXPENSES_CATEGORIES
-from app.encryption import FieldEncryption
+from app.encryption import FieldEncryption, DecryptionError
 from app.models import BaseModel, BILL_STATUS_CHOICES
 
 
@@ -200,7 +200,7 @@ class CreditCard(BaseModel):
         if self._card_number:
             try:
                 return FieldEncryption.decrypt_data(self._card_number)
-            except Exception:
+            except DecryptionError:
                 return None
         return None
 
@@ -220,7 +220,7 @@ class CreditCard(BaseModel):
                 if full_number and len(full_number) >= 4:
                     return '*' * (len(full_number) - 4) + full_number[-4:]
                 return full_number if full_number else "****"
-            except Exception:
+            except DecryptionError:
                 return "****"
         return "****"
 

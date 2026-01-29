@@ -1,6 +1,6 @@
 from django.db import models
 from app.models import BaseModel
-from app.encryption import FieldEncryption
+from app.encryption import FieldEncryption, DecryptionError
 
 
 ACCOUNT_TYPES = (
@@ -123,7 +123,7 @@ class Account(BaseModel):
         if self._account_number:
             try:
                 return FieldEncryption.decrypt_data(self._account_number)
-            except Exception:
+            except DecryptionError:
                 return None
         return None
 
@@ -145,7 +145,7 @@ class Account(BaseModel):
                 if full_number and len(full_number) >= 4:
                     return '*' * (len(full_number) - 4) + full_number[-4:]
                 return full_number
-            except Exception:
+            except DecryptionError:
                 return None
         return None
 

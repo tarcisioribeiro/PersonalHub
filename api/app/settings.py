@@ -15,8 +15,10 @@ SECRET_KEY = (
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# Permitirá o acesso somente se o usuário estiver conectado via VPN.
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS configurado via variavel de ambiente
+# Em producao, definir explicitamente os dominios permitidos
+# Exemplo: ALLOWED_HOSTS=mindledger.com,api.mindledger.com
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 INSTALLED_APPS = [
     'django_admin_dracula',
@@ -175,21 +177,32 @@ REST_FRAMEWORK = {
 }
 
 # Caching Configuration
+# Usa Redis como cache padrao para compartilhamento entre processos
+# Fallback para locmem se Redis nao estiver disponivel
+REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
-    },
-    'redis': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
+        'LOCATION': REDIS_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'IGNORE_EXCEPTIONS': True,  # Fallback gracioso se Redis falhar
         },
         'KEY_PREFIX': 'mindledger',
-        'TIMEOUT': 3600,  # 1 hour default
+        'TIMEOUT': 300,  # 5 minutos default
+    },
+    'locmem': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
     }
 }
+
+# TTLs de cache especificos (em segundos)
+CACHE_TTL_DASHBOARD_STATS = 60  # 1 minuto - dados mudam frequentemente
+CACHE_TTL_ACCOUNT_BALANCES = 30  # 30 segundos - saldos sao criticos
+CACHE_TTL_CATEGORY_BREAKDOWN = 300  # 5 minutos - agregacoes pesadas
+CACHE_TTL_BALANCE_FORECAST = 120  # 2 minutos - previsoes
 
 # Structured Logging Configuration
 LOGGING = {

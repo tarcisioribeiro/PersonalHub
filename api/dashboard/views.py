@@ -5,12 +5,15 @@ Endpoints otimizados para Dashboard que usam aggregations no banco de dados
 em vez de buscar todos os registros e calcular no frontend.
 
 PERF-02: Reduz de 6 requisições para 1 única requisição otimizada.
+PERF-03: Cache Redis para reduzir carga no banco de dados.
 """
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.db.models import Sum, Count, Q, Value, DecimalField
+from django.db.models import Sum, Count, Q, Value, DecimalField, OuterRef, Subquery
 from django.db.models.functions import Coalesce
+from django.core.cache import cache
+from django.conf import settings
 from decimal import Decimal
 
 from accounts.models import Account
@@ -20,6 +23,27 @@ from credit_cards.models import CreditCard, CreditCardInstallment, CreditCardBil
 from loans.models import Loan
 from members.models import Member
 from payables.models import Payable
+
+
+def get_cache_key(prefix: str, user_id: int = None) -> str:
+    """Gera chave de cache com prefixo e user_id opcional."""
+    if user_id:
+        return f"dashboard:{prefix}:user:{user_id}"
+    return f"dashboard:{prefix}"
+
+
+def invalidate_dashboard_cache():
+    """
+    Invalida todas as chaves de cache do dashboard.
+    Chamar quando dados financeiros sao alterados (accounts, expenses, revenues, etc).
+    """
+    cache_keys = [
+        get_cache_key('account_balances'),
+        get_cache_key('stats'),
+        get_cache_key('category_breakdown'),
+        get_cache_key('balance_forecast'),
+    ]
+    cache.delete_many(cache_keys)
 
 
 class AccountBalancesView(APIView):
@@ -48,42 +72,68 @@ class AccountBalancesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        accounts = Account.objects.filter(is_deleted=False).order_by('account_name')
+        # Tenta buscar do cache
+        cache_key = get_cache_key('account_balances')
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            return Response(cached_result)
+
+        # Subquery para receitas pendentes por conta
+        pending_revenues_subquery = Revenue.objects.filter(
+            account=OuterRef('pk'),
+            is_deleted=False,
+            related_transfer__isnull=True,
+            received=False
+        ).values('account').annotate(
+            total=Sum('value')
+        ).values('total')
+
+        # Subquery para despesas pendentes por conta
+        pending_expenses_subquery = Expense.objects.filter(
+            account=OuterRef('pk'),
+            is_deleted=False,
+            related_transfer__isnull=True,
+            payed=False
+        ).values('account').annotate(
+            total=Sum('value')
+        ).values('total')
+
+        # Query unica com annotate (evita N+1)
+        accounts = Account.objects.filter(
+            is_deleted=False
+        ).annotate(
+            pending_revenues=Coalesce(
+                Subquery(pending_revenues_subquery),
+                Value(Decimal('0.00')),
+                output_field=DecimalField()
+            ),
+            pending_expenses=Coalesce(
+                Subquery(pending_expenses_subquery),
+                Value(Decimal('0.00')),
+                output_field=DecimalField()
+            )
+        ).order_by('account_name')
 
         result = []
         for account in accounts:
-            # Receitas pendentes (não recebidas)
-            pending_revenues = Revenue.objects.filter(
-                account=account,
-                is_deleted=False,
-                related_transfer__isnull=True,
-                received=False
-            ).aggregate(
-                total=Sum('value')
-            )['total'] or Decimal('0.00')
-
-            # Despesas pendentes (não pagas)
-            pending_expenses = Expense.objects.filter(
-                account=account,
-                is_deleted=False,
-                related_transfer__isnull=True,
-                payed=False
-            ).aggregate(
-                total=Sum('value')
-            )['total'] or Decimal('0.00')
-
             current_balance = account.current_balance or Decimal('0.00')
-            future_balance = current_balance + pending_revenues - pending_expenses
+            pending_rev = account.pending_revenues or Decimal('0.00')
+            pending_exp = account.pending_expenses or Decimal('0.00')
+            future_balance = current_balance + pending_rev - pending_exp
 
             result.append({
                 'id': account.id,
                 'account_name': account.account_name,
                 'institution_name': account.institution_name,
                 'current_balance': float(current_balance),
-                'pending_revenues': float(pending_revenues),
-                'pending_expenses': float(pending_expenses),
+                'pending_revenues': float(pending_rev),
+                'pending_expenses': float(pending_exp),
                 'future_balance': float(future_balance),
             })
+
+        # Salva no cache com TTL de 30 segundos
+        cache_ttl = getattr(settings, 'CACHE_TTL_ACCOUNT_BALANCES', 30)
+        cache.set(cache_key, result, cache_ttl)
 
         return Response(result)
 
@@ -121,6 +171,11 @@ class DashboardStatsView(APIView):
         """
         Calcula todas as estatísticas do dashboard em aggregations do DB.
         """
+        # Tenta buscar do cache
+        cache_key = get_cache_key('stats')
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            return Response(cached_result)
 
         # Filtrar apenas registros não deletados (soft delete)
         # E excluir transações relacionadas a transferências internas
@@ -172,6 +227,10 @@ class DashboardStatsView(APIView):
             'accounts_count': accounts_agg['count'] or 0,
             'credit_cards_count': credit_cards_agg['count'] or 0,
         }
+
+        # Salva no cache com TTL de 1 minuto
+        cache_ttl = getattr(settings, 'CACHE_TTL_DASHBOARD_STATS', 60)
+        cache.set(cache_key, stats, cache_ttl)
 
         return Response(stats)
 
