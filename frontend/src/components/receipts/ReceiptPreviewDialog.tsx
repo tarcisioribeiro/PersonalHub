@@ -76,12 +76,12 @@ export function ReceiptPreviewDialog({
           }}
           aria-hidden="true"
         >
-          <ReceiptTemplate ref={captureRef} data={data} />
+          <ReceiptTemplate ref={captureRef} data={data} forExport />
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 text-red-700 text-sm p-3 rounded-md">
+          <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">
             {error}
           </div>
         )}

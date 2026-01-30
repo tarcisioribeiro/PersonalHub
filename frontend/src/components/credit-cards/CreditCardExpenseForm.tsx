@@ -292,8 +292,8 @@ export const CreditCardExpenseForm: React.FC<CreditCardExpenseFormProps> = ({
               {filteredBills.map((b) => (
                 <SelectItem key={b.id} value={b.id.toString()}>
                   {TRANSLATIONS.months[b.month as keyof typeof TRANSLATIONS.months]}/{b.year}
-                  {b.status === 'open' && <span className="ml-2 text-xs text-green-600">(Aberta)</span>}
-                  {b.status === 'closed' && <span className="ml-2 text-xs text-gray-500">(Fechada)</span>}
+                  {b.status === 'open' && <span className="ml-2 text-xs text-success">(Aberta)</span>}
+                  {b.status === 'closed' && <span className="ml-2 text-xs text-muted-foreground">(Fechada)</span>}
                 </SelectItem>
               ))}
             </SelectContent>

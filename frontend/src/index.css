@@ -29,7 +29,7 @@
 
     /* Muted - Selection (#CFCFDE) */
     --muted: 240 19% 84%;
-    --muted-foreground: 49 18% 36%;
+    --muted-foreground: 49 18% 28%; /* Mais escuro para melhor contraste */
 
     /* Accent - Pink Alucard (#A3144D) */
     --accent: 336 78% 36%;
@@ -68,6 +68,18 @@
     --category-nutrition: 48 73% 30%;     /* yellow Alucard */
     --category-work: 49 18% 36%;          /* current line */
     --category-leisure: 6 66% 48%;        /* red Alucard */
+
+    /* Texto sobre superfícies coloridas (semantic on-colors) */
+    --on-primary: 48 100% 96%;
+    --on-secondary: 48 100% 96%;
+    --on-accent: 48 100% 96%;
+    --on-success: 48 100% 96%;
+    --on-warning: 48 100% 96%;
+    --on-destructive: 48 100% 96%;
+    --on-info: 48 100% 96%;
+
+    /* Borders sutis */
+    --border-subtle: 240 19% 90%;
   }
 
   /* Tema Escuro - Dracula Classic (Dracula Dark Theme Oficial) */
@@ -130,6 +142,18 @@
     --category-nutrition: 65 92% 76%;     /* yellow */
     --category-work: 225 27% 51%;         /* comment */
     --category-leisure: 0 100% 67%;       /* red */
+
+    /* Texto sobre superfícies coloridas (semantic on-colors) */
+    --on-primary: 235 15% 18%;
+    --on-secondary: 60 30% 96%;
+    --on-accent: 235 15% 18%;
+    --on-success: 235 15% 18%;
+    --on-warning: 235 15% 18%;
+    --on-destructive: 60 30% 96%;
+    --on-info: 235 15% 18%;
+
+    /* Borders sutis */
+    --border-subtle: 232 14% 25%;
   }
 }
 
@@ -212,6 +236,19 @@
     @apply bg-[hsl(var(--info))];
   }
 
+  /* Validation border colors */
+  .border-success {
+    border-color: hsl(var(--success));
+  }
+
+  .ring-success {
+    --tw-ring-color: hsl(var(--success));
+  }
+
+  .ring-success\/50 {
+    --tw-ring-color: hsl(var(--success) / 0.5);
+  }
+
   /* Hover effects */
   .hover-lift {
     @apply transition-transform duration-200 hover:-translate-y-1;
@@ -226,20 +263,9 @@
     @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
   }
 
-  /* Sidebar text com melhor contraste */
+  /* Sidebar text com contraste total */
   .sidebar-text {
     @apply text-foreground;
-    opacity: 0.85;
-  }
-
-  .dark .sidebar-text {
-    @apply text-foreground;
-    opacity: 0.85;
-  }
-
-  /* Remover opacidade em hover para melhor feedback visual */
-  .sidebar-text:hover {
-    opacity: 1;
   }
 
   /* Custom scrollbar para browsers com suporte */

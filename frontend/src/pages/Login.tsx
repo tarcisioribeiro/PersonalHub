@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '@/stores/auth-store';
 import { useThemeAssets } from '@/hooks/use-theme-assets';
+import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,40 +12,10 @@ import { Moon, Sun } from 'lucide-react';
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [darkMode, setDarkMode] = useState(true);
   const { login, isLoading, error } = useAuthStore();
   const { logo } = useThemeAssets();
+  const { isDark, toggle: toggleTheme } = useTheme();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Apply theme based on localStorage or system preference
-    const savedTheme = localStorage.getItem('darkMode');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = savedTheme !== null ? savedTheme !== 'false' : prefersDark;
-
-    setDarkMode(isDark);
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', String(newDarkMode));
-
-    document.documentElement.classList.add('transition-colors', 'duration-300');
-    if (newDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    setTimeout(() => {
-      document.documentElement.classList.remove('transition-colors', 'duration-300');
-    }, 300);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,11 +35,11 @@ export default function Login() {
       <Button
         variant="ghost"
         size="icon"
-        onClick={toggleDarkMode}
+        onClick={toggleTheme}
         className="absolute top-4 right-4 hover:bg-secondary transition-all"
-        title={darkMode ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'}
+        title={isDark ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'}
       >
-        {darkMode ? (
+        {isDark ? (
           <Sun className="w-5 h-5 text-warning transition-transform hover:rotate-180 duration-500" />
         ) : (
           <Moon className="w-5 h-5 text-primary transition-transform hover:rotate-[-15deg] duration-300" />

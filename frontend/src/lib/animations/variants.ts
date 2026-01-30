@@ -199,3 +199,72 @@ export const badgeVariants: Variants = {
     },
   },
 };
+
+// Success checkmark animation
+export const checkmarkVariants: Variants = {
+  initial: { pathLength: 0, opacity: 0 },
+  animate: {
+    pathLength: 1,
+    opacity: 1,
+    transition: {
+      duration: 0.4,
+      ease: 'easeOut',
+    },
+  },
+};
+
+// Checkmark circle animation
+export const checkmarkCircleVariants: Variants = {
+  initial: { scale: 0, opacity: 0 },
+  animate: {
+    scale: 1,
+    opacity: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 260,
+      damping: 20,
+    },
+  },
+};
+
+// Celebration/confetti animation
+export const celebrationVariants: Variants = {
+  initial: { scale: 0, rotate: -180 },
+  animate: {
+    scale: [0, 1.2, 1],
+    rotate: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 260,
+      damping: 20,
+    },
+  },
+};
+
+// Particle burst animation (for confetti effect)
+export const particleVariants: Variants = {
+  initial: { scale: 0, opacity: 1 },
+  animate: (i: number) => ({
+    scale: [0, 1, 0.5],
+    opacity: [1, 1, 0],
+    x: Math.cos((i * Math.PI * 2) / 8) * 50,
+    y: Math.sin((i * Math.PI * 2) / 8) * 50,
+    transition: {
+      duration: 0.6,
+      ease: 'easeOut',
+    },
+  }),
+};
+
+// Pulse ring animation (behind success icon)
+export const pulseRingVariants: Variants = {
+  initial: { scale: 0.8, opacity: 0.5 },
+  animate: {
+    scale: [0.8, 1.4],
+    opacity: [0.5, 0],
+    transition: {
+      duration: 0.8,
+      ease: 'easeOut',
+    },
+  },
+};

@@ -143,7 +143,7 @@ export function ReceiptButton({
     <>
       {/* Hidden receipt template for direct export */}
       <div className="fixed -left-[9999px] top-0 pointer-events-none">
-        <ReceiptTemplate ref={receiptRef} data={receiptData} />
+        <ReceiptTemplate ref={receiptRef} data={receiptData} forExport />
       </div>
 
       <Popover
@@ -173,7 +173,7 @@ export function ReceiptButton({
           {isLoadingInstallments ? (
             <div className="flex items-center justify-center py-4">
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              <span className="text-sm text-gray-500">Carregando...</span>
+              <span className="text-sm text-muted-foreground">Carregando...</span>
             </div>
           ) : (
             <div className="flex flex-col gap-1">

@@ -10,14 +10,47 @@ import { autoTranslate } from '@/config/constants';
 
 interface ReceiptTemplateProps {
   data: ReceiptData;
+  /** Se true, usa cores claras fixas para exportação (PDF/PNG) */
+  forExport?: boolean;
 }
 
-// Inline styles for html2canvas compatibility (flexbox doesn't render correctly)
-const styles = {
+// Cores para tema claro (usadas em exportação)
+const lightColors = {
+  background: '#ffffff',
+  foreground: '#1f2937',
+  foregroundStrong: '#111827',
+  foregroundMuted: '#4b5563',
+  foregroundSubtle: '#6b7280',
+  foregroundNote: '#374151',
+  border: '#d1d5db',
+  borderSubtle: '#e5e7eb',
+  borderFaint: '#f3f4f6',
+  success: '#16a34a',
+  destructive: '#dc2626',
+  warning: '#d97706',
+};
+
+// Cores usando variáveis CSS do tema (para visualização na tela)
+const themeColors = {
+  background: 'hsl(var(--background))',
+  foreground: 'hsl(var(--foreground))',
+  foregroundStrong: 'hsl(var(--foreground))',
+  foregroundMuted: 'hsl(var(--muted-foreground))',
+  foregroundSubtle: 'hsl(var(--muted-foreground))',
+  foregroundNote: 'hsl(var(--foreground) / 0.85)',
+  border: 'hsl(var(--border))',
+  borderSubtle: 'hsl(var(--border) / 0.7)',
+  borderFaint: 'hsl(var(--border) / 0.4)',
+  success: 'hsl(var(--success))',
+  destructive: 'hsl(var(--destructive))',
+  warning: 'hsl(var(--warning))',
+};
+
+const createStyles = (colors: typeof lightColors | typeof themeColors) => ({
   container: {
     width: '600px',
-    backgroundColor: '#ffffff',
-    color: '#1f2937',
+    backgroundColor: colors.background,
+    color: colors.foreground,
     padding: '24px',
     fontFamily: 'Arial, Helvetica, sans-serif',
     boxSizing: 'border-box' as const,
@@ -25,14 +58,14 @@ const styles = {
   },
   header: {
     textAlign: 'center' as const,
-    borderBottom: '2px solid #d1d5db',
+    borderBottom: `2px solid ${colors.border}`,
     paddingBottom: '16px',
     marginBottom: '16px',
   },
   headerTitle: {
     fontSize: '20px',
     fontWeight: 'bold',
-    color: '#111827',
+    color: colors.foregroundStrong,
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
     margin: 0,
@@ -45,7 +78,7 @@ const styles = {
   labelCell: {
     display: 'table-cell',
     width: '40%',
-    color: '#4b5563',
+    color: colors.foregroundMuted,
     fontSize: '14px',
     verticalAlign: 'middle' as const,
   },
@@ -53,60 +86,60 @@ const styles = {
     display: 'table-cell',
     width: '60%',
     textAlign: 'right' as const,
-    color: '#111827',
+    color: colors.foregroundStrong,
     verticalAlign: 'middle' as const,
   },
   descriptionBlock: {
     marginBottom: '12px',
   },
   descriptionLabel: {
-    color: '#4b5563',
+    color: colors.foregroundMuted,
     fontSize: '14px',
     display: 'block',
     marginBottom: '4px',
   },
   descriptionValue: {
-    color: '#111827',
+    color: colors.foregroundStrong,
     fontWeight: 500,
     wordBreak: 'break-word' as const,
   },
   valueHighlight: {
     textAlign: 'center' as const,
     padding: '8px 0',
-    borderTop: '1px solid #e5e7eb',
-    borderBottom: '1px solid #e5e7eb',
+    borderTop: `1px solid ${colors.borderSubtle}`,
+    borderBottom: `1px solid ${colors.borderSubtle}`,
     marginBottom: '12px',
   },
   valueLarge: {
     fontSize: '24px',
     fontWeight: 'bold',
-    color: '#111827',
+    color: colors.foregroundStrong,
   },
   statusPaid: {
-    color: '#16a34a',
+    color: colors.success,
     fontWeight: 500,
   },
   statusOverdue: {
-    color: '#dc2626',
+    color: colors.destructive,
     fontWeight: 500,
   },
   statusPending: {
-    color: '#d97706',
+    color: colors.warning,
     fontWeight: 500,
   },
   notes: {
     marginTop: '12px',
     paddingTop: '12px',
-    borderTop: '1px solid #e5e7eb',
+    borderTop: `1px solid ${colors.borderSubtle}`,
   },
   notesLabel: {
-    color: '#4b5563',
+    color: colors.foregroundMuted,
     fontSize: '14px',
     display: 'block',
     marginBottom: '4px',
   },
   notesText: {
-    color: '#374151',
+    color: colors.foregroundNote,
     fontSize: '14px',
     wordBreak: 'break-word' as const,
     margin: 0,
@@ -114,10 +147,10 @@ const styles = {
   statementSection: {
     marginTop: '16px',
     paddingTop: '12px',
-    borderTop: '1px solid #e5e7eb',
+    borderTop: `1px solid ${colors.borderSubtle}`,
   },
   statementTitle: {
-    color: '#374151',
+    color: colors.foregroundNote,
     fontWeight: 500,
     fontSize: '14px',
     marginBottom: '8px',
@@ -125,7 +158,7 @@ const styles = {
   statementItem: {
     display: 'table',
     width: '100%',
-    borderBottom: '1px solid #f3f4f6',
+    borderBottom: `1px solid ${colors.borderFaint}`,
     paddingBottom: '4px',
     marginBottom: '8px',
   },
@@ -143,62 +176,57 @@ const styles = {
     fontSize: '14px',
   },
   statementCategory: {
-    color: '#6b7280',
+    color: colors.foregroundSubtle,
     fontSize: '12px',
     display: 'block',
   },
   installmentBadge: {
-    color: '#6b7280',
+    color: colors.foregroundSubtle,
     fontSize: '12px',
     marginLeft: '4px',
   },
   statementSummary: {
     marginTop: '8px',
     fontSize: '12px',
-    color: '#6b7280',
+    color: colors.foregroundSubtle,
   },
   signature: {
     marginTop: '32px',
     paddingTop: '16px',
-    borderTop: '1px solid #d1d5db',
+    borderTop: `1px solid ${colors.border}`,
     textAlign: 'center' as const,
   },
   signatureLine: {
-    borderBottom: '1px solid #9ca3af',
+    borderBottom: `1px solid ${colors.foregroundSubtle}`,
     width: '256px',
     margin: '24px auto 4px auto',
   },
   signatureName: {
-    color: '#374151',
+    color: colors.foregroundNote,
     fontSize: '14px',
   },
   footer: {
     marginTop: '24px',
     paddingTop: '12px',
-    borderTop: '1px solid #e5e7eb',
+    borderTop: `1px solid ${colors.borderSubtle}`,
     textAlign: 'center' as const,
   },
   footerText: {
-    color: '#6b7280',
+    color: colors.foregroundSubtle,
     fontSize: '12px',
   },
-};
-
-const getStatusStyle = (status?: string) => {
-  if (
-    status === 'payed' ||
-    status === 'paid' ||
-    status === 'received' ||
-    status === 'completed' ||
-    status === 'transfered'
-  ) {
-    return styles.statusPaid;
-  }
-  if (status === 'overdue') {
-    return styles.statusOverdue;
-  }
-  return styles.statusPending;
-};
+  // Cores para status dinâmicos
+  itemDescText: {
+    color: colors.foreground,
+    fontSize: '14px',
+  },
+  itemValueDefault: {
+    color: colors.foreground,
+  },
+  itemValuePaid: {
+    color: colors.success,
+  },
+});
 
 /**
  * Receipt Template Component
@@ -206,9 +234,31 @@ const getStatusStyle = (status?: string) => {
  * Visual layout of the financial receipt/voucher.
  * Fixed width of 600px for consistent export sizing.
  * Uses table-based layout for html2canvas compatibility.
+ *
+ * @param forExport - When true, uses fixed light colors for PDF/PNG export.
+ *                    When false (default), respects the current theme.
  */
 export const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
-  ({ data }, ref) => {
+  ({ data, forExport = false }, ref) => {
+    const colors = forExport ? lightColors : themeColors;
+    const styles = createStyles(colors);
+
+    const getStatusStyle = (status?: string) => {
+      if (
+        status === 'payed' ||
+        status === 'paid' ||
+        status === 'received' ||
+        status === 'completed' ||
+        status === 'transfered'
+      ) {
+        return styles.statusPaid;
+      }
+      if (status === 'overdue') {
+        return styles.statusOverdue;
+      }
+      return styles.statusPending;
+    };
+
     return (
       <div ref={ref} style={styles.container}>
         {/* Header */}
@@ -355,7 +405,7 @@ export const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
                   {data.statementItems.map((item, index) => (
                     <div key={index} style={styles.statementItem}>
                       <div style={styles.statementItemDesc}>
-                        <span style={{ color: '#1f2937', fontSize: '14px' }}>
+                        <span style={styles.itemDescText}>
                           {item.description}
                         </span>
                         {item.totalInstallments && item.totalInstallments > 1 && (
@@ -367,7 +417,7 @@ export const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
                       </div>
                       <div style={{
                         ...styles.statementItemValue,
-                        color: item.payed ? '#16a34a' : '#1f2937',
+                        ...(item.payed ? styles.itemValuePaid : styles.itemValueDefault),
                       }}>
                         {formatReceiptCurrency(item.value)}
                       </div>

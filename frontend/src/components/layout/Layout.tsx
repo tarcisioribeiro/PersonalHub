@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { CommandPalette } from './CommandPalette';
 
 export const Layout = () => {
   return (
@@ -23,6 +24,9 @@ export const Layout = () => {
           <Outlet />
         </main>
       </div>
+
+      {/* Command Palette (Ctrl+K / Cmd+K) */}
+      <CommandPalette />
     </div>
   );
 };

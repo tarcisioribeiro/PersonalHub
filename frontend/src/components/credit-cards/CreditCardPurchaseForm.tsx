@@ -258,7 +258,7 @@ export const CreditCardPurchaseForm: React.FC<CreditCardPurchaseFormProps> = ({
           )}
           {/* Exibir limite disponível do cartão selecionado */}
           {selectedCardInfo && !isEditMode && (
-            <div className={`p-2 rounded-md text-sm ${exceedsLimit ? 'bg-red-50 border border-red-200' : 'bg-muted'}`}>
+            <div className={`p-2 rounded-md text-sm ${exceedsLimit ? 'bg-destructive/10 border border-destructive/30' : 'bg-muted'}`}>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Limite disponível:</span>
                 <span className={`font-semibold ${exceedsLimit ? 'text-destructive' : 'text-success'}`}>

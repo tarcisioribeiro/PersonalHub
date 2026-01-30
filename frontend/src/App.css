@@ -9,10 +9,10 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #bd93f9aa); /* Dracula Purple */
+  filter: drop-shadow(0 0 2em hsl(var(--primary) / 0.67));
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #8be9fdaa); /* Dracula Cyan */
+  filter: drop-shadow(0 0 2em hsl(var(--info) / 0.67));
 }
 
 @keyframes logo-spin {
@@ -35,5 +35,5 @@
 }
 
 .read-the-docs {
-  color: #6272a4; /* Dracula Comment */
+  color: hsl(var(--muted-foreground));
 }
